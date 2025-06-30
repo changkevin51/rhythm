@@ -1,0 +1,656 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <title>Rhythm Nexus - Enhanced Game</title>
+    <meta charset="UTF-8">
+    <meta name="description" content="Enhanced rhythm game experience">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Exo+2:wght@300;400;600&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Exo 2', sans-serif;
+            background: linear-gradient(135deg, #0f0f23 0%, #1a1a3a 50%, #2d1b69 100%);
+            color: white;
+            overflow: hidden;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .game-header {
+            padding: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: rgba(0, 0, 0, 0.3);
+            backdrop-filter: blur(10px);
+            border-bottom: 2px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .song-info h1 {
+            font-family: 'Orbitron', monospace;
+            font-size: 1.5rem;
+            background: linear-gradient(45deg, #00d4ff, #ff00dc);
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .song-info p {
+            color: #a0a0ff;
+            font-size: 0.9rem;
+            margin-top: 5px;
+        }
+
+        .header-controls {
+            display: flex;
+            gap: 10px;
+        }
+
+        .btn {
+            padding: 10px 20px;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-family: 'Orbitron', monospace;
+            font-size: 0.9rem;
+            text-decoration: none;
+            display: inline-block;
+        }
+
+        .btn:hover {
+            border-color: #00d4ff;
+            background: rgba(0, 212, 255, 0.2);
+            box-shadow: 0 5px 15px rgba(0, 212, 255, 0.3);
+        }
+
+        .btn.primary {
+            background: linear-gradient(45deg, #00d4ff, #0099cc);
+            border-color: #00d4ff;
+        }
+
+        .btn.primary:hover {
+            background: linear-gradient(45deg, #00b8e6, #007399);
+        }
+
+        .main-content {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+        }
+
+        .game-container {
+            position: relative;
+            display: none;
+        }
+
+        .game-canvas {
+            border: 4px solid #7f7f7f;
+            border-radius: 10px;
+            background: black;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.8);
+        }
+
+        .setup-panel {
+            background: rgba(255, 255, 255, 0.05);
+            border: 2px solid rgba(255, 255, 255, 0.1);
+            border-radius: 15px;
+            padding: 2rem;
+            backdrop-filter: blur(10px);
+            max-width: 500px;
+            width: 90%;
+        }
+
+        .setup-panel h2 {
+            font-family: 'Orbitron', monospace;
+            font-size: 1.8rem;
+            text-align: center;
+            margin-bottom: 2rem;
+            color: #00d4ff;
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+            color: #a0a0ff;
+        }
+
+        .form-group input, .form-group select {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid rgba(255, 255, 255, 0.2);
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+            border-radius: 8px;
+            font-size: 1rem;
+            transition: border-color 0.3s ease;
+        }
+
+        .form-group input:focus, .form-group select:focus {
+            outline: none;
+            border-color: #00d4ff;
+            box-shadow: 0 0 10px rgba(0, 212, 255, 0.3);
+        }
+
+        .form-group input::placeholder {
+            color: rgba(255, 255, 255, 0.5);
+        }
+
+        .file-input-wrapper {
+            position: relative;
+            overflow: hidden;
+            display: inline-block;
+            width: 100%;
+        }
+
+        .file-input-wrapper input[type=file] {
+            position: absolute;
+            left: -9999px;
+        }
+
+        .file-input-label {
+            display: block;
+            padding: 12px;
+            border: 2px dashed rgba(255, 255, 255, 0.3);
+            background: rgba(255, 255, 255, 0.05);
+            color: white;
+            border-radius: 8px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .file-input-label:hover {
+            border-color: #00d4ff;
+            background: rgba(0, 212, 255, 0.1);
+        }
+
+        .file-input-label.has-file {
+            border-style: solid;
+            border-color: #00ff88;
+            background: rgba(0, 255, 136, 0.1);
+        }
+
+        .settings-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+        }
+
+        .pause-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+        }
+
+        .pause-panel {
+            background: rgba(255, 255, 255, 0.1);
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            border-radius: 15px;
+            padding: 2rem;
+            text-align: center;
+            backdrop-filter: blur(20px);
+        }
+
+        .pause-panel h2 {
+            font-family: 'Orbitron', monospace;
+            font-size: 2rem;
+            margin-bottom: 1rem;
+            color: #00d4ff;
+        }
+
+        .pause-buttons {
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+            margin-top: 2rem;
+        }
+
+        .loading-spinner {
+            border: 3px solid rgba(255, 255, 255, 0.1);
+            border-top: 3px solid #00d4ff;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 1rem;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .error-message {
+            background: rgba(244, 67, 54, 0.2);
+            border: 2px solid rgba(244, 67, 54, 0.5);
+            border-radius: 8px;
+            padding: 1rem;
+            margin: 1rem 0;
+            color: #ff6b6b;
+            text-align: center;
+        }
+
+        .success-message {
+            background: rgba(76, 175, 80, 0.2);
+            border: 2px solid rgba(76, 175, 80, 0.5);
+            border-radius: 8px;
+            padding: 1rem;
+            margin: 1rem 0;
+            color: #81c784;
+            text-align: center;
+        }
+
+        @media (max-width: 768px) {
+            .game-header {
+                flex-direction: column;
+                gap: 1rem;
+                text-align: center;
+            }
+            
+            .header-controls {
+                justify-content: center;
+            }
+            
+            .settings-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .pause-buttons {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="game-header">
+        <div class="song-info">
+            <h1 id="songTitle">Loading...</h1>
+            <p id="songArtist">Preparing your rhythm experience</p>
+        </div>
+        <div class="header-controls">
+            <a href="index.html" class="btn">← Back to Menu</a>
+            <button class="btn" onclick="openSettings()">⚙️ Settings</button>
+        </div>
+    </div>
+
+    <div class="main-content">
+        <!-- Chart Upload Phase -->
+        <div id="chartUpload" class="setup-panel">
+            <h2>Load Chart File</h2>
+            <div class="form-group">
+                <label>Select beatmap file (.txt)</label>
+                <div class="file-input-wrapper">
+                    <input type="file" id="uploadChart" accept=".txt,.osu" onchange="handleChartUpload()">
+                    <label for="uploadChart" class="file-input-label" id="chartLabel">
+                        📄 Choose Chart File
+                    </label>
+                </div>
+            </div>
+            <div id="chartError" class="error-message" style="display: none;"></div>
+        </div>
+
+        <!-- Audio Upload Phase -->
+        <div id="audioUpload" class="setup-panel" style="display: none;">
+            <h2>Load Audio File</h2>
+            <div class="form-group">
+                <label>Select audio file (.mp3, .wav, .ogg)</label>
+                <div class="file-input-wrapper">
+                    <input type="file" id="uploadAudio" accept=".mp3,.wav,.ogg" onchange="handleAudioUpload()">
+                    <label for="uploadAudio" class="file-input-label" id="audioLabel">
+                        🎵 Choose Audio File
+                    </label>
+                </div>
+            </div>
+            <div id="audioError" class="error-message" style="display: none;"></div>
+        </div>
+
+        <!-- Game Settings Phase -->
+        <div id="gameSettings" class="setup-panel" style="display: none;">
+            <h2>Game Settings</h2>
+            
+            <div class="settings-grid">
+                <div class="form-group">
+                    <label for="scrollSpeed">Scroll Speed (ms)</label>
+                    <input type="number" id="scrollSpeed" value="450" min="200" max="1000" step="50">
+                </div>
+                
+                <div class="form-group">
+                    <label for="offset">Audio Offset (ms)</label>
+                    <input type="number" id="offset" value="-40" min="-200" max="200" step="10">
+                </div>
+                
+                <div class="form-group">
+                    <label for="gameScale">Game Scale (%)</label>
+                    <input type="number" id="gameScale" value="100" min="50" max="150" step="10">
+                </div>
+                
+                <div class="form-group">
+                    <label for="keyBindings">Key Layout</label>
+                    <select id="keyBindings">
+                        <option value="DFJK">D-F-J-K (Default)</option>
+                        <option value="ASDF">A-S-D-F</option>
+                        <option value="HJKL">H-J-K-L</option>
+                        <option value="1234">1-2-3-4</option>
+                    </select>
+                </div>
+            </div>
+            
+            <div class="form-group">
+                <button class="btn primary" onclick="startGame()" style="width: 100%; padding: 15px; font-size: 1.1rem;">
+                    🎮 Start Game
+                </button>
+            </div>
+        </div>
+
+        <!-- Loading Phase -->
+        <div id="loadingPhase" class="setup-panel" style="display: none;">
+            <div class="loading-spinner"></div>
+            <h2>Preparing Game...</h2>
+            <p>Loading chart and audio data</p>
+        </div>
+
+        <!-- Game Canvas -->
+        <div id="gameContainer" class="game-container">
+            <canvas id="gameCanvas" class="game-canvas" width="600" height="800">
+                Your browser doesn't support HTML5 Canvas.
+            </canvas>
+        </div>
+    </div>
+
+    <!-- Pause Overlay -->
+    <div id="pauseOverlay" class="pause-overlay">
+        <div class="pause-panel">
+            <h2>Game Paused</h2>
+            <p>Press ESC or click Resume to continue</p>
+            <div class="pause-buttons">
+                <button class="btn primary" onclick="resumeGame()">▶️ Resume</button>
+                <button class="btn" onclick="restartGame()">🔄 Restart</button>
+                <button class="btn" onclick="exitGame()">🚪 Exit</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Audio Element -->
+    <audio id="gameAudio" preload="auto"></audio>
+
+    <!-- Game Scripts -->
+    <script src="js/RhythmEngine.js"></script>
+    <script>
+        let gameEngine = null;
+        let gameSettings = {
+            scrollSpeed: 450,
+            offset: -40,
+            scale: 100,
+            keyBindings: [68, 70, 74, 75] // D, F, J, K
+        };
+
+        // Key binding presets
+        const keyPresets = {
+            'DFJK': [68, 70, 74, 75],
+            'ASDF': [65, 83, 68, 70],
+            'HJKL': [72, 74, 75, 76],
+            '1234': [49, 50, 51, 52]
+        };
+
+        // Check if we have a predefined song
+        function initializeGame() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const predefinedSong = urlParams.get('song');
+            
+            if (predefinedSong) {
+                loadPredefinedSong(predefinedSong);
+            } else {
+                showPhase('chartUpload');
+            }
+        }
+
+        function loadPredefinedSong(songName) {
+            // This would load predefined songs - implement based on your song structure
+            showMessage('Loading predefined song: ' + songName, 'success');
+            // For now, show chart upload
+            showPhase('chartUpload');
+        }
+
+        function showPhase(phaseId) {
+            const phases = ['chartUpload', 'audioUpload', 'gameSettings', 'loadingPhase', 'gameContainer'];
+            phases.forEach(id => {
+                const element = document.getElementById(id);
+                if (element) {
+                    element.style.display = id === phaseId ? 'block' : 'none';
+                }
+            });
+        }
+
+        function showMessage(message, type = 'error') {
+            const messageElement = document.getElementById(type === 'error' ? 'chartError' : 'chartSuccess');
+            if (messageElement) {
+                messageElement.textContent = message;
+                messageElement.style.display = 'block';
+                setTimeout(() => {
+                    messageElement.style.display = 'none';
+                }, 5000);
+            }
+        }
+
+        async function handleChartUpload() {
+            const fileInput = document.getElementById('uploadChart');
+            const file = fileInput.files[0];
+            const label = document.getElementById('chartLabel');
+            
+            if (!file) return;
+            
+            try {
+                const text = await readFileAsText(file);
+                
+                // Basic validation
+                if (!text.includes('[HitObjects]') && !text.includes('TimingPoints')) {
+                    throw new Error('Invalid chart file format');
+                }
+                
+                // Store chart data
+                gameSettings.chartData = text;
+                
+                // Update UI
+                label.textContent = `✅ ${file.name}`;
+                label.classList.add('has-file');
+                
+                // Update song info
+                updateSongInfo(text);
+                
+                // Move to next phase
+                setTimeout(() => showPhase('audioUpload'), 1000);
+                
+            } catch (error) {
+                showMessage('Error loading chart: ' + error.message, 'error');
+            }
+        }
+
+        async function handleAudioUpload() {
+            const fileInput = document.getElementById('uploadAudio');
+            const file = fileInput.files[0];
+            const label = document.getElementById('audioLabel');
+            
+            if (!file) return;
+            
+            try {
+                const audioUrl = URL.createObjectURL(file);
+                const audio = document.getElementById('gameAudio');
+                
+                audio.src = audioUrl;
+                
+                // Wait for audio to load
+                await new Promise((resolve, reject) => {
+                    audio.addEventListener('canplaythrough', resolve, { once: true });
+                    audio.addEventListener('error', reject, { once: true });
+                    audio.load();
+                });
+                
+                gameSettings.audioUrl = audioUrl;
+                
+                // Update UI
+                label.textContent = `✅ ${file.name}`;
+                label.classList.add('has-file');
+                
+                // Move to settings
+                setTimeout(() => showPhase('gameSettings'), 1000);
+                
+            } catch (error) {
+                showMessage('Error loading audio: ' + error.message, 'error');
+            }
+        }
+
+        function updateSongInfo(chartData) {
+            try {
+                const lines = chartData.split('\\n');
+                let title = 'Unknown Song';
+                let artist = 'Unknown Artist';
+                
+                lines.forEach(line => {
+                    if (line.startsWith('Title:')) {
+                        title = line.substring(6).trim();
+                    } else if (line.startsWith('Artist:')) {
+                        artist = line.substring(7).trim();
+                    }
+                });
+                
+                document.getElementById('songTitle').textContent = title;
+                document.getElementById('songArtist').textContent = `by ${artist}`;
+            } catch (error) {
+                console.warn('Could not parse song info:', error);
+            }
+        }
+
+        async function startGame() {
+            try {
+                showPhase('loadingPhase');
+                
+                // Collect settings
+                gameSettings.scrollSpeed = parseInt(document.getElementById('scrollSpeed').value);
+                gameSettings.offset = parseInt(document.getElementById('offset').value);
+                gameSettings.scale = parseInt(document.getElementById('gameScale').value);
+                
+                const keyLayout = document.getElementById('keyBindings').value;
+                gameSettings.keyBindings = keyPresets[keyLayout];
+                
+                // Initialize game engine
+                gameEngine = new RhythmEngine('gameCanvas', 'gameAudio');
+                
+                // Apply settings
+                gameEngine.updateSettings(gameSettings);
+                
+                // Load chart data
+                if (gameSettings.chartData) {
+                    await gameEngine.loadChart(gameSettings.chartData);
+                } else {
+                    throw new Error('No chart data available');
+                }
+                
+                // Setup canvas scaling
+                const canvas = document.getElementById('gameCanvas');
+                const container = document.getElementById('gameContainer');
+                const scale = gameSettings.scale / 100;
+                
+                canvas.style.width = (600 * scale) + 'px';
+                canvas.style.height = (800 * scale) + 'px';
+                container.style.width = (600 * scale) + 'px';
+                
+                // Show game and start
+                showPhase('gameContainer');
+                
+                // Start the game after a short delay
+                setTimeout(() => {
+                    if (gameEngine.start()) {
+                        console.log('Game started successfully');
+                    } else {
+                        throw new Error('Failed to start game');
+                    }
+                }, 500);
+                
+            } catch (error) {
+                console.error('Error starting game:', error);
+                showMessage('Failed to start game: ' + error.message, 'error');
+                showPhase('gameSettings');
+            }
+        }
+
+        function pauseGame() {
+            if (gameEngine) {
+                gameEngine.togglePause();
+                document.getElementById('pauseOverlay').style.display = 'flex';
+            }
+        }
+
+        function resumeGame() {
+            if (gameEngine) {
+                gameEngine.togglePause();
+                document.getElementById('pauseOverlay').style.display = 'none';
+            }
+        }
+
+        function restartGame() {
+            if (gameEngine) {
+                gameEngine.resetGameState();
+                document.getElementById('pauseOverlay').style.display = 'none';
+                gameEngine.start();
+            }
+        }
+
+        function exitGame() {
+            window.location.href = 'index.html';
+        }
+
+        function openSettings() {
+            alert('Advanced settings panel coming soon!\\n\\nCurrent settings:\\n• Scroll Speed: ' + gameSettings.scrollSpeed + 'ms\\n• Audio Offset: ' + gameSettings.offset + 'ms\\n• Scale: ' + gameSettings.scale + '%');
+        }
+
+        // Utility functions
+        function readFileAsText(file) {
+            return new Promise((resolve, reject) => {
+                const reader = new FileReader();
+                reader.onload = e => resolve(e.target.result);
+                reader.onerror = reject;
+                reader.readAsText(file, 'UTF-8');
+            });
+        }
+
+        // Keyboard shortcuts
+        document.addEventListener('keydown', (e) => {
+            if (e.keyCode === 27) { // ESC
+                if (gameEngine && gameEngine.gameState === 'PLAYING') {
+                    pauseGame();
+                } else if (document.getElementById('pauseOverlay').style.display === 'flex') {
+                    resumeGame();
+                }
+            }
+        });
+
+        // Initialize when page loads
+        document.addEventListener('DOMContentLoaded', initializeGame);
+    </script>
+</body>
+</html>

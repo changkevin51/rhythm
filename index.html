@@ -1,0 +1,275 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <title>Rhythm Game - Enhanced Edition</title>
+    <meta charset="UTF-8">
+    <meta name="description" content="A modern 4-key rhythm game with enhanced features">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Exo+2:wght@300;400;600&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Exo 2', sans-serif;
+            background: linear-gradient(135deg, #0f0f23 0%, #1a1a3a 50%, #2d1b69 100%);
+            color: white;
+            overflow: hidden;
+            height: 100vh;
+            position: relative;
+        }
+
+        .background-animation {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: -1;
+        }
+
+        .particle {
+            position: absolute;
+            width: 2px;
+            height: 2px;
+            background: rgba(255, 255, 255, 0.6);
+            animation: float 8s infinite ease-in-out;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(100vh) rotate(0deg); opacity: 0; }
+            10% { opacity: 1; }
+            90% { opacity: 1; }
+            100% { transform: translateY(-10vh) rotate(360deg); opacity: 0; }
+        }
+
+        .container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            padding: 20px;
+        }
+
+        .title {
+            font-family: 'Orbitron', monospace;
+            font-size: 4rem;
+            font-weight: 900;
+            text-align: center;
+            margin-bottom: 2rem;
+            background: linear-gradient(45deg, #00d4ff, #ff00dc, #00ff88);
+            background-size: 200% 200%;
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+            animation: gradient-shift 3s ease-in-out infinite;
+            text-shadow: 0 0 20px rgba(0, 212, 255, 0.5);
+        }
+
+        @keyframes gradient-shift {
+            0%, 100% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+        }
+
+        .subtitle {
+            font-size: 1.2rem;
+            color: #a0a0ff;
+            text-align: center;
+            margin-bottom: 3rem;
+            opacity: 0.8;
+        }
+
+        .menu-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1.5rem;
+            max-width: 1200px;
+            width: 100%;
+        }
+
+        .song-card {
+            background: rgba(255, 255, 255, 0.05);
+            border: 2px solid rgba(255, 255, 255, 0.1);
+            border-radius: 15px;
+            padding: 1.5rem;
+            text-decoration: none;
+            color: white;
+            transition: all 0.3s ease;
+            backdrop-filter: blur(10px);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .song-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.1), transparent);
+            transition: left 0.5s ease;
+        }
+
+        .song-card:hover::before {
+            left: 100%;
+        }
+
+        .song-card:hover {
+            border-color: #00d4ff;
+            box-shadow: 0 10px 30px rgba(0, 212, 255, 0.3);
+            transform: translateY(-5px);
+        }
+
+        .song-title {
+            font-family: 'Orbitron', monospace;
+            font-size: 1.3rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+            text-align: center;
+        }
+
+        .song-artist {
+            font-size: 0.9rem;
+            color: #a0a0ff;
+            text-align: center;
+            opacity: 0.8;
+        }
+
+        .custom-card {
+            grid-column: 1 / -1;
+            background: linear-gradient(45deg, rgba(255, 0, 220, 0.1), rgba(0, 212, 255, 0.1));
+            border-color: #ff00dc;
+        }
+
+        .custom-card:hover {
+            border-color: #ff00dc;
+            box-shadow: 0 10px 30px rgba(255, 0, 220, 0.3);
+        }
+
+        .settings-btn {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: rgba(255, 255, 255, 0.1);
+            border: 2px solid rgba(255, 255, 255, 0.2);
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            color: white;
+            font-size: 1.2rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            backdrop-filter: blur(10px);
+        }
+
+        .settings-btn:hover {
+            background: rgba(255, 255, 255, 0.2);
+            border-color: #00d4ff;
+        }
+
+        .difficulty-badge {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            padding: 4px 8px;
+            border-radius: 12px;
+            font-size: 0.7rem;
+            font-weight: 600;
+        }
+
+        .easy { background: #4CAF50; }
+        .normal { background: #2196F3; }
+        .hard { background: #FF9800; }
+        .expert { background: #F44336; }
+
+        @media (max-width: 768px) {
+            .title { font-size: 2.5rem; }
+            .menu-grid { grid-template-columns: 1fr; }
+            .song-card { padding: 1rem; }
+        }
+    </style>
+</head>
+<body>
+    <div class="background-animation" id="particles"></div>
+    
+    <div class="container">
+        <button class="settings-btn" onclick="openSettings()">⚙️</button>
+        
+        <h1 class="title">RHYTHM NEXUS</h1>
+        <p class="subtitle">Enhanced 4-Key Rhythm Experience</p>
+        
+        <div class="menu-grid">
+            <a href="game.html?song=aleph-0" class="song-card">
+                <div class="difficulty-badge expert">EXPERT</div>
+                <div class="song-title">Aleph-0</div>
+                <div class="song-artist">LeaF</div>
+            </a>
+            
+            <a href="game.html?song=nano-death" class="song-card">
+                <div class="difficulty-badge expert">EXPERT</div>
+                <div class="song-title">NANO DEATH!!!!!</div>
+                <div class="song-artist">LeaF</div>
+            </a>
+            
+            <a href="game.html?song=elysium" class="song-card">
+                <div class="difficulty-badge hard">HARD</div>
+                <div class="song-title">Elysium</div>
+                <div class="song-artist">Rob Gasser</div>
+            </a>
+            
+            <a href="game.html?song=fastest-crash" class="song-card">
+                <div class="difficulty-badge expert">EXPERT</div>
+                <div class="song-title">Fastest Crash</div>
+                <div class="song-artist">Camellia</div>
+            </a>
+            
+            <a href="game.html?song=zenith-another" class="song-card">
+                <div class="difficulty-badge expert">EXPERT++</div>
+                <div class="song-title">Blue Zenith</div>
+                <div class="song-artist">xi - Frenzy Another</div>
+            </a>
+            
+            <a href="game.html?song=zenith" class="song-card">
+                <div class="difficulty-badge expert">EXPERT+</div>
+                <div class="song-title">Blue Zenith</div>
+                <div class="song-artist">xi - Four Dimensions</div>
+            </a>
+            
+            <a href="game.html" class="song-card custom-card">
+                <div class="song-title">Custom Chart</div>
+                <div class="song-artist">Load your own beatmaps</div>
+            </a>
+        </div>
+    </div>
+
+    <script>
+        // Create floating particles
+        function createParticles() {
+            const container = document.getElementById('particles');
+            const particleCount = 50;
+
+            for (let i = 0; i < particleCount; i++) {
+                const particle = document.createElement('div');
+                particle.className = 'particle';
+                particle.style.left = Math.random() * 100 + '%';
+                particle.style.animationDelay = Math.random() * 8 + 's';
+                particle.style.animationDuration = (Math.random() * 4 + 6) + 's';
+                container.appendChild(particle);
+            }
+        }
+
+        function openSettings() {
+            alert('Settings panel coming soon! This will include:\n• Key bindings\n• Audio offset\n• Visual effects\n• Scroll speed\n• Skin selection');
+        }
+
+        // Initialize particles when page loads
+        document.addEventListener('DOMContentLoaded', createParticles);
+    </script>
+</body>
+</html>

@@ -1,0 +1,214 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <title>Rhythm Nexus - Game</title>
+    <meta charset="UTF-8">
+    <meta name="description" content="Rhythm game">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Exo+2:wght@300;400;600&display=swap" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Exo 2', sans-serif; background: #0f0f23; color: white; overflow: hidden; height: 100vh; display: flex; flex-direction: column; }
+        .game-header { padding: 20px; display: flex; justify-content: space-between; align-items: center; background: rgba(0, 0, 0, 0.3); backdrop-filter: blur(10px); border-bottom: 2px solid rgba(255, 255, 255, 0.1); z-index: 1000; }
+        .song-info h1 { font-family: 'Orbitron', monospace; font-size: 1.5rem; background: linear-gradient(45deg, #00d4ff, #ff00dc); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; margin: 0; }
+        .song-info p { color: #a0a0ff; font-size: 0.9rem; margin: 5px 0 0 0; }
+        .difficulty-badge { background: #F44336; color: white; padding: 4px 12px; border-radius: 12px; font-size: 0.8rem; font-weight: 600; margin-left: 10px; display: inline-block; }
+        .header-controls { display: flex; gap: 10px; align-items: center; }
+        .btn { padding: 10px 20px; border: 2px solid rgba(255, 255, 255, 0.3); background: rgba(255, 255, 255, 0.1); color: white; border-radius: 8px; cursor: pointer; transition: all 0.3s ease; font-family: 'Orbitron', monospace; font-size: 0.9rem; text-decoration: none; display: inline-block; }
+        .btn:hover { border-color: #00d4ff; background: rgba(0, 212, 255, 0.2); box-shadow: 0 5px 15px rgba(0, 212, 255, 0.3); }
+        .main-content { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; position: relative; overflow: hidden; }
+        .loading-screen, .game-setup { display: none; }
+        .loading-screen.active, .game-setup.active { display: flex; flex-direction: column; align-items: center; justify-content: center; width: 100%; height: 100%; }
+        .game-setup { background: rgba(0, 0, 0, 0.8); backdrop-filter: blur(20px); border-radius: 15px; padding: 40px; text-align: center; max-width: 600px; width: 90%; border: 2px solid rgba(255, 255, 255, 0.1); }
+        .game-setup h2 { font-family: 'Orbitron', monospace; font-size: 2rem; margin-bottom: 10px; background: linear-gradient(45deg, #00d4ff, #ff00dc); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; }
+        .form-group { margin: 15px 0; text-align: left; }
+        .form-group label { display: block; margin-bottom: 5px; color: #a0a0ff; }
+        .form-group input { width: 100%; padding: 10px; border: 2px solid rgba(255, 255, 255, 0.3); border-radius: 8px; background: rgba(255, 255, 255, 0.1); color: white; font-family: 'Exo 2', sans-serif; }
+        .game-container { display: none; }
+        .game-container.active { display: block; }
+        .custom-file-input { display: none; }
+        .file-input-label { display: inline-block; padding: 10px 20px; background: linear-gradient(45deg, #00d4ff, #0099cc); color: white; border-radius: 8px; cursor: pointer; transition: all 0.3s ease; font-family: 'Orbitron', monospace; border: 2px solid #00d4ff; }
+        .file-status { margin-top: 10px; padding: 10px; border-radius: 5px; font-size: 0.9rem; }
+        .file-status.success { background: rgba(76, 175, 80, 0.2); border: 1px solid #4CAF50; color: #4CAF50; }
+    </style>
+</head>
+<body>
+    <div class="game-header">
+        <div class="song-info">
+            <h1 id="song-title">Loading...</h1>
+            <p><span id="song-artist"></span><span id="song-difficulty" class="difficulty-badge"></span></p>
+        </div>
+        <div class="header-controls">
+            <a class="btn" href="index.html">Change Song</a>
+        </div>
+    </div>
+
+    <div class="main-content">
+        <div id="loading-screen" class="loading-screen active">
+            <p>Loading song...</p>
+        </div>
+
+        <div id="game-setup" class="game-setup">
+            <h2 id="setup-title">Game Settings</h2>
+            
+            <div id="custom-upload-section" style="display:none;">
+                <div class="form-group">
+                    <label for="uploadOsu">Chart File (.osu / .txt):</label>
+                    <input type="file" id="uploadOsu" class="custom-file-input" accept=".osu,.txt">
+                    <label for="uploadOsu" class="file-input-label">Choose Chart File</label>
+                    <div id="chart-status" class="file-status" style="display:none;"></div>
+                </div>
+                <div class="form-group">
+                    <label for="uploadAudio">Audio File (.mp3, .ogg, .wav):</label>
+                    <input type="file" id="uploadAudio" class="custom-file-input" accept=".mp3,.wav,.ogg">
+                    <label for="uploadAudio" class="file-input-label">Choose Audio File</label>
+                    <div id="audio-status" class="file-status" style="display:none;"></div>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label for="inputScale">Display Scale (%):</label>
+                <input type="number" id="inputScale" value="100" min="50" max="150" step="10">
+            </div>
+            <div class="form-group">
+                <label for="scrollDurationInput">Scroll Speed:</label>
+                <input type="number" id="scrollDurationInput" value="500" min="200" max="1000" step="50">
+            </div>
+            <div class="form-group">
+                <label for="inputOffset">Audio Offset (ms):</label>
+                <input type="number" id="inputOffset" value="-40" min="-200" max="200" step="10">
+            </div>
+            <div class="form-group">
+                <label for="baseBPM">Base BPM (optional):</label>
+                <input type="number" id="baseBPM" placeholder="Auto-detect">
+            </div>
+            <button class="btn" id="start-game-btn">Start Game</button>
+        </div>
+
+        <div id="game-container" class="game-container">
+            <canvas id="myCanvas" width="600" height="800"></canvas>
+        </div>
+    </div>
+
+    <audio id="audioPlayer" preload="auto"></audio>
+
+    <script src="js/SongManager.js"></script>
+    <script src="js/Game_Pre.js"></script>
+
+    <script>
+        let chartDataFromLoader = null;
+        let filesLoaded = { chart: false, audio: false };
+
+        // This function is the main entry point after files are ready.
+        function showGameSetup(chartText, songTitle) {
+            chartDataFromLoader = chartText;
+
+            // Show setup screen
+            document.getElementById('loading-screen').classList.remove('active');
+            const setupScreen = document.getElementById('game-setup');
+            setupScreen.classList.add('active');
+            document.getElementById('setup-title').textContent = songTitle || "Custom Song";
+
+            // If chartText is null, it means we are in custom upload mode.
+            if (!chartText) {
+                document.getElementById('custom-upload-section').style.display = 'block';
+                document.getElementById('start-game-btn').disabled = true;
+            } else {
+                 document.getElementById('custom-upload-section').style.display = 'none';
+                 document.getElementById('start-game-btn').disabled = false;
+            }
+        }
+
+        // The button click handler for starting the game
+        document.getElementById('start-game-btn').addEventListener('click', () => {
+            if (!chartDataFromLoader && !filesLoaded.chart) {
+                alert("Chart data not loaded! Please select a song or upload a file.");
+                return;
+            }
+
+            // 1. Process the chart data using the original working function
+            processChartData(chartDataFromLoader);
+
+            // 2. Apply settings from the form
+            Scale = Number(document.getElementById('inputScale').value);
+            scrollDuration = Number(document.getElementById("scrollDurationInput").value);
+            offset = Number(document.getElementById("inputOffset").value);
+
+            // 3. Auto-detect baseBPM using the original working logic
+            const baseBPMInput = document.getElementById("baseBPM").value;
+            if (baseBPMInput !== "") {
+                baseMpB = 60000 / Number(baseBPMInput);
+            } else {
+                if (Number(content["TimingPoints"][0][1]) > 0) {
+                     baseMpB=Number(content["TimingPoints"][0][1]);
+                } else {
+                    for(let i=1;i<TPnums;i++) {
+                        if(Number(content["TimingPoints"][i][1])>0) {
+                            baseMpB = Number(content["TimingPoints"][i][1]);
+                            break;
+                        }
+                    }
+                }
+                for(let i=1;i<TPnums;i++)if(Number(content["TimingPoints"][i][1])>0)baseMpB=(baseMpB<Number(content["TimingPoints"][i][1])?baseMpB:Number(content["TimingPoints"][i][1]));
+            }
+
+            // 4. Setup canvas and hide setup screen
+            const canvasContainer = document.getElementById('game-container');
+            const canvasEl = document.getElementById('myCanvas');
+            canvasContainer.style.width = `${600 * Scale / 100}px`;
+            canvasEl.style.width = `${600 * Scale / 100}px`;
+            
+            document.getElementById('game-setup').classList.remove('active');
+            canvasContainer.classList.add('active');
+
+            // 5. Start the game
+            initKeyListener();
+            startTime();
+        });
+
+        // --- Custom File Upload Logic ---
+        document.getElementById('uploadOsu').addEventListener('change', (e) => {
+            const file = e.target.files[0];
+            const statusDiv = document.getElementById('chart-status');
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = (event) => {
+                    chartDataFromLoader = event.target.result;
+                    filesLoaded.chart = true;
+                    statusDiv.textContent = `Loaded: ${file.name}`;
+                    statusDiv.className = 'file-status success';
+                    statusDiv.style.display = 'block';
+                    if (filesLoaded.audio) document.getElementById('start-game-btn').disabled = false;
+                };
+                reader.readAsText(file, "UTF-8");
+            }
+        });
+
+        document.getElementById('uploadAudio').addEventListener('change', (e) => {
+            const file = e.target.files[0];
+            const statusDiv = document.getElementById('audio-status');
+            if (file) {
+                audio1.src = URL.createObjectURL(file);
+                audio1.load();
+                filesLoaded.audio = true;
+                statusDiv.textContent = `Loaded: ${file.name}`;
+                statusDiv.className = 'file-status success';
+                statusDiv.style.display = 'block';
+                if (filesLoaded.chart) document.getElementById('start-game-btn').disabled = false;
+            }
+        });
+        
+        // --- Initializer ---
+        document.addEventListener('DOMContentLoaded', () => {
+            const songManager = new SongManager();
+            window.songManager = songManager;
+            const songId = songManager.getSongFromURL();
+            if (songId) {
+                songManager.loadSongAndSetup(songId);
+            } else {
+                showGameSetup(null, null); // Enter custom mode
+            }
+        });
+    </script>
+</body>
+</html>
