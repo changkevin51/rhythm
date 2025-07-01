@@ -414,6 +414,9 @@
 
         // Use GameUtils if available, otherwise use fallback
         const beatmapAPI = (typeof GameUtils !== 'undefined' && GameUtils.beatmap) ? GameUtils.beatmap : BeatmapUtils;
+        
+        // Make beatmapAPI globally available for SongManager
+        window.beatmapAPI = beatmapAPI;
 
         // Upload mode switching
         function switchUploadMode(mode) {

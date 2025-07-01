@@ -9,12 +9,88 @@ class SongManager {
 
     loadSongsConfig() {
         this.songs = {
-            "aleph-0": { id: "aleph-0", title: "Aleph-0", artist: "LeaF", difficulty: "Cardinality", difficultyColor: "#F44336", audioFile: "Songs/Aleph-0/audio.mp3", chartFile: "Songs/Aleph-0/LeaF - Aleph-0 (jakads) [Cardinality].txt", background: "linear-gradient(135deg, #FF6B6B 0%, #4ECDC4 50%, #45B7D1 100%)", description: "An intense mathematical journey through infinite sets" },
-            "elysium": { id: "elysium", title: "Elysium", artist: "Rob Gasser", difficulty: "Heavenly Paradise", difficultyColor: "#FF9800", audioFile: "Songs/Elysium/Rob Gasser - Elysium Original Mix FREE DOWNLOAD.mp3", chartFile: "Songs/Elysium/Rob Gasser - Elysium (LuigiClaren) [Heavenly Paradise].txt", background: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)", description: "Journey through paradise with ethereal melodies" },
-            "fastest-crash": { id: "fastest-crash", title: "Fastest Crash", artist: "Camellia", difficulty: "Paroxysm", difficultyColor: "#E91E63", audioFile: "Songs/Fastest Crash/05 Fastest Crash.mp3", chartFile: "Songs/Fastest Crash/Camellia - Fastest Crash (Shoegazer) [Paroxysm].txt", background: "linear-gradient(135deg, #f093fb 0%, #f5576c 100%)", description: "Ultra-fast electronic madness that will test your limits" },
-            "nano-death": { id: "nano-death", title: "NANO DEATH!!!!!", artist: "LeaF", difficulty: "Expert", difficultyColor: "#9C27B0", audioFile: "Songs/NANO DEATH/audio.mp3", chartFile: "Songs/NANO DEATH/LeaF - NANO DEATH!!!!! (nowsmart) [Expert].txt", background: "linear-gradient(135deg, #ff0844 0%, #ffb199 100%)", description: "Microscopic destruction in electronic form" },
-            "zenith": { id: "zenith", title: "Blue Zenith", artist: "xi", difficulty: "FOUR DIMENSIONS", difficultyColor: "#F44336", audioFile: "Songs/zenith/zenith.mp3", chartFile: "Songs/zenith/xi - Blue Zenith (Jepetski) [FOUR DIMENSIONS].txt", background: "linear-gradient(135deg, #209cff 0%, #68e0cf 100%)", description: "Ascend to the peak of rhythm gaming" },
-            "zenith-another": { id: "zenith-another", title: "Blue Zenith", artist: "xi", difficulty: "Frenzy Another", difficultyColor: "#000000", audioFile: "Songs/zenith/zenith.mp3", chartFile: "Songs/zenith/xi - Blue Zenith (Jepetski) [Frenzy Another].txt", background: "linear-gradient(135deg, #000428 0%, #004e92 100%)", description: "The ultimate challenge for rhythm masters" }
+            "naruto": { 
+                id: "naruto", 
+                title: "Silhouette", 
+                artist: "KANA-BOON", 
+                difficulty: "Multiple Difficulties", 
+                difficultyColor: "#F44336", 
+                // OSZ file with multiple difficulties
+                oszFile: "Songs/naruto/310793 KANA-BOON - Silhouette.osz",
+                allowDifficultySelection: true,
+                // Keep fallback files for compatibility (will be ignored if OSZ works)
+                audioFile: "Songs/naruto/audio.mp3", 
+                chartFile: "Songs/naruto/LeaF - Aleph-0 (jakads) [Cardinality].txt", 
+                background: "linear-gradient(135deg, #FF6B6B 0%, #4ECDC4 50%, #45B7D1 100%)", 
+                description: "An intense mathematical journey through infinite sets" 
+            },
+            "elysium": { 
+                id: "elysium", 
+                title: "Elysium", 
+                artist: "Rob Gasser", 
+                difficulty: "Heavenly Paradise", 
+                difficultyColor: "#FF9800", 
+                // Individual files (no OSZ available yet)
+                oszFile: null,
+                audioFile: "Songs/Elysium/Rob Gasser - Elysium Original Mix FREE DOWNLOAD.mp3", 
+                chartFile: "Songs/Elysium/Rob Gasser - Elysium (LuigiClaren) [Heavenly Paradise].txt", 
+                background: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)", 
+                description: "Journey through paradise with ethereal melodies" 
+            },
+            "yeah-boy": { 
+                id: "yeah-boy", 
+                title: "Yeah Boy - Shooting Stars", 
+                artist: "BaconAkin", 
+                difficulty: "Multiple Difficulties", 
+                difficultyColor: "#E91E63", 
+                // OSZ file with multiple difficulties
+                oszFile: "Songs/yeah-boy/576426 BaconAkin - Yeah Boy - Shooting Stars [no video].osz",
+                allowDifficultySelection: true,
+                audioFile: "Songs/yeah-boy/05 Fastest Crash.mp3", 
+                chartFile: "Songs/Fastest Crash/Camellia - Fastest Crash (Shoegazer) [Paroxysm].txt", 
+                background: "linear-gradient(135deg, #f093fb 0%, #f5576c 100%)", 
+                description: "Ultra-fast electronic madness that will test your limits" 
+            },
+            "nano-death": { 
+                id: "nano-death", 
+                title: "NANO DEATH!!!!!", 
+                artist: "LeaF", 
+                difficulty: "Multiple Difficulties", 
+                difficultyColor: "#9C27B0", 
+                // OSZ file with multiple difficulties
+                oszFile: "Songs/NANO DEATH/478161 LeaF - NANO DEATH!!!!!.osz",
+                allowDifficultySelection: true,
+                audioFile: "Songs/NANO DEATH/audio.mp3", 
+                chartFile: "Songs/NANO DEATH/LeaF - NANO DEATH!!!!! (nowsmart) [Expert].txt", 
+                background: "linear-gradient(135deg, #ff0844 0%, #ffb199 100%)", 
+                description: "Microscopic destruction in electronic form" 
+            },
+            "zenith": { 
+                id: "zenith", 
+                title: "Blue Zenith", 
+                artist: "xi", 
+                difficulty: "FOUR DIMENSIONS", 
+                difficultyColor: "#F44336", 
+                // Individual files (no OSZ available yet)
+                oszFile: null,
+                audioFile: "Songs/zenith/zenith.mp3", 
+                chartFile: "Songs/zenith/xi - Blue Zenith (Jepetski) [FOUR DIMENSIONS].txt", 
+                background: "linear-gradient(135deg, #209cff 0%, #68e0cf 100%)", 
+                description: "Ascend to the peak of rhythm gaming" 
+            },
+            "zenith-another": { 
+                id: "zenith-another", 
+                title: "Blue Zenith", 
+                artist: "xi", 
+                difficulty: "Frenzy Another", 
+                difficultyColor: "#000000", 
+                // Individual files (no OSZ available yet)
+                oszFile: null,
+                audioFile: "Songs/zenith/zenith.mp3", 
+                chartFile: "Songs/zenith/xi - Blue Zenith (Jepetski) [Frenzy Another].txt", 
+                background: "linear-gradient(135deg, #000428 0%, #004e92 100%)", 
+                description: "The ultimate challenge for rhythm masters" 
+            }
         };
     }
 
@@ -49,10 +125,300 @@ class SongManager {
         this.updateUI(song);
 
         try {
+            // Try to load OSZ file first, then fall back to individual files
+            const loadResult = await this.loadSongFiles(song);
+            
+            console.log("Song files loaded. Handing off to game setup.");
+            if (typeof showGameSetup === 'function') {
+                showGameSetup(loadResult.chartData, song.title);
+            }
+
+        } catch (error) {
+            console.error('Error loading song files:', error);
+            alert(`Error loading song: ${error.message}`);
+        }
+    }
+
+    async loadSongFiles(song) {
+        // First, try to load OSZ file if it exists
+        if (song.oszFile) {
+            try {
+                console.log(`Attempting to load OSZ file: ${song.oszFile}`);
+                const oszResult = await this.loadOszFile(song.oszFile, song);
+                if (oszResult.success) {
+                    console.log("Successfully loaded OSZ file");
+                    return oszResult;
+                }
+            } catch (error) {
+                console.warn(`Failed to load OSZ file ${song.oszFile}:`, error.message);
+                console.log("Falling back to individual files...");
+            }
+        }
+
+        // Fall back to individual files
+        console.log("Loading individual files...");
+        return await this.loadIndividualFiles(song);
+    }
+
+    async loadOszFile(oszPath, song) {
+        try {
+            // Fetch the OSZ file
+            const response = await fetch(oszPath);
+            if (!response.ok) {
+                throw new Error(`Failed to fetch OSZ file: ${response.status}`);
+            }
+
+            const oszBlob = await response.blob();
+            
+            // Create a file-like object for the beatmap API
+            const oszFile = new File([oszBlob], oszPath.split('/').pop(), { type: 'application/zip' });
+            
+            // Use the beatmap API to extract the OSZ
+            const beatmapAPI = this.getBeatmapAPI();
+            const extractedData = await beatmapAPI.extractOszArchive(oszFile);
+            
+            if (extractedData.charts.length === 0) {
+                throw new Error('No valid charts found in OSZ file');
+            }
+            
+            if (extractedData.audio.length === 0) {
+                throw new Error('No audio files found in OSZ file');
+            }
+
+            // Check if this song allows difficulty selection and has multiple charts
+            if (song.allowDifficultySelection && extractedData.charts.length > 1) {
+                // Show difficulty selection dialog
+                const selectedChart = await this.showDifficultySelectionDialog(extractedData.charts, song);
+                if (!selectedChart) {
+                    throw new Error('No difficulty selected');
+                }
+                
+                // Setup audio with MP3 priority and return selected chart
+                await this.setupAudioFromOsz(this.selectBestAudioFile(extractedData.audio));
+                
+                return {
+                    success: true,
+                    chartData: selectedChart.content,
+                    source: 'osz-selected'
+                };
+            } else {
+                // Auto-select chart (existing logic)
+                let selectedChart = extractedData.charts[0]; // Default to first chart
+                
+                if (song.difficulty && extractedData.charts.length > 1) {
+                    const matchingChart = extractedData.charts.find(chart => {
+                        const metadata = beatmapAPI.parseChartMetadata(chart.content);
+                        return metadata.version === song.difficulty || 
+                               metadata.version.toLowerCase().includes(song.difficulty.toLowerCase());
+                    });
+                    
+                    if (matchingChart) {
+                        selectedChart = matchingChart;
+                        console.log(`Found matching chart for difficulty: ${song.difficulty}`);
+                    }
+                }
+
+                // Setup audio with MP3 priority and return selected chart
+                await this.setupAudioFromOsz(this.selectBestAudioFile(extractedData.audio));
+                
+                return {
+                    success: true,
+                    chartData: selectedChart.content,
+                    source: 'osz-auto'
+                };
+            }
+
+        } catch (error) {
+            throw new Error(`OSZ loading failed: ${error.message}`);
+        }
+    }
+
+    selectBestAudioFile(audioFiles) {
+        if (!audioFiles || audioFiles.length === 0) {
+            throw new Error('No audio files found');
+        }
+
+        // Priority order: .mp3 > .ogg > .wav
+        // WAV files are often sound effects in OSZ files
+        const priorities = {
+            '.mp3': 3,
+            '.ogg': 2,
+            '.wav': 1
+        };
+
+        // Sort audio files by priority (highest first)
+        const sortedAudio = audioFiles.sort((a, b) => {
+            const extA = '.' + a.filename.split('.').pop().toLowerCase();
+            const extB = '.' + b.filename.split('.').pop().toLowerCase();
+            
+            const priorityA = priorities[extA] || 0;
+            const priorityB = priorities[extB] || 0;
+            
+            return priorityB - priorityA;
+        });
+
+        console.log(`Selected audio file: ${sortedAudio[0].filename} (from ${audioFiles.length} available)`);
+        return sortedAudio[0];
+    }
+
+    async setupAudioFromOsz(audioFile) {
+        const audioPlayer = document.getElementById('audioPlayer');
+        audioPlayer.src = audioFile.url;
+        audioPlayer.load();
+
+        // Wait for audio to be ready
+        await new Promise((resolve, reject) => {
+            const canPlayHandler = () => {
+                audioPlayer.removeEventListener('error', errorHandler);
+                resolve();
+            };
+            const errorHandler = () => {
+                audioPlayer.removeEventListener('canplaythrough', canPlayHandler);
+                reject(new Error('Audio file failed to load from OSZ.'));
+            };
+            audioPlayer.addEventListener('canplaythrough', canPlayHandler, { once: true });
+            audioPlayer.addEventListener('error', errorHandler, { once: true });
+        });
+    }
+
+    async showDifficultySelectionDialog(charts, song) {
+        return new Promise((resolve) => {
+            const beatmapAPI = this.getBeatmapAPI();
+            
+            // Parse chart metadata for better display
+            const chartInfo = charts.map((chart, index) => {
+                const metadata = beatmapAPI.parseChartMetadata(chart.content);
+                return {
+                    ...chart,
+                    index,
+                    metadata
+                };
+            });
+
+            // Create modal overlay
+            const overlay = document.createElement('div');
+            overlay.style.cssText = `
+                position: fixed;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                background: rgba(0, 0, 0, 0.8);
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                z-index: 3000;
+                animation: fadeIn 0.3s ease;
+            `;
+
+            // Create dialog
+            const dialog = document.createElement('div');
+            dialog.style.cssText = `
+                background: linear-gradient(135deg, #1a1a2e, #16213e);
+                border: 2px solid #00d4ff;
+                border-radius: 15px;
+                padding: 30px;
+                max-width: 600px;
+                max-height: 70vh;
+                overflow-y: auto;
+                box-shadow: 0 20px 40px rgba(0, 0, 0, 0.5);
+                color: white;
+                font-family: 'Exo 2', sans-serif;
+            `;
+
+            dialog.innerHTML = `
+                <h2 style="color: #00d4ff; margin-bottom: 20px; text-align: center;">
+                    Select Difficulty - ${song.title}
+                </h2>
+                <p style="margin-bottom: 20px; text-align: center; color: #ccc;">
+                    Multiple difficulties found. Choose which one to play:
+                </p>
+                <div id="chartList" style="margin-bottom: 20px;">
+                    ${chartInfo.map(chart => `
+                        <div class="chart-option" data-index="${chart.index}" style="
+                            border: 2px solid #333;
+                            border-radius: 10px;
+                            padding: 15px;
+                            margin-bottom: 10px;
+                            cursor: pointer;
+                            transition: all 0.3s ease;
+                            background: rgba(255, 255, 255, 0.05);
+                        ">
+                            <div style="font-weight: bold; color: #00d4ff; margin-bottom: 5px;">
+                                ${chart.metadata.version || 'Unknown Difficulty'}
+                            </div>
+                            <div style="font-size: 0.9em; color: #ccc;">
+                                ${chart.metadata.title || song.title} - ${chart.metadata.artist || song.artist}
+                            </div>
+                            <div style="font-size: 0.8em; color: #999; margin-top: 5px;">
+                                File: ${chart.filename}
+                            </div>
+                        </div>
+                    `).join('')}
+                </div>
+                <div style="text-align: center;">
+                    <button id="cancelBtn" style="
+                        background: #666;
+                        border: none;
+                        color: white;
+                        padding: 10px 20px;
+                        border-radius: 5px;
+                        cursor: pointer;
+                        font-family: 'Exo 2', sans-serif;
+                    ">Cancel</button>
+                </div>
+            `;
+
+            // Add hover effects and click handlers
+            overlay.appendChild(dialog);
+            document.body.appendChild(overlay);
+
+            // Add event listeners
+            const chartOptions = dialog.querySelectorAll('.chart-option');
+            chartOptions.forEach(option => {
+                option.addEventListener('mouseenter', () => {
+                    option.style.borderColor = '#00d4ff';
+                    option.style.background = 'rgba(0, 212, 255, 0.1)';
+                });
+                
+                option.addEventListener('mouseleave', () => {
+                    option.style.borderColor = '#333';
+                    option.style.background = 'rgba(255, 255, 255, 0.05)';
+                });
+                
+                option.addEventListener('click', () => {
+                    const index = parseInt(option.dataset.index);
+                    document.body.removeChild(overlay);
+                    resolve(charts[index]);
+                });
+            });
+
+            // Cancel button
+            dialog.querySelector('#cancelBtn').addEventListener('click', () => {
+                document.body.removeChild(overlay);
+                resolve(null);
+            });
+
+            // Close on overlay click
+            overlay.addEventListener('click', (e) => {
+                if (e.target === overlay) {
+                    document.body.removeChild(overlay);
+                    resolve(null);
+                }
+            });
+        });
+    }
+
+    async loadIndividualFiles(song) {
+        try {
+            // Load chart file
             const chartResponse = await fetch(song.chartFile);
-            if (!chartResponse.ok) throw new Error(`Failed to load chart: ${chartResponse.status}`);
+            if (!chartResponse.ok) {
+                throw new Error(`Failed to load chart: ${chartResponse.status}`);
+            }
             const chartData = await chartResponse.text();
             
+            // Load audio file
             const audioPlayer = document.getElementById('audioPlayer');
             audioPlayer.src = song.audioFile;
 
@@ -70,14 +436,121 @@ class SongManager {
                 audioPlayer.load();
             });
 
-            console.log("Song files loaded. Handing off to game setup.");
-            if (typeof showGameSetup === 'function') {
-                showGameSetup(chartData, song.title);
-            }
+            return {
+                success: true,
+                chartData: chartData,
+                source: 'individual'
+            };
 
         } catch (error) {
-            console.error('Error loading song files:', error);
-            alert(`Error loading song: ${error.message}`);
+            throw new Error(`Individual files loading failed: ${error.message}`);
         }
+    }
+
+    // Get the beatmap API (with fallback)
+    getBeatmapAPI() {
+        // Try to use the same API as in game.html
+        if (typeof window !== 'undefined' && window.beatmapAPI) {
+            return window.beatmapAPI;
+        }
+        
+        // Use GameUtils if available
+        if (typeof GameUtils !== 'undefined' && GameUtils.beatmap) {
+            return GameUtils.beatmap;
+        }
+
+        // Basic fallback for OSZ extraction
+        return {
+            extractOszArchive: async (file) => {
+                if (typeof JSZip === 'undefined') {
+                    throw new Error('JSZip library is required for OSZ support');
+                }
+
+                const zip = new JSZip();
+                const zipData = await zip.loadAsync(file);
+                
+                const extractedFiles = {
+                    charts: [],
+                    audio: []
+                };
+
+                for (const [filename, fileData] of Object.entries(zipData.files)) {
+                    if (fileData.dir) continue;
+
+                    const lowerName = filename.toLowerCase();
+                    
+                    if (lowerName.endsWith('.osu')) {
+                        const content = await fileData.async('text');
+                        extractedFiles.charts.push({
+                            filename,
+                            content,
+                            size: content.length
+                        });
+                    } else if (lowerName.endsWith('.mp3') || lowerName.endsWith('.wav') || lowerName.endsWith('.ogg')) {
+                        const blob = await fileData.async('blob');
+                        extractedFiles.audio.push({
+                            filename,
+                            url: URL.createObjectURL(blob),
+                            size: blob.size,
+                            type: blob.type
+                        });
+                    }
+                }
+
+                // Sort audio files to prioritize MP3 over WAV (WAV files are often sound effects)
+                extractedFiles.audio.sort((a, b) => {
+                    const extA = '.' + a.filename.split('.').pop().toLowerCase();
+                    const extB = '.' + b.filename.split('.').pop().toLowerCase();
+                    
+                    const priorities = { '.mp3': 3, '.ogg': 2, '.wav': 1 };
+                    const priorityA = priorities[extA] || 0;
+                    const priorityB = priorities[extB] || 0;
+                    
+                    return priorityB - priorityA;
+                });
+
+                return extractedFiles;
+            },
+
+            parseChartMetadata: (content) => {
+                const metadata = {
+                    title: 'Unknown Title',
+                    artist: 'Unknown Artist',
+                    version: 'Unknown Difficulty'
+                };
+
+                const lines = content.split('\n');
+                let inMetadataSection = false;
+
+                for (const line of lines) {
+                    const trimmedLine = line.trim();
+                    
+                    if (trimmedLine.startsWith('[') && trimmedLine.endsWith(']')) {
+                        inMetadataSection = trimmedLine.toLowerCase() === '[metadata]';
+                        continue;
+                    }
+
+                    if (inMetadataSection && trimmedLine.includes(':')) {
+                        const [key, value] = trimmedLine.split(':', 2);
+                        const cleanKey = key.trim().toLowerCase();
+                        const cleanValue = value.trim();
+
+                        switch (cleanKey) {
+                            case 'title':
+                                metadata.title = cleanValue;
+                                break;
+                            case 'artist':
+                                metadata.artist = cleanValue;
+                                break;
+                            case 'version':
+                                metadata.version = cleanValue;
+                                break;
+                        }
+                    }
+                }
+
+                return metadata;
+            }
+        };
     }
 }
