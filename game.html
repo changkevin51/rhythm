@@ -30,6 +30,12 @@
         .file-input-label { display: inline-block; padding: 10px 20px; background: linear-gradient(45deg, #00d4ff, #0099cc); color: white; border-radius: 8px; cursor: pointer; transition: all 0.3s ease; font-family: 'Orbitron', monospace; border: 2px solid #00d4ff; }
         .file-status { margin-top: 10px; padding: 10px; border-radius: 5px; font-size: 0.9rem; }
         .file-status.success { background: rgba(76, 175, 80, 0.2); border: 1px solid #4CAF50; color: #4CAF50; }
+        .file-status.error { background: rgba(244, 67, 54, 0.2); border: 1px solid #F44336; color: #F44336; }
+        .upload-mode-selector { display: flex; gap: 10px; margin-bottom: 20px; justify-content: center; }
+        .mode-btn { padding: 12px 24px; border: 2px solid rgba(255, 255, 255, 0.3); background: rgba(255, 255, 255, 0.1); color: white; border-radius: 8px; cursor: pointer; transition: all 0.3s ease; font-family: 'Orbitron', monospace; }
+        .mode-btn.active { border-color: #00d4ff; background: rgba(0, 212, 255, 0.2); }
+        .upload-section { display: none; }
+        .upload-section.active { display: block; }
     </style>
 </head>
 <body>
@@ -52,17 +58,38 @@
             <h2 id="setup-title">Game Settings</h2>
             
             <div id="custom-upload-section" style="display:none;">
-                <div class="form-group">
-                    <label for="uploadOsu">Chart File (.osu / .txt):</label>
-                    <input type="file" id="uploadOsu" class="custom-file-input" accept=".osu,.txt">
-                    <label for="uploadOsu" class="file-input-label">Choose Chart File</label>
-                    <div id="chart-status" class="file-status" style="display:none;"></div>
+                <div class="upload-mode-selector">
+                    <button class="mode-btn active" onclick="switchUploadMode('individual')">Individual Files</button>
+                    <button class="mode-btn" onclick="switchUploadMode('osz')">OSZ Archive</button>
                 </div>
-                <div class="form-group">
-                    <label for="uploadAudio">Audio File (.mp3, .ogg, .wav):</label>
-                    <input type="file" id="uploadAudio" class="custom-file-input" accept=".mp3,.wav,.ogg">
-                    <label for="uploadAudio" class="file-input-label">Choose Audio File</label>
-                    <div id="audio-status" class="file-status" style="display:none;"></div>
+                
+                <div id="individual-upload" class="upload-section active">
+                    <div class="form-group">
+                        <label for="uploadOsu">Chart File (.osu / .txt):</label>
+                        <input type="file" id="uploadOsu" class="custom-file-input" accept=".osu,.txt">
+                        <label for="uploadOsu" class="file-input-label">Choose Chart File</label>
+                        <div id="chart-status" class="file-status" style="display:none;"></div>
+                    </div>
+                    <div class="form-group">
+                        <label for="uploadAudio">Audio File (.mp3, .ogg, .wav):</label>
+                        <input type="file" id="uploadAudio" class="custom-file-input" accept=".mp3,.wav,.ogg">
+                        <label for="uploadAudio" class="file-input-label">Choose Audio File</label>
+                        <div id="audio-status" class="file-status" style="display:none;"></div>
+                    </div>
+                </div>
+                
+                <div id="osz-upload" class="upload-section">
+                    <div class="form-group">
+                        <label for="uploadOsz">OSZ Archive (.osz):</label>
+                        <input type="file" id="uploadOsz" class="custom-file-input" accept=".osz">
+                        <label for="uploadOsz" class="file-input-label">Choose OSZ File</label>
+                        <div id="osz-status" class="file-status" style="display:none;"></div>
+                    </div>
+                    <div id="chart-selection" style="display:none;">
+                        <label for="chartSelect">Select Chart:</label>
+                        <select id="chartSelect" style="width: 100%; padding: 10px; margin-top: 5px; background: rgba(255, 255, 255, 0.1); color: white; border: 2px solid rgba(255, 255, 255, 0.3); border-radius: 8px;">
+                        </select>
+                    </div>
                 </div>
             </div>
 
@@ -76,7 +103,7 @@
             </div>
             <div class="form-group">
                 <label for="inputOffset">Audio Offset (ms):</label>
-                <input type="number" id="inputOffset" value="-40" min="-200" max="200" step="10">
+                <input type="number" id="inputOffset" value="-50" min="-200" max="200" step="10">
             </div>
             <div class="form-group">
                 <label for="baseBPM">Base BPM (optional):</label>
@@ -92,12 +119,342 @@
 
     <audio id="audioPlayer" preload="auto"></audio>
 
+    <!-- JSZip library for handling .osz files -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
     <script src="js/SongManager.js"></script>
     <script src="js/Game_Pre.js"></script>
 
     <script>
         let chartDataFromLoader = null;
         let filesLoaded = { chart: false, audio: false };
+        let currentUploadMode = 'individual';
+        let oszData = null;
+        let availableCharts = [];
+
+        // Fallback validation functions if GameUtils is not available
+        const BeatmapUtils = {
+            isValidChartFile(file) {
+                const validExtensions = ['.osu', '.txt'];
+                const fileName = file.name.toLowerCase();
+                return validExtensions.some(ext => fileName.endsWith(ext));
+            },
+
+            isValidAudioFile(file) {
+                const validExtensions = ['.mp3', '.wav', '.ogg'];
+                const fileName = file.name.toLowerCase();
+                return validExtensions.some(ext => fileName.endsWith(ext));
+            },
+
+            isValidArchive(file) {
+                const fileName = file.name.toLowerCase();
+                return fileName.endsWith('.osz') || fileName.endsWith('.zip');
+            },
+
+            async readChartFile(file) {
+                return new Promise((resolve, reject) => {
+                    if (!this.isValidChartFile(file)) {
+                        reject(new Error('Invalid chart file format. Please use .osu or .txt files.'));
+                        return;
+                    }
+
+                    const reader = new FileReader();
+                    reader.onload = (event) => {
+                        try {
+                            const content = event.target.result;
+                            
+                            // Basic validation for .osu files
+                            if (file.name.toLowerCase().endsWith('.osu')) {
+                                const validationResult = this.validateOsuFile(content);
+                                if (!validationResult.isValid) {
+                                    reject(new Error(validationResult.error));
+                                    return;
+                                }
+                            }
+                            
+                            resolve(content);
+                        } catch (error) {
+                            reject(new Error('Failed to read chart file: ' + error.message));
+                        }
+                    };
+                    reader.onerror = () => {
+                        reject(new Error('Failed to read chart file'));
+                    };
+                    reader.readAsText(file, 'UTF-8');
+                });
+            },
+
+            validateOsuFile(content) {
+                try {
+                    const lines = content.split('\n').map(line => line.trim());
+                    let inGeneralSection = false;
+                    let modeFound = false;
+                    let mode = null;
+
+                    for (const line of lines) {
+                        if (line.startsWith('[') && line.endsWith(']')) {
+                            inGeneralSection = line.toLowerCase() === '[general]';
+                            continue;
+                        }
+
+                        if (inGeneralSection && line.toLowerCase().startsWith('mode:')) {
+                            modeFound = true;
+                            mode = parseInt(line.split(':')[1].trim());
+                            break;
+                        }
+                    }
+
+                    if (!modeFound) {
+                        return {
+                            isValid: false,
+                            error: 'Invalid osu! file: Mode not specified. Please ensure this is a valid osu!mania beatmap (Mode: 3).'
+                        };
+                    }
+
+                    if (mode !== 3) {
+                        const modeNames = {
+                            0: 'osu! (Standard)',
+                            1: 'Taiko',
+                            2: 'Catch the Beat',
+                            3: 'osu!mania'
+                        };
+                        
+                        return {
+                            isValid: false,
+                            error: `Invalid game mode: This beatmap is for ${modeNames[mode] || 'Unknown mode'} (Mode: ${mode}). Please use an osu!mania beatmap (Mode: 3).`
+                        };
+                    }
+
+                    return { isValid: true, mode: mode };
+
+                } catch (error) {
+                    return {
+                        isValid: false,
+                        error: 'Failed to parse osu! file: ' + error.message
+                    };
+                }
+            },
+
+            async readAudioFile(file) {
+                return new Promise((resolve, reject) => {
+                    if (!this.isValidAudioFile(file)) {
+                        reject(new Error('Invalid audio file format. Please use .mp3, .wav, or .ogg files.'));
+                        return;
+                    }
+
+                    try {
+                        const audioURL = URL.createObjectURL(file);
+                        resolve({
+                            url: audioURL,
+                            filename: file.name,
+                            size: file.size,
+                            type: file.type
+                        });
+                    } catch (error) {
+                        reject(new Error('Failed to process audio file: ' + error.message));
+                    }
+                });
+            },
+
+            async setupAudioElement(audioElement, audioData) {
+                return new Promise((resolve, reject) => {
+                    if (!audioData || !audioData.url) {
+                        reject(new Error('Invalid audio data'));
+                        return;
+                    }
+
+                    const audio = audioElement;
+                    
+                    // Clear any existing source
+                    audio.src = '';
+                    audio.load();
+
+                    // Set up event listeners
+                    const onCanPlay = () => {
+                        audio.removeEventListener('canplay', onCanPlay);
+                        audio.removeEventListener('error', onError);
+                        resolve(audio);
+                    };
+
+                    const onError = (e) => {
+                        audio.removeEventListener('canplay', onCanPlay);
+                        audio.removeEventListener('error', onError);
+                        reject(new Error('Failed to load audio: ' + (e.message || 'Unknown error')));
+                    };
+
+                    audio.addEventListener('canplay', onCanPlay);
+                    audio.addEventListener('error', onError);
+
+                    // Set the source and load
+                    audio.src = audioData.url;
+                    audio.load();
+                });
+            },
+
+            async extractOszArchive(file) {
+                return new Promise((resolve, reject) => {
+                    if (!this.isValidArchive(file)) {
+                        reject(new Error('Invalid archive format. Please use .osz or .zip files.'));
+                        return;
+                    }
+
+                    // Check if JSZip is available
+                    if (typeof JSZip === 'undefined') {
+                        reject(new Error('JSZip library is required for .osz support. Please reload the page.'));
+                        return;
+                    }
+
+                    const reader = new FileReader();
+                    reader.onload = async (event) => {
+                        try {
+                            const zip = new JSZip();
+                            const zipData = await zip.loadAsync(event.target.result);
+                            
+                            const extractedFiles = {
+                                charts: [],
+                                audio: [],
+                                images: [],
+                                other: []
+                            };
+
+                            // Process each file in the archive
+                            for (const [filename, fileData] of Object.entries(zipData.files)) {
+                                if (fileData.dir) continue; // Skip directories
+
+                                const lowerName = filename.toLowerCase();
+                                
+                                if (lowerName.endsWith('.osu')) {
+                                    const content = await fileData.async('text');
+                                    
+                                    // Validate osu!mania mode for charts in archive
+                                    const validationResult = this.validateOsuFile(content);
+                                    if (validationResult.isValid) {
+                                        extractedFiles.charts.push({
+                                            filename,
+                                            content,
+                                            size: content.length,
+                                            mode: validationResult.mode
+                                        });
+                                    } else {
+                                        console.warn(`Skipping ${filename}: ${validationResult.error}`);
+                                    }
+                                } else if (lowerName.endsWith('.mp3') || lowerName.endsWith('.wav') || lowerName.endsWith('.ogg')) {
+                                    const blob = await fileData.async('blob');
+                                    extractedFiles.audio.push({
+                                        filename,
+                                        url: URL.createObjectURL(blob),
+                                        size: blob.size,
+                                        type: blob.type
+                                    });
+                                } else if (lowerName.endsWith('.jpg') || lowerName.endsWith('.jpeg') || lowerName.endsWith('.png')) {
+                                    const blob = await fileData.async('blob');
+                                    extractedFiles.images.push({
+                                        filename,
+                                        url: URL.createObjectURL(blob),
+                                        size: blob.size
+                                    });
+                                }
+                            }
+
+                            resolve(extractedFiles);
+                        } catch (error) {
+                            reject(new Error('Failed to extract archive: ' + error.message));
+                        }
+                    };
+                    reader.onerror = () => {
+                        reject(new Error('Failed to read archive file'));
+                    };
+                    reader.readAsArrayBuffer(file);
+                });
+            },
+
+            parseChartMetadata(content) {
+                const metadata = {
+                    title: 'Unknown Title',
+                    artist: 'Unknown Artist',
+                    creator: 'Unknown Creator',
+                    version: 'Unknown Difficulty'
+                };
+
+                const lines = content.split('\n');
+                let inMetadataSection = false;
+
+                for (const line of lines) {
+                    const trimmedLine = line.trim();
+                    
+                    if (trimmedLine.startsWith('[') && trimmedLine.endsWith(']')) {
+                        inMetadataSection = trimmedLine.toLowerCase() === '[metadata]';
+                        continue;
+                    }
+
+                    if (inMetadataSection && trimmedLine.includes(':')) {
+                        const [key, value] = trimmedLine.split(':', 2);
+                        const cleanKey = key.trim().toLowerCase();
+                        const cleanValue = value.trim();
+
+                        switch (cleanKey) {
+                            case 'title':
+                                metadata.title = cleanValue;
+                                break;
+                            case 'artist':
+                                metadata.artist = cleanValue;
+                                break;
+                            case 'creator':
+                                metadata.creator = cleanValue;
+                                break;
+                            case 'version':
+                                metadata.version = cleanValue;
+                                break;
+                        }
+                    }
+                }
+
+                return metadata;
+            }
+        };
+
+        // Use GameUtils if available, otherwise use fallback
+        const beatmapAPI = (typeof GameUtils !== 'undefined' && GameUtils.beatmap) ? GameUtils.beatmap : BeatmapUtils;
+
+        // Upload mode switching
+        function switchUploadMode(mode) {
+            currentUploadMode = mode;
+            
+            // Update button states
+            document.querySelectorAll('.mode-btn').forEach(btn => btn.classList.remove('active'));
+            event.target.classList.add('active');
+            
+            // Show/hide sections
+            document.querySelectorAll('.upload-section').forEach(section => section.classList.remove('active'));
+            document.getElementById(mode === 'individual' ? 'individual-upload' : 'osz-upload').classList.add('active');
+            
+            // Reset states
+            resetUploadStates();
+        }
+
+        function resetUploadStates() {
+            filesLoaded = { chart: false, audio: false };
+            chartDataFromLoader = null;
+            oszData = null;
+            availableCharts = [];
+            document.getElementById('start-game-btn').disabled = true;
+            
+            // Hide all status messages
+            document.querySelectorAll('.file-status').forEach(status => {
+                status.style.display = 'none';
+            });
+            
+            // Reset file inputs
+            document.querySelectorAll('input[type="file"]').forEach(input => {
+                input.value = '';
+            });
+        }
+
+        function showStatus(elementId, message, isError = false) {
+            const statusDiv = document.getElementById(elementId);
+            statusDiv.textContent = message;
+            statusDiv.className = `file-status ${isError ? 'error' : 'success'}`;
+            statusDiv.style.display = 'block';
+        }
 
         // This function is the main entry point after files are ready.
         function showGameSetup(chartText, songTitle) {
@@ -166,37 +523,181 @@
             startTime();
         });
 
-        // --- Custom File Upload Logic ---
-        document.getElementById('uploadOsu').addEventListener('change', (e) => {
+        // --- Individual File Upload Logic ---
+        document.getElementById('uploadOsu').addEventListener('change', async (e) => {
             const file = e.target.files[0];
-            const statusDiv = document.getElementById('chart-status');
-            if (file) {
-                const reader = new FileReader();
-                reader.onload = (event) => {
-                    chartDataFromLoader = event.target.result;
-                    filesLoaded.chart = true;
-                    statusDiv.textContent = `Loaded: ${file.name}`;
-                    statusDiv.className = 'file-status success';
-                    statusDiv.style.display = 'block';
-                    if (filesLoaded.audio) document.getElementById('start-game-btn').disabled = false;
-                };
-                reader.readAsText(file, "UTF-8");
+            if (!file) return;
+
+            try {
+                // Validate file type
+                if (!beatmapAPI.isValidChartFile(file)) {
+                    throw new Error('Invalid chart file format. Please select a .osu or .txt file.');
+                }
+
+                const chartData = await beatmapAPI.readChartFile(file);
+                
+                chartDataFromLoader = chartData;
+                filesLoaded.chart = true;
+                showStatus('chart-status', `Loaded: ${file.name}`);
+                
+                if (filesLoaded.audio) {
+                    document.getElementById('start-game-btn').disabled = false;
+                }
+            } catch (error) {
+                showStatus('chart-status', `Error: ${error.message}`, true);
+                filesLoaded.chart = false;
+                chartDataFromLoader = null;
             }
         });
 
-        document.getElementById('uploadAudio').addEventListener('change', (e) => {
+        document.getElementById('uploadAudio').addEventListener('change', async (e) => {
             const file = e.target.files[0];
-            const statusDiv = document.getElementById('audio-status');
-            if (file) {
-                audio1.src = URL.createObjectURL(file);
-                audio1.load();
+            if (!file) return;
+
+            try {
+                // Validate file type
+                if (!beatmapAPI.isValidAudioFile(file)) {
+                    throw new Error('Invalid audio file format. Please select a .mp3, .wav, or .ogg file.');
+                }
+
+                const audioElement = document.getElementById('audioPlayer');
+                const audioData = await beatmapAPI.readAudioFile(file);
+                await beatmapAPI.setupAudioElement(audioElement, audioData);
+                
                 filesLoaded.audio = true;
-                statusDiv.textContent = `Loaded: ${file.name}`;
-                statusDiv.className = 'file-status success';
-                statusDiv.style.display = 'block';
-                if (filesLoaded.chart) document.getElementById('start-game-btn').disabled = false;
+                showStatus('audio-status', `Loaded: ${file.name}`);
+                
+                if (filesLoaded.chart) {
+                    document.getElementById('start-game-btn').disabled = false;
+                }
+            } catch (error) {
+                showStatus('audio-status', `Error: ${error.message}`, true);
+                filesLoaded.audio = false;
             }
         });
+
+        // --- OSZ File Upload Logic ---
+        document.getElementById('uploadOsz').addEventListener('change', async (e) => {
+            const file = e.target.files[0];
+            if (!file) return;
+
+            try {
+                // Validate file type
+                if (!beatmapAPI.isValidArchive(file)) {
+                    throw new Error('Invalid archive file. Please select a .osz file.');
+                }
+
+                showStatus('osz-status', 'Extracting archive...');
+                
+                // Extract OSZ archive
+                const extractedData = await beatmapAPI.extractOszArchive(file);
+                oszData = extractedData;
+                
+                // Check if we have charts and audio
+                if (extractedData.charts.length === 0) {
+                    throw new Error('No valid osu!mania charts found in the archive.');
+                }
+                
+                if (extractedData.audio.length === 0) {
+                    throw new Error('No audio files found in the archive.');
+                }
+                
+                // Show chart selection if multiple charts found
+                if (extractedData.charts.length > 1) {
+                    availableCharts = extractedData.charts.map((chart, index) => ({
+                        ...chart,
+                        index,
+                        metadata: beatmapAPI.parseChartMetadata(chart.content)
+                    }));
+                    populateChartSelector(availableCharts);
+                    document.getElementById('chart-selection').style.display = 'block';
+                    showStatus('osz-status', `Extracted ${extractedData.charts.length} charts. Please select one.`);
+                } else if (extractedData.charts.length === 1) {
+                    // Auto-select single chart
+                    await selectChart(0);
+                } else {
+                    throw new Error('No valid charts found in the archive.');
+                }
+            } catch (error) {
+                showStatus('osz-status', `Error: ${error.message}`, true);
+                resetOszData();
+            }
+        });
+
+        function populateChartSelector(charts) {
+            const selector = document.getElementById('chartSelect');
+            selector.innerHTML = '';
+            
+            charts.forEach((chart, index) => {
+                const option = document.createElement('option');
+                option.value = index;
+                const title = chart.metadata.title || 'Unknown Title';
+                const version = chart.metadata.version || 'Unknown Difficulty';
+                option.textContent = `${title} [${version}]`;
+                selector.appendChild(option);
+            });
+            
+            // Add change event listener
+            selector.addEventListener('change', (e) => {
+                selectChart(parseInt(e.target.value));
+            });
+        }
+
+        async function selectChart(chartIndex) {
+            try {
+                if (!oszData || !oszData.charts[chartIndex]) {
+                    throw new Error('Chart not found.');
+                }
+
+                const selectedChart = oszData.charts[chartIndex];
+                chartDataFromLoader = selectedChart.content;
+                
+                // Setup audio - use the first audio file found
+                const audioElement = document.getElementById('audioPlayer');
+                const audioFile = oszData.audio[0];
+                
+                audioElement.src = audioFile.url;
+                audioElement.load();
+                
+                // Wait for audio to be ready
+                await new Promise((resolve, reject) => {
+                    const onCanPlay = () => {
+                        audioElement.removeEventListener('canplay', onCanPlay);
+                        audioElement.removeEventListener('error', onError);
+                        resolve();
+                    };
+                    const onError = () => {
+                        audioElement.removeEventListener('canplay', onCanPlay);
+                        audioElement.removeEventListener('error', onError);
+                        reject(new Error('Failed to load audio'));
+                    };
+                    audioElement.addEventListener('canplay', onCanPlay);
+                    audioElement.addEventListener('error', onError);
+                });
+                
+                filesLoaded.chart = true;
+                filesLoaded.audio = true;
+                
+                const chartInfo = availableCharts.length > 0 ? availableCharts[chartIndex] : 
+                    { metadata: beatmapAPI.parseChartMetadata(selectedChart.content) };
+                
+                showStatus('osz-status', `Selected: ${chartInfo.metadata.title} [${chartInfo.metadata.version}]`);
+                document.getElementById('start-game-btn').disabled = false;
+                
+            } catch (error) {
+                showStatus('osz-status', `Error: ${error.message}`, true);
+                resetOszData();
+            }
+        }
+
+        function resetOszData() {
+            oszData = null;
+            availableCharts = [];
+            document.getElementById('chart-selection').style.display = 'none';
+            filesLoaded = { chart: false, audio: false };
+            chartDataFromLoader = null;
+            document.getElementById('start-game-btn').disabled = true;
+        }
         
         // --- Initializer ---
         document.addEventListener('DOMContentLoaded', () => {

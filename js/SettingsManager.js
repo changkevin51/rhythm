@@ -8,7 +8,7 @@ class SettingsManager {
         this.defaultSettings = {
             // Gameplay settings
             scrollSpeed: 450,
-            offset: -40,
+            offset: -50,
             scale: 100,
             
             // Controls
