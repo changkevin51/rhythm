@@ -15,10 +15,8 @@ class SongManager {
                 artist: "KANA-BOON", 
                 difficulty: "Multiple Difficulties", 
                 difficultyColor: "#0080FF", 
-                // OSZ file with multiple difficulties
                 oszFile: "Songs/naruto/310793 KANA-BOON - Silhouette.osz",
                 allowDifficultySelection: true,
-                // Keep fallback files for compatibility (will be ignored if OSZ works)
                 audioFile: "Songs/naruto/audio.mp3", 
                 chartFile: "Songs/naruto/LeaF - Aleph-0 (jakads) [Cardinality].txt", 
                 background: "linear-gradient(135deg, #001122 0%, #003366 50%, #0080FF 100%)", 
@@ -30,10 +28,8 @@ class SongManager {
                 artist: "Toby Fox", 
                 difficulty: "Multiple Difficulties", 
                 difficultyColor: "#00FFAA", 
-                // OSZ file with multiple difficulties
                 oszFile: "Songs/quiet-water/1596272 toby fox - Quiet Water.osz",
                 allowDifficultySelection: true,
-                // Keep fallback files for compatibility (will be ignored if OSZ works)
                 audioFile: null, 
                 chartFile: null, 
                 background: "linear-gradient(135deg, #003366 0%, #006699 50%, #00FFAA 100%)", 
@@ -45,7 +41,6 @@ class SongManager {
                 artist: "BaconAkin", 
                 difficulty: "Multiple Difficulties", 
                 difficultyColor: "#00CCFF", 
-                // OSZ file with multiple difficulties
                 oszFile: "Songs/yeah-boy/576426 BaconAkin - Yeah Boy - Shooting Stars [no video].osz",
                 allowDifficultySelection: true,
                 audioFile: "Songs/yeah-boy/05 Fastest Crash.mp3", 
@@ -59,7 +54,6 @@ class SongManager {
                 artist: "LeaF", 
                 difficulty: "Multiple Difficulties", 
                 difficultyColor: "#0066AA", 
-                // OSZ file with multiple difficulties
                 oszFile: "Songs/NANO DEATH/478161 LeaF - NANO DEATH!!!!!.osz",
                 allowDifficultySelection: true,
                 audioFile: "Songs/NANO DEATH/audio.mp3", 
@@ -73,7 +67,6 @@ class SongManager {
                 artist: "xi", 
                 difficulty: "FOUR DIMENSIONS", 
                 difficultyColor: "#0080FF", 
-                // Individual files (no OSZ available yet)
                 oszFile: null,
                 audioFile: "Songs/zenith/zenith.mp3", 
                 chartFile: "Songs/zenith/xi - Blue Zenith (Jepetski) [FOUR DIMENSIONS].txt", 
@@ -86,7 +79,6 @@ class SongManager {
                 artist: "xi", 
                 difficulty: "Frenzy Another", 
                 difficultyColor: "#003366", 
-                // Individual files (no OSZ available yet)
                 oszFile: null,
                 audioFile: "Songs/zenith/zenith.mp3", 
                 chartFile: "Songs/zenith/xi - Blue Zenith (Jepetski) [Frenzy Another].txt", 
@@ -120,7 +112,7 @@ class SongManager {
         const song = this.getSong(songId);
         if (!song) {
             console.error(`Song with ID "${songId}" not found`);
-            if (typeof showGameSetup === 'function') showGameSetup(null, null);
+            if (typeof showGameSetup === 'function')
             return;
         }
 
@@ -130,9 +122,7 @@ class SongManager {
 
         try {
             console.log("Starting to load song files...");
-            // Try to load OSZ file first, then fall back to individual files
             const loadResult = await this.loadSongFiles(song);
-            
             console.log("Song files loaded successfully:", loadResult);
             console.log("Handing off to game setup.");
             if (typeof showGameSetup === 'function') {
@@ -146,7 +136,6 @@ class SongManager {
             console.error('Error stack:', error.stack);
             alert(`Error loading song: ${error.message}`);
             
-            // Try to show game setup anyway with null data
             if (typeof showGameSetup === 'function') {
                 showGameSetup(null, null);
             }
@@ -155,8 +144,6 @@ class SongManager {
 
     async loadSongFiles(song) {
         console.log("LoadSongFiles called with:", song.id);
-        
-        // First, try to load OSZ file if it exists
         if (song.oszFile) {
             try {
                 console.log(`Attempting to load OSZ file: ${song.oszFile}`);
@@ -172,8 +159,6 @@ class SongManager {
         } else {
             console.log("No OSZ file specified, using individual files");
         }
-
-        // Fall back to individual files
         console.log("Loading individual files...");
         try {
             const result = await this.loadIndividualFiles(song);
@@ -187,7 +172,6 @@ class SongManager {
 
     async loadOszFile(oszPath, song) {
         try {
-            // Fetch the OSZ file
             const response = await fetch(oszPath);
             if (!response.ok) {
                 throw new Error(`Failed to fetch OSZ file: ${response.status}`);
@@ -195,10 +179,8 @@ class SongManager {
 
             const oszBlob = await response.blob();
             
-            // Create a file-like object for the beatmap API
             const oszFile = new File([oszBlob], oszPath.split('/').pop(), { type: 'application/zip' });
             
-            // Use the beatmap API to extract the OSZ
             const beatmapAPI = this.getBeatmapAPI();
             const extractedData = await beatmapAPI.extractOszArchive(oszFile);
             
@@ -210,15 +192,12 @@ class SongManager {
                 throw new Error('No audio files found in OSZ file');
             }
 
-            // Check if this song allows difficulty selection and has multiple charts
             if (song.allowDifficultySelection && extractedData.charts.length > 1) {
-                // Show difficulty selection dialog
                 const selectedChart = await this.showDifficultySelectionDialog(extractedData.charts, song);
                 if (!selectedChart) {
                     throw new Error('No difficulty selected');
                 }
                 
-                // Setup audio with MP3 priority and return selected chart
                 await this.setupAudioFromOsz(this.selectBestAudioFile(extractedData.audio));
                 
                 return {
@@ -227,7 +206,6 @@ class SongManager {
                     source: 'osz-selected'
                 };
             } else {
-                // Auto-select chart (existing logic)
                 let selectedChart = extractedData.charts[0]; // Default to first chart
                 
                 if (song.difficulty && extractedData.charts.length > 1) {
@@ -243,7 +221,6 @@ class SongManager {
                     }
                 }
 
-                // Setup audio with MP3 priority and return selected chart
                 await this.setupAudioFromOsz(this.selectBestAudioFile(extractedData.audio));
                 
                 return {
@@ -263,15 +240,12 @@ class SongManager {
             throw new Error('No audio files found');
         }
 
-        // Priority order: .mp3 > .ogg > .wav
-        // WAV files are often sound effects in OSZ files
         const priorities = {
             '.mp3': 3,
             '.ogg': 2,
             '.wav': 1
         };
 
-        // Sort audio files by priority (highest first)
         const sortedAudio = audioFiles.sort((a, b) => {
             const extA = '.' + a.filename.split('.').pop().toLowerCase();
             const extB = '.' + b.filename.split('.').pop().toLowerCase();
@@ -291,7 +265,6 @@ class SongManager {
         audioPlayer.src = audioFile.url;
         audioPlayer.load();
 
-        // Wait for audio to be ready
         await new Promise((resolve, reject) => {
             const canPlayHandler = () => {
                 audioPlayer.removeEventListener('error', errorHandler);
@@ -310,7 +283,6 @@ class SongManager {
         return new Promise((resolve) => {
             const beatmapAPI = this.getBeatmapAPI();
             
-            // Parse chart metadata for better display
             const chartInfo = charts.map((chart, index) => {
                 const metadata = beatmapAPI.parseChartMetadata(chart.content);
                 return {
@@ -436,9 +408,7 @@ class SongManager {
 
     async loadIndividualFiles(song) {
         console.log("Loading individual files for song:", song.id);
-        
         try {
-            // Load chart file
             console.log("Loading chart file:", song.chartFile);
             const chartResponse = await fetch(song.chartFile);
             if (!chartResponse.ok) {
@@ -446,12 +416,9 @@ class SongManager {
             }
             const chartData = await chartResponse.text();
             console.log("Chart data loaded, length:", chartData.length);
-            
-            // Load audio file (with timeout and fallback)
             console.log("Loading audio file:", song.audioFile);
             const audioPlayer = document.getElementById('audioPlayer');
             audioPlayer.src = song.audioFile;
-
             try {
                 await Promise.race([
                     new Promise((resolve, reject) => {
@@ -476,54 +443,40 @@ class SongManager {
                 ]);
             } catch (audioError) {
                 console.warn("Audio failed to load, but continuing with chart only:", audioError.message);
-                // Continue without audio - the game can still work
             }
-
             console.log("Individual files loaded successfully");
             return {
                 success: true,
                 chartData: chartData,
                 source: 'individual'
             };
-
         } catch (error) {
             console.error("Individual files loading failed:", error);
             throw new Error(`Individual files loading failed: ${error.message}`);
         }
     }
 
-    // Get the beatmap API (with fallback)
     getBeatmapAPI() {
-        // Try to use the same API as in game.html
         if (typeof window !== 'undefined' && window.beatmapAPI) {
             return window.beatmapAPI;
         }
-        
-        // Use GameUtils if available
         if (typeof GameUtils !== 'undefined' && GameUtils.beatmap) {
             return GameUtils.beatmap;
         }
-
-        // Basic fallback for OSZ extraction
         return {
             extractOszArchive: async (file) => {
                 if (typeof JSZip === 'undefined') {
                     throw new Error('JSZip library is required for OSZ support');
                 }
-
                 const zip = new JSZip();
                 const zipData = await zip.loadAsync(file);
-                
                 const extractedFiles = {
                     charts: [],
                     audio: []
                 };
-
                 for (const [filename, fileData] of Object.entries(zipData.files)) {
                     if (fileData.dir) continue;
-
                     const lowerName = filename.toLowerCase();
-                    
                     if (lowerName.endsWith('.osu')) {
                         const content = await fileData.async('text');
                         extractedFiles.charts.push({
@@ -541,45 +494,34 @@ class SongManager {
                         });
                     }
                 }
-
-                // Sort audio files to prioritize MP3 over WAV (WAV files are often sound effects)
                 extractedFiles.audio.sort((a, b) => {
                     const extA = '.' + a.filename.split('.').pop().toLowerCase();
                     const extB = '.' + b.filename.split('.').pop().toLowerCase();
-                    
                     const priorities = { '.mp3': 3, '.ogg': 2, '.wav': 1 };
                     const priorityA = priorities[extA] || 0;
                     const priorityB = priorities[extB] || 0;
-                    
                     return priorityB - priorityA;
                 });
-
                 return extractedFiles;
             },
-
             parseChartMetadata: (content) => {
                 const metadata = {
                     title: 'Unknown Title',
                     artist: 'Unknown Artist',
                     version: 'Unknown Difficulty'
                 };
-
                 const lines = content.split('\n');
                 let inMetadataSection = false;
-
                 for (const line of lines) {
                     const trimmedLine = line.trim();
-                    
                     if (trimmedLine.startsWith('[') && trimmedLine.endsWith(']')) {
                         inMetadataSection = trimmedLine.toLowerCase() === '[metadata]';
                         continue;
                     }
-
                     if (inMetadataSection && trimmedLine.includes(':')) {
                         const [key, value] = trimmedLine.split(':', 2);
                         const cleanKey = key.trim().toLowerCase();
                         const cleanValue = value.trim();
-
                         switch (cleanKey) {
                             case 'title':
                                 metadata.title = cleanValue;
@@ -593,7 +535,6 @@ class SongManager {
                         }
                     }
                 }
-
                 return metadata;
             }
         };

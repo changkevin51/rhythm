@@ -1,9 +1,8 @@
 "use strict";
 
-// State variables based on the original working script
 let preTime=2000;
 let time=0;
-let content; // This will hold the parsed chart object
+let content;
 let TPnums=0;
 let BPMnums=0;
 let BPMs={};
@@ -32,14 +31,12 @@ let Combo=0;
 let LineHold=[-1,-1,-1,-1];
 let TouchHold=[-1,-1,-1,-1];
 let LaserTime=150;
-let offset = -40;  // Base offset, will be combined with user calibration
-let effectiveOffset = offset;  // This will be the combined offset used in calculations
+let offset = -40;
+let effectiveOffset = offset;
 
-// Judgement line configuration
-const JUDGEMENT_LINE_Y = 650; // Position of the judgement line (650px from top, 150px from bottom)
+const JUDGEMENT_LINE_Y = 650;
 const CANVAS_HEIGHT = 800;
 
-// Function to update effective offset from settings
 function updateOffsetFromSettings() {
     if (typeof gameSettings !== 'undefined' && gameSettings) {
         try {
@@ -55,39 +52,30 @@ function updateOffsetFromSettings() {
     }
 }
 
-// Safe initialization function to ensure DOM elements are available
 function initializeGameElements() {
     console.log('Initializing game elements...');
-    
     audio1 = document.getElementById("audioPlayer");
     if (!audio1) {
         console.error('Audio element not found!');
         return false;
     }
-    
     c = document.getElementById("myCanvas");
     if (!c) {
         console.error('Canvas element not found!');
         return false;
     }
-    
     ctx = c.getContext("2d");
     if (!ctx) {
         console.error('Canvas context not available!');
         return false;
     }
-    
-    // Initialize gradients only after canvas is available
     linear = ctx.createLinearGradient(75,CANVAS_HEIGHT,75,JUDGEMENT_LINE_Y);
     linear.addColorStop(0,"#9ED3FF");
     linear.addColorStop(1,"rgba(0,0,0,0)");
-
-    // Wave-themed gradients and effects
     waveGradient = ctx.createLinearGradient(0, 0, 600, 0);
     waveGradient.addColorStop(0, "rgba(0, 180, 255, 0.3)");
     waveGradient.addColorStop(0.5, "rgba(0, 255, 200, 0.2)");
     waveGradient.addColorStop(1, "rgba(0, 120, 200, 0.3)");
-    
     console.log('Game elements initialized successfully');
     return true;
 }
@@ -95,9 +83,8 @@ let Scale=100;
 let Result=[0,0,0,0,0,0,0];
 let FastCount=0,SlowCount=0,MaxCombo=0;
 const bindKey=[68,70,74,75];
-let c, ctx, linear, waveGradient;  // Will be initialized when DOM is ready
+let c, ctx, linear, waveGradient;
 
-// The ORIGINAL working parser
 function parseOsuString(data) {
     let regex = {
         section: /^\s*\[\s*([^\]]*)\s*\]\s*$/,
@@ -109,7 +96,7 @@ function parseOsuString(data) {
     let value = {};
     let lines = data.split(/\r\n|\r|\n/);
     let section = null;
-    TPnums = 0; // Reset counters before parsing
+    TPnums = 0;
     HOnums = 0;
     lines.forEach(function(line){
         if(regex.comment.test(line)){
@@ -150,44 +137,32 @@ function parseOsuString(data) {
     return value;
 }
 
-// Function to process the chart data. This is the ORIGINAL working logic.
 function processChartData(chartText) {
     console.log('Processing chart data...', chartText ? 'Data provided' : 'No data');
-    
     if (!chartText) {
         throw new Error('No chart data provided to processChartData');
     }
-    
-    // Reset all game state variables before processing
     p = 0; BPMnums = 0; LN = 0; Score = 0; Combo = 0; MaxCombo = 0;
     FastCount = 0; SlowCount = 0;
     BPMs = {}; Objs = {}; Result.fill(0);
-    LineQueue=[[],[],[],[]]; // Use arrays for queues, not objects
+    LineQueue=[[],[],[],[]];
     LineQueueTail=[0,0,0,0]; LineQueueHead=[0,0,0,0];
-    
-    // Clear wave animations
     if(typeof waveManager !== 'undefined') {
         waveManager.clearWaves();
     }
     if(window.waveNotesTracked) {
         window.waveNotesTracked.clear();
     }
-    
     try {
         content = parseOsuString(chartText);
         console.log('Chart parsed, content:', content);
-        
         if (!content) {
             throw new Error('Failed to parse chart data');
         }
-        
         if (!content["TimingPoints"] || !content["HitObjects"]) {
             throw new Error('Chart missing required sections (TimingPoints or HitObjects)');
         }
-        
         console.log(`Chart contains ${TPnums} timing points and ${HOnums} hit objects`);
-
-        // This is the CRITICAL part from the original working script
         for(let i=0;i<TPnums;i++) {
             if(content["TimingPoints"][i][1]<0) {
                 content["TimingPoints"][i][8] = BPMnums - 1;
@@ -210,25 +185,20 @@ function processChartData(chartText) {
             Objs[i]["Available"]=true;
             LineQueue[Objs[i]["Key"]][LineQueueTail[Objs[i]["Key"]]++]=i;
         }
-        EndScore=(LN+HOnums)*5; // Original scoring
+        EndScore=(LN+HOnums)*5;
         console.log(`Chart processed: ${TPnums} TPs, ${HOnums} Notes. EndScore: ${EndScore}`);
-        
         if (TPnums === 0) {
             throw new Error('No timing points found in chart');
         }
-        
         if (HOnums === 0) {
             throw new Error('No hit objects found in chart');
         }
-        
     } catch (error) {
         console.error('Error processing chart data:', error);
         throw error;
     }
 }
 
-
-// GAME LOOP AND RENDERING (copied from original)
 window.requestAnimFrame = (function (callback) {
     return window.requestAnimationFrame ||
         window.webkitRequestAnimationFrame ||
@@ -243,25 +213,21 @@ document.ontouchmove = function (e) {
     e.preventDefault();
     return false;
 }
-let gameStarted = false; // Add a flag to prevent multiple starts
+let gameStarted = false;
 
 function startTime() {
-    // Safety check to ensure audio and canvas are available
     if (!audio1) {
         console.error('Audio element not available in startTime()');
         return;
     }
-    
     if (!c || !ctx) {
         console.error('Canvas or context not available in startTime()');
         return;
     }
-    
     if (!gameStarted) {
         gameStarted = true;
         console.log('Game loop started');
     }
-    
     if(preTime>0){
         time=-preTime+effectiveOffset;
         try {
@@ -280,7 +246,6 @@ function startTime() {
             if (playPromise !== undefined) {
                 playPromise.catch(error => {
                     console.error('Failed to play audio:', error);
-                    // Continue the game loop even if audio fails
                 });
             }
         } catch (error) {
@@ -295,16 +260,13 @@ function startTime() {
         return;
     }
     if(audio1.ended||audio1.paused)return;
-    
     time=audio1.currentTime * 1000+effectiveOffset;
     while(p<TPnums-1&&time>=content["TimingPoints"][p+1][0])p++;
-    
     try {
         draw();
     } catch (error) {
         console.error('Error in draw during main loop:', error);
     }
-    
     if(!(audio1.ended||audio1.paused))requestAnimFrame(startTime);
 }
 function initKeyListener() {
@@ -320,15 +282,10 @@ function removeKeyListener() {
     c.removeEventListener('touchend', processTouchend, true);
 }
 function calcPOS(tt) {
-    // --- ADD THIS DEFENSIVE CHECK ---
     if (!baseMpB || baseMpB <= 0) {
-        // Fallback to a default if baseMpB is invalid to prevent freezing.
-        // This should not happen with the fix in game.html, but it's good practice.
-        baseMpB = 500; // Corresponds to 120 BPM
+        baseMpB = 500;
         console.warn(`baseMpB was invalid (${baseMpB}), using fallback: 500`);
     }
-    // --- END OF CHECK ---
-
     let p1 = p;
     while (p1 > 0 && tt < content["TimingPoints"][p1][0]) p1--;
     tt = Number(tt);
@@ -336,18 +293,13 @@ function calcPOS(tt) {
     let pos = 0;
     let MpB = 0;
     let c = 0;
-
-    // Safety check for the very first timing point
-    if (!BPMs[content["TimingPoints"][p1][8]]) return 0; 
-
+    if (!BPMs[content["TimingPoints"][p1][8]]) return 0;
     for (let i = p1; i < TPnums; i++) {
         if (!BPMs[content["TimingPoints"][i][8]]) continue;
         MpB = BPMs[content["TimingPoints"][i][8]][1];
         if (content["TimingPoints"][i][1] > 0) percent = 1; else percent = -content["TimingPoints"][i][1] / 100;
-        
         const scroll = scrollDuration * MpB * percent / baseMpB;
         if (scroll <= 0) continue;
-
         if (i === TPnums - 1 || content["TimingPoints"][i + 1][0] > time) {
             c = (time - content["TimingPoints"][i][0]) * JUDGEMENT_LINE_Y / scroll;
         } else {
@@ -360,10 +312,8 @@ function calcPOS(tt) {
         if (!BPMs[content["TimingPoints"][i][8]]) continue;
         MpB = BPMs[content["TimingPoints"][i][8]][1];
         if (content["TimingPoints"][i][1] > 0) percent = 1; else percent = -content["TimingPoints"][i][1] / 100;
-        
         const scroll = scrollDuration * MpB * percent / baseMpB;
         if (scroll <= 0) continue;
-
         if (i === TPnums - 1 || content["TimingPoints"][i + 1][0] > tt) {
             c = (tt - content["TimingPoints"][i][0]) * JUDGEMENT_LINE_Y / scroll;
         } else {
@@ -372,7 +322,6 @@ function calcPOS(tt) {
         pos = pos + c;
         if (i === TPnums - 1 || content["TimingPoints"][i + 1][0] > tt) break;
     }
-
     return Number(pos - tpos);
 }
 
@@ -394,8 +343,6 @@ function HitEvent(Key, number, early) {
         if(early)FastCount++;else SlowCount++;
     Result[number]++;
     JudgeNew=time+JudgeTime;
-    
-    // Add wave splash effect for hits
     if(typeof waveManager !== 'undefined' && waveManager.isReady()) {
         waveManager.addHitSplash(Key, number);
     }
@@ -519,7 +466,6 @@ function processTouchend(e){
         } else {
             HitEvent(Key, 5, time<et);
         }
-
     }
 }
 function processKeydown(e) {
@@ -645,7 +591,6 @@ function processKeyup(e){
         } else {
             HitEvent(Key, 5, time<et);
         }
-
     }
 }
 function draw_Bar_Line() {
@@ -726,10 +671,8 @@ function EndingScene() {
 }
 function draw_Notes() {
     ctx.save();
-    
     for(let Col=0;Col<4;Col++){
         for(let i=LineQueueHead[Col];i<LineQueueTail[Col];i++){
-
             if(Objs[LineQueue[Col][i]]["EndTime"]>0&&time-Objs[LineQueue[Col][i]]["EndTime"]>0){
                 if(Objs[LineQueue[Col][i]]["Available"]&&LineHold[Col]===LineQueue[Col][i]){
                     HitEvent(Col, 0);
@@ -748,54 +691,45 @@ function draw_Notes() {
                         } else {
                             Objs[LineQueue[Col][i]]["Available"] = false;
                         }
-
                     }
             }
             let L=0;
             let color="#FFFFFF";
             ctx.strokeStyle="#FF0000";
-            
-            // Wave-themed colors
             switch(Col){
                 case 0: 
                     L=0; 
-                    color="rgba(180, 230, 255, 0.9)"; // Light blue wave
+                    color="rgba(180, 230, 255, 0.9)";
                     ctx.strokeStyle="#0080FF"; 
                     break;
                 case 1: 
                     L=150; 
-                    color="rgba(0, 255, 200, 0.9)"; // Aqua wave
+                    color="rgba(0, 255, 200, 0.9)";
                     ctx.strokeStyle="#00FFAA"; 
                     break;
                 case 2: 
                     L=300; 
-                    color="rgba(0, 255, 200, 0.9)"; // Aqua wave
+                    color="rgba(0, 255, 200, 0.9)";
                     ctx.strokeStyle="#00FFAA"; 
                     break;
                 case 3: 
                     L=450; 
-                    color="rgba(180, 230, 255, 0.9)"; // Light blue wave
+                    color="rgba(180, 230, 255, 0.9)";
                     ctx.strokeStyle="#0080FF"; 
                     break;
             }
-            
             if(!Objs[LineQueue[Col][i]]["Available"]){
                 color="rgba(127, 127, 127, 0.6)";
                 ctx.strokeStyle="#7F0000";
                 if(Col === 1 || Col === 2) color="rgba(11, 127, 127, 0.6)";
             }
             ctx.fillStyle=color;
-
             ctx.lineWidth=4;
             let pos=calcPOS(Objs[LineQueue[Col][i]]["StartTime"]);
             if(pos>JUDGEMENT_LINE_Y+noteThick)break;
-            
-            // Add wave animation for notes when they first appear
             if(typeof waveManager !== 'undefined' && waveManager.isReady() && pos <= JUDGEMENT_LINE_Y + 300 && pos >= -100) {
-                // Only add wave if note is in visible range and we haven't added one recently
                 const noteId = `${Col}_${LineQueue[Col][i]}`;
                 if (!window.waveNotesTracked) window.waveNotesTracked = new Set();
-                
                 if (!window.waveNotesTracked.has(noteId)) {
                     window.waveNotesTracked.add(noteId);
                     waveManager.addWaveForNote(
@@ -806,48 +740,34 @@ function draw_Notes() {
                     );
                 }
             }
-            
             if(Objs[LineQueue[Col][i]]["EndTime"]!==0){
                 let pos2=calcPOS(Objs[LineQueue[Col][i]]["EndTime"]);
                 if(pos2<0){
                     continue;
                 }
-                
-                // Add wave gradient effect to long notes
                 ctx.save();
                 const longNoteGradient = ctx.createLinearGradient(L, JUDGEMENT_LINE_Y-pos2, L, JUDGEMENT_LINE_Y-pos+noteThick);
                 longNoteGradient.addColorStop(0, color);
                 longNoteGradient.addColorStop(0.5, color.replace('0.9', '0.7'));
                 longNoteGradient.addColorStop(1, color.replace('0.9', '0.9'));
                 ctx.fillStyle = longNoteGradient;
-                
                 ctx.fillRect(L,JUDGEMENT_LINE_Y-pos2,150,pos2-pos+noteThick);
                 ctx.strokeRect(L+2,JUDGEMENT_LINE_Y-pos2+2,150-4,pos2-pos+noteThick-4);
                 ctx.restore();
-
             }else{
                 if(pos<0){
                     continue;
                 }
-                
-                // Add wave ripple effect to regular notes
                 ctx.save();
-                
-                // Create wave ripple effect
                 const rippleGradient = ctx.createRadialGradient(L+75, JUDGEMENT_LINE_Y-pos+noteThick/2, 0, L+75, JUDGEMENT_LINE_Y-pos+noteThick/2, 75);
                 rippleGradient.addColorStop(0, color);
                 rippleGradient.addColorStop(0.7, color.replace('0.9', '0.6'));
                 rippleGradient.addColorStop(1, color.replace('0.9', '0.2'));
-                
-                // Draw note with wave effect
                 ctx.fillStyle = rippleGradient;
                 ctx.fillRect(L,JUDGEMENT_LINE_Y-pos,150,noteThick);
-                
-                // Add a subtle wave border effect
                 ctx.strokeStyle = ctx.strokeStyle;
                 ctx.lineWidth = 2;
                 ctx.strokeRect(L+1,JUDGEMENT_LINE_Y-pos+1,148,noteThick-2);
-                
                 ctx.restore();
             }
         }
@@ -866,8 +786,6 @@ function draw_Lasers() {
             continue;
         }
         let L=Col*150;
-        
-        // Create wave-themed laser gradient
         const waveGradient = ctx.createLinearGradient(L, JUDGEMENT_LINE_Y, L, CANVAS_HEIGHT);
         switch(Col) {
             case 0:
@@ -883,12 +801,9 @@ function draw_Lasers() {
                 waveGradient.addColorStop(1, "rgba(0, 120, 80, 0.1)");
                 break;
         }
-        
         ctx.fillStyle = waveGradient;
         ctx.globalAlpha = Width/150;
-        
-        // Add wave ripple effect to the laser
-        const rippleOffset = (time / 100) % 20; // Animated ripple
+        const rippleOffset = (time / 100) % 20;
         for(let i = 0; i < 3; i++) {
             const rippleY = JUDGEMENT_LINE_Y + rippleOffset + i * 60;
             if(rippleY < CANVAS_HEIGHT) {
@@ -896,8 +811,6 @@ function draw_Lasers() {
                 ctx.fillRect(L+(150-Width)/2, rippleY, Width, 8);
             }
         }
-        
-        // Main laser beam
         ctx.globalAlpha = Width/150;
         ctx.fillRect(L+(150-Width)/2, JUDGEMENT_LINE_Y, Width, CANVAS_HEIGHT-JUDGEMENT_LINE_Y);
     }
@@ -909,21 +822,15 @@ function draw_Combo() {
     ctx.font = "bold 80px Arial";
     ctx.textAlign = "center";
     ctx.textBaseline = "bottom";
-    
-    // Create wave gradient for combo text
     const comboGradient = ctx.createLinearGradient(250, 100, 350, 180);
     comboGradient.addColorStop(0, "#00CCFF");
     comboGradient.addColorStop(0.5, "#00FFAA");
     comboGradient.addColorStop(1, "#80E0FF");
-    
     ctx.fillStyle = comboGradient;
     ctx.strokeStyle = "rgba(0, 60, 120, 0.8)";
     ctx.lineWidth = 4;
-    
-    // Add glow effect
     ctx.shadowColor = "#00CCFF";
     ctx.shadowBlur = 20;
-    
     ctx.strokeText(Combo, 300, 180);
     ctx.fillText(Combo, 300, 180);
     ctx.restore();
@@ -934,20 +841,14 @@ function draw_Score() {
     ctx.font = "bold 40px Arial";
     ctx.textAlign = "end";
     ctx.textBaseline = "bottom";
-    
-    // Wave-themed score gradient
     const scoreGradient = ctx.createLinearGradient(500, 30, 580, 50);
     scoreGradient.addColorStop(0, "#80E0FF");
     scoreGradient.addColorStop(1, "#00CCFF");
-    
     ctx.fillStyle = scoreGradient;
     ctx.strokeStyle = "rgba(0, 60, 120, 0.6)";
     ctx.lineWidth = 3;
-    
-    // Add subtle glow
     ctx.shadowColor = "#00CCFF";
     ctx.shadowBlur = 10;
-    
     ctx.strokeText(Score, 580, 50);
     ctx.fillText(Score, 580, 50);
     ctx.restore();
@@ -958,24 +859,17 @@ function draw_ACC() {
     ctx.font = "bold 25px Arial";
     ctx.textAlign = "end";
     ctx.textBaseline = "bottom";
-    
     if (EndScore === 0) return;
     let Accuracy = Math.round(Score/EndScore*10000)/100;
-    
-    // Accuracy color based on percentage
     let accColor = "#80E0FF";
     if (Accuracy >= 95) accColor = "#00FFAA";
     else if (Accuracy >= 90) accColor = "#00CCFF";
     else if (Accuracy >= 80) accColor = "#0080FF";
-    
     ctx.fillStyle = accColor;
     ctx.strokeStyle = "rgba(0, 40, 80, 0.6)";
     ctx.lineWidth = 2;
-    
-    // Add glow based on accuracy
     ctx.shadowColor = accColor;
     ctx.shadowBlur = Accuracy >= 95 ? 15 : 8;
-    
     ctx.strokeText(Accuracy+"%", 580, 80);
     ctx.fillText(Accuracy+"%", 580, 80);
     ctx.restore();
@@ -1025,104 +919,73 @@ function draw_FS() {
         ctx.strokeText("LATE", 300, 192);
         ctx.fillText("LATE", 300, 192);
     }
-
     ctx.restore();
 }
 function draw_Judgement_Line() {
     ctx.save();
-    
-    // Draw animated wave pattern for the judgement line
     const waveOffset = (time / 200) % (Math.PI * 2);
     const waveAmplitude = 3;
-    
-    // Create wave-like judgement line
     ctx.beginPath();
     ctx.moveTo(0, JUDGEMENT_LINE_Y);
-    
     for(let x = 0; x <= 600; x += 2) {
         const waveY = JUDGEMENT_LINE_Y + Math.sin((x * 0.03) + waveOffset) * waveAmplitude;
         ctx.lineTo(x, waveY);
     }
-    
-    // Draw the wave line with gradient
     const waveLineGradient = ctx.createLinearGradient(0, 0, 600, 0);
     waveLineGradient.addColorStop(0, "#00CCFF");
     waveLineGradient.addColorStop(0.5, "#00FFAA");
     waveLineGradient.addColorStop(1, "#00CCFF");
-    
     ctx.strokeStyle = waveLineGradient;
     ctx.lineWidth = 4;
     ctx.stroke();
-    
-    // Add glowing effect
     ctx.shadowColor = "#00CCFF";
     ctx.shadowBlur = 15;
     ctx.lineWidth = 2;
     ctx.stroke();
-    
-    // Reset shadow
     ctx.shadowColor = "transparent";
     ctx.shadowBlur = 0;
-    
-    // Draw lane dividers with wave theme
     for(let i = 1; i < 4; i++) {
         const x = i * 150;
-        
-        // Create animated divider
         ctx.beginPath();
         ctx.moveTo(x, JUDGEMENT_LINE_Y - 15);
-        
         for(let y = JUDGEMENT_LINE_Y - 15; y <= JUDGEMENT_LINE_Y + 15; y += 2) {
             const dividerX = x + Math.sin((y * 0.2) + waveOffset) * 2;
             ctx.lineTo(dividerX, y);
         }
-        
         ctx.strokeStyle = "rgba(0, 180, 255, 0.6)";
         ctx.lineWidth = 2;
         ctx.stroke();
     }
-    
     ctx.restore();
 }
 
-// Wave background effect
 function drawWaveBackground() {
-    if (!ctx) return; // Safety check
-    
+    if (!ctx) return;
     try {
         ctx.save();
-        
-        // Create animated wave background
-        const waveOffset = (time / 1000) * 50; // Slow wave animation
+        const waveOffset = (time / 1000) * 50;
         const waveHeight = 30;
         const waveFrequency = 0.02;
-        
-        // Draw multiple wave layers
         for (let layer = 0; layer < 3; layer++) {
             ctx.globalAlpha = 0.1 - layer * 0.02;
             ctx.fillStyle = layer === 0 ? '#0080FF' : layer === 1 ? '#00FFAA' : '#80D0FF';
-            
             ctx.beginPath();
             ctx.moveTo(0, CANVAS_HEIGHT);
-            
             for (let x = 0; x <= 600; x += 2) {
                 const y = CANVAS_HEIGHT - 50 - layer * 20 + 
                          Math.sin((x + waveOffset) * waveFrequency + layer * Math.PI / 3) * waveHeight;
                 ctx.lineTo(x, y);
             }
-            
             ctx.lineTo(600, CANVAS_HEIGHT);
             ctx.closePath();
             ctx.fill();
         }
-        
         ctx.restore();
     } catch (error) {
         console.warn('Error in drawWaveBackground:', error);
     }
 }
 
-// Function to get the base timing from processed chart data
 function getBaseMpBFromChart() {
     if (BPMs && BPMs[0] && BPMs[0][1] > 0) {
         return BPMs[0][1];
@@ -1131,31 +994,22 @@ function getBaseMpBFromChart() {
 }
 
 function draw() {
-    // Safety checks
     if (!ctx || !c) {
         console.warn('Canvas or context not available in draw()');
         return;
     }
-    
     if (!content) {
         console.warn('Chart content not available in draw()');
         return;
     }
-    
     ctx.clearRect(0, 0, c.width, c.height);
-    
-    // Draw wave background effect
     drawWaveBackground();
-    
     draw_Bar_Line();
     draw_Notes();
-    
-    // Render wave animations
     if(typeof waveManager !== 'undefined' && waveManager.isReady()) {
-        waveManager.update(time, 16); // Assuming ~60fps
+        waveManager.update(time, 16);
         waveManager.render(ctx);
     }
-    
     draw_Judgement_Line();
     draw_Lasers();
     draw_Combo();
@@ -1165,40 +1019,28 @@ function draw() {
     draw_FS();
 }
 
-// Reset game state function
 function resetGameState() {
     console.log('Resetting game state...');
-    
-    // Reset timing and state
     preTime = 2000;
     time = 0;
     p = 0;
     gameStarted = false;
-    
-    // Reset scoring
     Score = 0;
     Combo = 0;
     MaxCombo = 0;
     FastCount = 0;
     SlowCount = 0;
     Result.fill(0);
-    
-    // Reset key states
     keyAsync.fill(false);
     keyLaserTime.fill(0);
     LineHold.fill(-1);
     TouchHold.fill(-1);
-    
-    // Reset judge state
     JudgeNew = 0;
     JudgeType = 0;
     FSType = false;
-    
-    // Clear audio if playing
     if (audio1) {
         audio1.pause();
         audio1.currentTime = 0;
     }
-    
     console.log('Game state reset complete');
 }
