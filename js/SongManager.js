@@ -24,16 +24,18 @@ class SongManager {
                 background: "linear-gradient(135deg, #001122 0%, #003366 50%, #0080FF 100%)", 
                 description: "Ride the waves of ancient melodies" 
             },
-            "elysium": { 
-                id: "elysium", 
-                title: "Elysium", 
-                artist: "Rob Gasser", 
-                difficulty: "Heavenly Paradise", 
+            "quiet-water": { 
+                id: "quiet-water", 
+                title: "Quiet Water", 
+                artist: "Toby Fox", 
+                difficulty: "Multiple Difficulties", 
                 difficultyColor: "#00FFAA", 
-                // Individual files (no OSZ available yet)
-                oszFile: null,
-                audioFile: "Songs/Elysium/Rob Gasser - Elysium Original Mix FREE DOWNLOAD.mp3", 
-                chartFile: "Songs/Elysium/Rob Gasser - Elysium (LuigiClaren) [Heavenly Paradise].txt", 
+                // OSZ file with multiple difficulties
+                oszFile: "Songs/quiet-water/1596272 toby fox - Quiet Water.osz",
+                allowDifficultySelection: true,
+                // Keep fallback files for compatibility (will be ignored if OSZ works)
+                audioFile: null, 
+                chartFile: null, 
                 background: "linear-gradient(135deg, #003366 0%, #006699 50%, #00FFAA 100%)", 
                 description: "Journey through oceanic paradise with ethereal waves" 
             },
