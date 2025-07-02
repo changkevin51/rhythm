@@ -14,82 +14,82 @@ class SongManager {
                 title: "Silhouette", 
                 artist: "KANA-BOON", 
                 difficulty: "Multiple Difficulties", 
-                difficultyColor: "#F44336", 
+                difficultyColor: "#0080FF", 
                 // OSZ file with multiple difficulties
                 oszFile: "Songs/naruto/310793 KANA-BOON - Silhouette.osz",
                 allowDifficultySelection: true,
                 // Keep fallback files for compatibility (will be ignored if OSZ works)
                 audioFile: "Songs/naruto/audio.mp3", 
                 chartFile: "Songs/naruto/LeaF - Aleph-0 (jakads) [Cardinality].txt", 
-                background: "linear-gradient(135deg, #FF6B6B 0%, #4ECDC4 50%, #45B7D1 100%)", 
-                description: "An intense mathematical journey through infinite sets" 
+                background: "linear-gradient(135deg, #001122 0%, #003366 50%, #0080FF 100%)", 
+                description: "Ride the waves of ancient melodies" 
             },
             "elysium": { 
                 id: "elysium", 
                 title: "Elysium", 
                 artist: "Rob Gasser", 
                 difficulty: "Heavenly Paradise", 
-                difficultyColor: "#FF9800", 
+                difficultyColor: "#00FFAA", 
                 // Individual files (no OSZ available yet)
                 oszFile: null,
                 audioFile: "Songs/Elysium/Rob Gasser - Elysium Original Mix FREE DOWNLOAD.mp3", 
                 chartFile: "Songs/Elysium/Rob Gasser - Elysium (LuigiClaren) [Heavenly Paradise].txt", 
-                background: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)", 
-                description: "Journey through paradise with ethereal melodies" 
+                background: "linear-gradient(135deg, #003366 0%, #006699 50%, #00FFAA 100%)", 
+                description: "Journey through oceanic paradise with ethereal waves" 
             },
             "yeah-boy": { 
                 id: "yeah-boy", 
                 title: "Yeah Boy - Shooting Stars", 
                 artist: "BaconAkin", 
                 difficulty: "Multiple Difficulties", 
-                difficultyColor: "#E91E63", 
+                difficultyColor: "#00CCFF", 
                 // OSZ file with multiple difficulties
                 oszFile: "Songs/yeah-boy/576426 BaconAkin - Yeah Boy - Shooting Stars [no video].osz",
                 allowDifficultySelection: true,
                 audioFile: "Songs/yeah-boy/05 Fastest Crash.mp3", 
                 chartFile: "Songs/Fastest Crash/Camellia - Fastest Crash (Shoegazer) [Paroxysm].txt", 
-                background: "linear-gradient(135deg, #f093fb 0%, #f5576c 100%)", 
-                description: "Ultra-fast electronic madness that will test your limits" 
+                background: "linear-gradient(135deg, #0099CC 0%, #00CCFF 50%, #80E0FF 100%)", 
+                description: "Surf the stars with electronic wave madness" 
             },
             "nano-death": { 
                 id: "nano-death", 
                 title: "NANO DEATH!!!!!", 
                 artist: "LeaF", 
                 difficulty: "Multiple Difficulties", 
-                difficultyColor: "#9C27B0", 
+                difficultyColor: "#0066AA", 
                 // OSZ file with multiple difficulties
                 oszFile: "Songs/NANO DEATH/478161 LeaF - NANO DEATH!!!!!.osz",
                 allowDifficultySelection: true,
                 audioFile: "Songs/NANO DEATH/audio.mp3", 
                 chartFile: "Songs/NANO DEATH/LeaF - NANO DEATH!!!!! (nowsmart) [Expert].txt", 
-                background: "linear-gradient(135deg, #ff0844 0%, #ffb199 100%)", 
-                description: "Microscopic destruction in electronic form" 
+                background: "linear-gradient(135deg, #001166 0%, #0066AA 50%, #00AAFF 100%)", 
+                description: "Microscopic tsunamis in electronic form" 
             },
             "zenith": { 
                 id: "zenith", 
                 title: "Blue Zenith", 
                 artist: "xi", 
                 difficulty: "FOUR DIMENSIONS", 
-                difficultyColor: "#F44336", 
+                difficultyColor: "#0080FF", 
                 // Individual files (no OSZ available yet)
                 oszFile: null,
                 audioFile: "Songs/zenith/zenith.mp3", 
                 chartFile: "Songs/zenith/xi - Blue Zenith (Jepetski) [FOUR DIMENSIONS].txt", 
-                background: "linear-gradient(135deg, #209cff 0%, #68e0cf 100%)", 
-                description: "Ascend to the peak of rhythm gaming" 
+                background: "linear-gradient(135deg, #001144 0%, #0080FF 50%, #00CCFF 100%)", 
+                description: "Ascend to the peak of the ocean's wave" 
             },
             "zenith-another": { 
                 id: "zenith-another", 
                 title: "Blue Zenith", 
                 artist: "xi", 
                 difficulty: "Frenzy Another", 
-                difficultyColor: "#000000", 
+                difficultyColor: "#003366", 
                 // Individual files (no OSZ available yet)
                 oszFile: null,
                 audioFile: "Songs/zenith/zenith.mp3", 
                 chartFile: "Songs/zenith/xi - Blue Zenith (Jepetski) [Frenzy Another].txt", 
-                background: "linear-gradient(135deg, #000428 0%, #004e92 100%)", 
-                description: "The ultimate challenge for rhythm masters" 
+                background: "linear-gradient(135deg, #000022 0%, #003366 50%, #006699 100%)", 
+                description: "The deepest depths of wave mastery" 
             }
         };
     }
@@ -114,6 +114,7 @@ class SongManager {
     }
 
     async loadSongAndSetup(songId) {
+        console.log(`Loading song: ${songId}`);
         const song = this.getSong(songId);
         if (!song) {
             console.error(`Song with ID "${songId}" not found`);
@@ -121,25 +122,38 @@ class SongManager {
             return;
         }
 
+        console.log(`Found song:`, song);
         this.currentSong = song;
         this.updateUI(song);
 
         try {
+            console.log("Starting to load song files...");
             // Try to load OSZ file first, then fall back to individual files
             const loadResult = await this.loadSongFiles(song);
             
-            console.log("Song files loaded. Handing off to game setup.");
+            console.log("Song files loaded successfully:", loadResult);
+            console.log("Handing off to game setup.");
             if (typeof showGameSetup === 'function') {
                 showGameSetup(loadResult.chartData, song.title);
+            } else {
+                console.error("showGameSetup function not available!");
             }
 
         } catch (error) {
             console.error('Error loading song files:', error);
+            console.error('Error stack:', error.stack);
             alert(`Error loading song: ${error.message}`);
+            
+            // Try to show game setup anyway with null data
+            if (typeof showGameSetup === 'function') {
+                showGameSetup(null, null);
+            }
         }
     }
 
     async loadSongFiles(song) {
+        console.log("LoadSongFiles called with:", song.id);
+        
         // First, try to load OSZ file if it exists
         if (song.oszFile) {
             try {
@@ -153,11 +167,20 @@ class SongManager {
                 console.warn(`Failed to load OSZ file ${song.oszFile}:`, error.message);
                 console.log("Falling back to individual files...");
             }
+        } else {
+            console.log("No OSZ file specified, using individual files");
         }
 
         // Fall back to individual files
         console.log("Loading individual files...");
-        return await this.loadIndividualFiles(song);
+        try {
+            const result = await this.loadIndividualFiles(song);
+            console.log("Individual files loaded successfully");
+            return result;
+        } catch (error) {
+            console.error("Failed to load individual files:", error);
+            throw error;
+        }
     }
 
     async loadOszFile(oszPath, song) {
@@ -410,32 +433,51 @@ class SongManager {
     }
 
     async loadIndividualFiles(song) {
+        console.log("Loading individual files for song:", song.id);
+        
         try {
             // Load chart file
+            console.log("Loading chart file:", song.chartFile);
             const chartResponse = await fetch(song.chartFile);
             if (!chartResponse.ok) {
-                throw new Error(`Failed to load chart: ${chartResponse.status}`);
+                throw new Error(`Failed to load chart: ${chartResponse.status} ${chartResponse.statusText}`);
             }
             const chartData = await chartResponse.text();
+            console.log("Chart data loaded, length:", chartData.length);
             
-            // Load audio file
+            // Load audio file (with timeout and fallback)
+            console.log("Loading audio file:", song.audioFile);
             const audioPlayer = document.getElementById('audioPlayer');
             audioPlayer.src = song.audioFile;
 
-            await new Promise((resolve, reject) => {
-                const canPlayHandler = () => {
-                    audioPlayer.removeEventListener('error', errorHandler);
-                    resolve();
-                };
-                const errorHandler = () => {
-                    audioPlayer.removeEventListener('canplaythrough', canPlayHandler);
-                    reject(new Error('Audio file failed to load.'));
-                };
-                audioPlayer.addEventListener('canplaythrough', canPlayHandler, { once: true });
-                audioPlayer.addEventListener('error', errorHandler, { once: true });
-                audioPlayer.load();
-            });
+            try {
+                await Promise.race([
+                    new Promise((resolve, reject) => {
+                        const canPlayHandler = () => {
+                            audioPlayer.removeEventListener('error', errorHandler);
+                            console.log("Audio loaded successfully");
+                            resolve();
+                        };
+                        const errorHandler = (e) => {
+                            audioPlayer.removeEventListener('canplaythrough', canPlayHandler);
+                            console.warn("Audio load error:", e);
+                            reject(new Error('Audio file failed to load.'));
+                        };
+                        audioPlayer.addEventListener('canplaythrough', canPlayHandler, { once: true });
+                        audioPlayer.addEventListener('error', errorHandler, { once: true });
+                        audioPlayer.load();
+                    }),
+                    // 5 second timeout
+                    new Promise((_, reject) => {
+                        setTimeout(() => reject(new Error('Audio load timeout')), 5000);
+                    })
+                ]);
+            } catch (audioError) {
+                console.warn("Audio failed to load, but continuing with chart only:", audioError.message);
+                // Continue without audio - the game can still work
+            }
 
+            console.log("Individual files loaded successfully");
             return {
                 success: true,
                 chartData: chartData,
@@ -443,6 +485,7 @@ class SongManager {
             };
 
         } catch (error) {
+            console.error("Individual files loading failed:", error);
             throw new Error(`Individual files loading failed: ${error.message}`);
         }
     }

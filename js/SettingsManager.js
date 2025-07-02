@@ -9,6 +9,8 @@ class SettingsManager {
             // Gameplay settings
             scrollSpeed: 450,
             offset: -50,
+            audioOffset: 0,  // User-calibrated audio offset
+            isCalibrated: false,  // Whether user has completed calibration
             scale: 100,
             
             // Controls
@@ -46,7 +48,9 @@ class SettingsManager {
             totalPlayCount: 0,
             totalScore: 0,
             averageAccuracy: 0,
-            favoriteKey: 0
+            favoriteKey: 0,
+            calibrationAttempts: 0,  // Track how many times user has calibrated
+            lastCalibrationDate: null  // When calibration was last done
         };
         
         this.settings = { ...this.defaultSettings };
@@ -81,7 +85,13 @@ class SettingsManager {
             const saved = localStorage.getItem('rhythmGameSettings');
             if (saved) {
                 const parsed = JSON.parse(saved);
-                this.settings = { ...this.defaultSettings, ...parsed };
+                if (parsed && typeof parsed === 'object') {
+                    this.settings = { ...this.defaultSettings, ...parsed };
+                } else {
+                    this.settings = { ...this.defaultSettings };
+                }
+            } else {
+                this.settings = { ...this.defaultSettings };
             }
         } catch (error) {
             console.warn('Failed to load settings, using defaults:', error);
@@ -103,6 +113,11 @@ class SettingsManager {
     }
     
     validateSettings() {
+        // Ensure settings object exists
+        if (!this.settings || typeof this.settings !== 'object') {
+            this.settings = {};
+        }
+        
         // Ensure all required settings exist with valid values
         Object.keys(this.defaultSettings).forEach(key => {
             if (this.settings[key] === undefined) {
@@ -126,13 +141,17 @@ class SettingsManager {
         }
         
         // Update key layout if using preset
-        const preset = Object.entries(this.keyPresets).find(([key, preset]) => 
-            JSON.stringify(preset.keys) === JSON.stringify(this.settings.keyBindings)
-        );
-        if (preset) {
-            this.settings.keyLayout = preset[0];
+        if (this.keyPresets) {
+            const preset = Object.entries(this.keyPresets).find(([key, preset]) => 
+                JSON.stringify(preset.keys) === JSON.stringify(this.settings.keyBindings)
+            );
+            if (preset) {
+                this.settings.keyLayout = preset[0];
+            } else {
+                this.settings.keyLayout = 'custom';
+            }
         } else {
-            this.settings.keyLayout = 'custom';
+            this.settings.keyLayout = 'DFJK';
         }
     }
     
@@ -298,6 +317,51 @@ class SettingsManager {
         };
     }
     
+    // Audio calibration methods
+    saveCalibration(offsetMs) {
+        // Clamp offset to safe range (-300ms to +300ms)
+        const clampedOffset = Math.max(-300, Math.min(300, offsetMs));
+        
+        this.settings.audioOffset = Math.round(clampedOffset);
+        this.settings.isCalibrated = true;
+        this.settings.calibrationAttempts++;
+        this.settings.lastCalibrationDate = new Date().toISOString();
+        
+        this.saveSettings();
+        this.notifyCallbacks('calibrationUpdated', {
+            offset: this.settings.audioOffset,
+            attempts: this.settings.calibrationAttempts
+        });
+        
+        return this.settings.audioOffset;
+    }
+    
+    getEffectiveOffset() {
+        // Combine manual offset with calibrated audio offset
+        return this.settings.offset + this.settings.audioOffset;
+    }
+    
+    isCalibrationNeeded() {
+        // Show calibration if never done or if it's been more than 30 days
+        if (!this.settings.isCalibrated) return true;
+        
+        if (this.settings.lastCalibrationDate) {
+            const lastCalibration = new Date(this.settings.lastCalibrationDate);
+            const daysSince = (Date.now() - lastCalibration.getTime()) / (1000 * 60 * 60 * 24);
+            return daysSince > 30;
+        }
+        
+        return false;
+    }
+    
+    resetCalibration() {
+        this.settings.audioOffset = 0;
+        this.settings.isCalibrated = false;
+        this.settings.calibrationAttempts = 0;
+        this.settings.lastCalibrationDate = null;
+        this.saveSettings();
+    }
+
     // Event system for settings changes
     onSettingChange(callback) {
         const id = Date.now() + Math.random();
