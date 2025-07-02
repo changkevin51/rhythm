@@ -1,30 +1,20 @@
 "use strict";
-
-/**
- * Enhanced Rhythm Game Engine
- * Modern, modular approach with better performance and features
- */
-
 class RhythmEngine {
     constructor(canvasId, audioId) {
-        // Core elements
         this.canvas = document.getElementById(canvasId);
         this.ctx = this.canvas.getContext('2d');
         this.audio = document.getElementById(audioId);
         
-        // Game state
         this.gameState = 'LOADING'; // LOADING, READY, PLAYING, PAUSED, ENDED
         this.time = 0;
         this.preTime = 2000;
         this.offset = -40;
         
-        // Chart data
         this.content = null;
         this.timingPoints = [];
         this.hitObjects = [];
         this.bpmData = {};
         
-        // Gameplay variables
         this.score = 0;
         this.endScore = 0;
         this.combo = 0;
@@ -34,35 +24,29 @@ class RhythmEngine {
         this.fastCount = 0;
         this.slowCount = 0;
         
-        // Visual settings
-        this.scrollSpeed = 450;
+        this.scrollSpeed = 500;
         this.scale = 100;
         this.noteHeight = 60;
         this.laneWidth = 150;
         this.lanes = 4;
         
-        // Input handling
         this.keyBindings = [68, 70, 74, 75]; // D, F, J, K
         this.keyStates = [false, false, false, false];
         this.touchStates = [-1, -1, -1, -1];
         this.laserTimes = [0, 0, 0, 0];
         this.holdStates = [-1, -1, -1, -1];
         
-        // Timing windows (ms)
         this.timingWindows = [16, 37, 70, 100, 123, 161];
         this.judgeDisplayTime = 500;
         this.currentJudge = { type: -1, time: 0, fast: false };
         
-        // Note queues for each lane
         this.noteQueues = [[], [], [], []];
         this.queueHeads = [0, 0, 0, 0];
         
-        // Visual effects
         this.particles = [];
         this.screenShake = 0;
         this.flashEffect = 0;
         
-        // Performance monitoring
         this.fps = 0;
         this.frameCount = 0;
         this.lastFpsUpdate = 0;
@@ -71,13 +55,11 @@ class RhythmEngine {
         this.setupEventListeners();
         this.createGradients();
         
-        // Start render loop
         this.lastFrameTime = performance.now();
         this.renderLoop();
     }
     
     setupCanvas() {
-        // Set up high DPI canvas
         const dpr = window.devicePixelRatio || 1;
         const rect = this.canvas.getBoundingClientRect();
         

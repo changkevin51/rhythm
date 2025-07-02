@@ -9,12 +9,148 @@
     <link rel="stylesheet" href="game.css">
 </head>
 <body>
+    <!-- Settings Modal -->
+    <div id="settings-modal" class="modal-overlay">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Game Settings</h2>
+                <button class="modal-close" id="close-settings">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="settings-tabs">
+                    <button class="tab-btn active" data-tab="gameplay">Gameplay</button>
+                    <button class="tab-btn" data-tab="audio">Audio</button>
+                    <button class="tab-btn" data-tab="visual">Visual</button>
+                    <button class="tab-btn" data-tab="controls">Controls</button>
+                </div>
+                
+                <div class="settings-content">
+                    <!-- Gameplay Settings -->
+                    <div id="gameplay-tab" class="tab-content active">
+                        <div class="setting-group">
+                            <label for="scroll-speed-setting">Scroll Speed:</label>
+                            <div class="setting-input-group">
+                                <input type="range" id="scroll-speed-setting" min="200" max="1000" step="25">
+                                <span class="setting-value" id="scroll-speed-value">500</span>
+                            </div>
+                        </div>
+                        <div class="setting-group">
+                            <label for="offset-setting">Manual Offset (ms):</label>
+                            <div class="setting-input-group">
+                                <input type="range" id="offset-setting" min="-200" max="200" step="5">
+                                <span class="setting-value" id="offset-value">-50</span>
+                            </div>
+                        </div>
+                        <div class="setting-group">
+                            <label for="scale-setting">Note Scale (%):</label>
+                            <div class="setting-input-group">
+                                <input type="range" id="scale-setting" min="50" max="150" step="5">
+                                <span class="setting-value" id="scale-value">100</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Audio Settings -->
+                    <div id="audio-tab" class="tab-content">
+                        <div class="setting-group">
+                            <label for="master-volume-setting">Master Volume:</label>
+                            <div class="setting-input-group">
+                                <input type="range" id="master-volume-setting" min="0" max="100" step="5">
+                                <span class="setting-value" id="master-volume-value">100</span>
+                            </div>
+                        </div>
+                        <div class="setting-group">
+                            <label for="music-volume-setting">Music Volume:</label>
+                            <div class="setting-input-group">
+                                <input type="range" id="music-volume-setting" min="0" max="100" step="5">
+                                <span class="setting-value" id="music-volume-value">90</span>
+                            </div>
+                        </div>
+                        <div class="setting-group">
+                            <label for="effects-volume-setting">Effects Volume:</label>
+                            <div class="setting-input-group">
+                                <input type="range" id="effects-volume-setting" min="0" max="100" step="5">
+                                <span class="setting-value" id="effects-volume-value">80</span>
+                            </div>
+                        </div>
+                        <div class="calibration-section">
+                            <h3>Audio Calibration</h3>
+                            <div class="calibration-info">
+                                <p id="calibration-status">Not calibrated</p>
+                                <p id="current-audio-offset">Current offset: 0ms</p>
+                            </div>
+                            <button class="btn secondary" id="start-calibration-btn">Calibrate Audio</button>
+                        </div>
+                    </div>
+                    
+                    <!-- Visual Settings -->
+                    <div id="visual-tab" class="tab-content">
+                        <div class="setting-group">
+                            <label for="background-dim-setting">Background Dim (%):</label>
+                            <div class="setting-input-group">
+                                <input type="range" id="background-dim-setting" min="0" max="100" step="5">
+                                <span class="setting-value" id="background-dim-value">20</span>
+                            </div>
+                        </div>
+                        <div class="setting-group checkbox-group">
+                            <label class="checkbox-label">
+                                <input type="checkbox" id="show-fps-setting">
+                                <span class="checkmark"></span>
+                                Show FPS
+                            </label>
+                        </div>
+                        <div class="setting-group checkbox-group">
+                            <label class="checkbox-label">
+                                <input type="checkbox" id="particle-effects-setting" checked>
+                                <span class="checkmark"></span>
+                                Particle Effects
+                            </label>
+                        </div>
+                        <div class="setting-group checkbox-group">
+                            <label class="checkbox-label">
+                                <input type="checkbox" id="screen-shake-setting" checked>
+                                <span class="checkmark"></span>
+                                Screen Shake
+                            </label>
+                        </div>
+                    </div>
+                    
+                    <!-- Controls Settings -->
+                    <div id="controls-tab" class="tab-content">
+                        <div class="setting-group">
+                            <label>Key Layout:</label>
+                            <div class="key-layout-selector">
+                                <select id="key-layout-select">
+                                    <option value="DFJK">D-F-J-K (Default)</option>
+                                    <option value="ASDF">A-S-D-F</option>
+                                    <option value="HJKL">H-J-K-L</option>
+                                    <option value="1234">1-2-3-4</option>
+                                    <option value="ZXCV">Z-X-C-V</option>
+                                    <option value="QWER">Q-W-E-R</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="setting-group">
+                            <label>Current Keys:</label>
+                            <div class="key-display" id="current-keys-display">D - F - J - K</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn secondary" id="reset-settings-btn">Reset to Defaults</button>
+                <button class="btn primary" id="save-settings-btn">Save Settings</button>
+            </div>
+        </div>
+    </div>
+
     <div class="game-header">
         <div class="song-info">
             <h1 id="song-title">Loading...</h1>
             <p><span id="song-artist"></span><span id="song-difficulty" class="difficulty-badge"></span></p>
         </div>
         <div class="header-controls">
+            <button class="btn" id="open-settings-btn">Settings</button>
             <a class="btn" href="index.html">Change Song</a>
         </div>
     </div>
@@ -63,23 +199,67 @@
                 </div>
             </div>
 
-            <div class="form-group">
-                <label for="inputScale">Display Scale (%):</label>
-                <input type="number" id="inputScale" value="100" min="50" max="150" step="10">
+            <div class="game-settings-grid">
+                <div class="setting-card">
+                    <label for="inputScale">Display Scale</label>
+                    <div class="input-with-unit">
+                        <input type="range" id="inputScale" min="50" max="150" step="5">
+                        <span class="unit-display" id="scale-display">100%</span>
+                    </div>
+                    <div class="setting-description">Adjust the size of notes and interface elements</div>
+                </div>
+                
+                <div class="setting-card">
+                    <label for="scrollDurationInput">Scroll Speed</label>
+                    <div class="input-with-unit">
+                        <input type="range" id="scrollDurationInput" min="200" max="1000" step="25">
+                        <span class="unit-display" id="speed-display">500</span>
+                    </div>
+                    <div class="setting-description">How fast notes scroll down the screen</div>
+                </div>
+                
+                <div class="setting-card">
+                    <label for="inputOffset">Total Offset</label>
+                    <div class="input-with-unit">
+                        <input type="range" id="inputOffset" min="-200" max="200" step="5">
+                        <span class="unit-display" id="offset-display">0ms</span>
+                    </div>
+                    <div class="setting-description">
+                        <span id="offset-breakdown">Manual: 0ms + Audio Calibration: 0ms</span>
+                        <br><small>Positive values = notes appear earlier</small>
+                    </div>
+                </div>
+                
+                <div class="setting-card">
+                    <label for="baseBPM">Base BPM</label>
+                    <div class="input-with-unit">
+                        <input type="number" id="baseBPM" placeholder="Auto-detect" min="60" max="300">
+                        <span class="unit-display">BPM</span>
+                    </div>
+                    <div class="setting-description">Override auto-detected tempo (optional)</div>
+                </div>
             </div>
-            <div class="form-group">
-                <label for="scrollDurationInput">Scroll Speed:</label>
-                <input type="number" id="scrollDurationInput" value="500" min="200" max="1000" step="50">
+            
+            <div class="quick-settings">
+                <div class="quick-setting-item">
+                    <label class="checkbox-label">
+                        <input type="checkbox" id="auto-play-setup">
+                        <span class="checkmark"></span>
+                        Auto Play
+                    </label>
+                </div>
+                <div class="quick-setting-item">
+                    <label class="checkbox-label">
+                        <input type="checkbox" id="no-fail-setup">
+                        <span class="checkmark"></span>
+                        No Fail
+                    </label>
+                </div>
             </div>
-            <div class="form-group">
-                <label for="inputOffset">Audio Offset (ms):</label>
-                <input type="number" id="inputOffset" value="-50" min="-200" max="200" step="10">
+            
+            <div class="start-button-container">
+                <button class="btn primary large" id="start-game-btn">Start Game</button>
             </div>
-            <div class="form-group">
-                <label for="baseBPM">Base BPM (optional):</label>
-                <input type="number" id="baseBPM" placeholder="Auto-detect">
-            </div>
-            <button class="btn" id="start-game-btn">Start Game</button>
         </div>
 
         <div id="game-container" class="game-container">
@@ -384,6 +564,643 @@
             }
         };
 
+        // --- Settings Modal Functionality ---
+        class GameSettingsUI {
+            constructor() {
+                this.modal = document.getElementById('settings-modal');
+                this.initializeElements();
+                this.bindEvents();
+                this.loadCurrentSettings();
+            }
+            
+            initializeElements() {
+                // Modal controls
+                this.openBtn = document.getElementById('open-settings-btn');
+                this.closeBtn = document.getElementById('close-settings');
+                this.saveBtn = document.getElementById('save-settings-btn');
+                this.resetBtn = document.getElementById('reset-settings-btn');
+                
+                // Tab controls
+                this.tabBtns = document.querySelectorAll('.tab-btn');
+                this.tabContents = document.querySelectorAll('.tab-content');
+                
+                // Setting inputs
+                this.scrollSpeedInput = document.getElementById('scroll-speed-setting');
+                this.offsetInput = document.getElementById('offset-setting');
+                this.scaleInput = document.getElementById('scale-setting');
+                this.masterVolumeInput = document.getElementById('master-volume-setting');
+                this.musicVolumeInput = document.getElementById('music-volume-setting');
+                this.effectsVolumeInput = document.getElementById('effects-volume-setting');
+                this.backgroundDimInput = document.getElementById('background-dim-setting');
+                this.showFpsInput = document.getElementById('show-fps-setting');
+                this.particleEffectsInput = document.getElementById('particle-effects-setting');
+                this.screenShakeInput = document.getElementById('screen-shake-setting');
+                this.keyLayoutSelect = document.getElementById('key-layout-select');
+                
+                // Display elements
+                this.scrollSpeedValue = document.getElementById('scroll-speed-value');
+                this.offsetValue = document.getElementById('offset-value');
+                this.scaleValue = document.getElementById('scale-value');
+                this.masterVolumeValue = document.getElementById('master-volume-value');
+                this.musicVolumeValue = document.getElementById('music-volume-value');
+                this.effectsVolumeValue = document.getElementById('effects-volume-value');
+                this.backgroundDimValue = document.getElementById('background-dim-value');
+                this.currentKeysDisplay = document.getElementById('current-keys-display');
+                this.calibrationStatus = document.getElementById('calibration-status');
+                this.currentAudioOffset = document.getElementById('current-audio-offset');
+                this.startCalibrationBtn = document.getElementById('start-calibration-btn');
+            }
+            
+            bindEvents() {
+                // Modal controls
+                this.openBtn.addEventListener('click', () => this.openModal());
+                this.closeBtn.addEventListener('click', () => this.closeModal());
+                this.saveBtn.addEventListener('click', () => this.saveSettings());
+                this.resetBtn.addEventListener('click', () => this.resetSettings());
+                
+                // Tab switching
+                this.tabBtns.forEach(btn => {
+                    btn.addEventListener('click', () => this.switchTab(btn.dataset.tab));
+                });
+                
+                // Range input updates
+                this.setupRangeInput(this.scrollSpeedInput, this.scrollSpeedValue);
+                this.setupRangeInput(this.offsetInput, this.offsetValue, 'ms');
+                this.setupRangeInput(this.scaleInput, this.scaleValue, '%');
+                this.setupRangeInput(this.masterVolumeInput, this.masterVolumeValue, '%');
+                this.setupRangeInput(this.musicVolumeInput, this.musicVolumeValue, '%');
+                this.setupRangeInput(this.effectsVolumeInput, this.effectsVolumeValue, '%');
+                this.setupRangeInput(this.backgroundDimInput, this.backgroundDimValue, '%');
+                
+                // Key layout change
+                this.keyLayoutSelect.addEventListener('change', () => this.updateKeyDisplay());
+                
+                // Calibration
+                this.startCalibrationBtn.addEventListener('click', () => this.startCalibration());
+                
+                // Close modal on outside click
+                this.modal.addEventListener('click', (e) => {
+                    if (e.target === this.modal) this.closeModal();
+                });
+            }
+            
+            setupRangeInput(input, display, unit = '') {
+                input.addEventListener('input', () => {
+                    display.textContent = input.value + unit;
+                });
+            }
+            
+            switchTab(tabName) {
+                // Update tab buttons
+                this.tabBtns.forEach(btn => {
+                    btn.classList.toggle('active', btn.dataset.tab === tabName);
+                });
+                
+                // Update tab contents
+                this.tabContents.forEach(content => {
+                    content.classList.toggle('active', content.id === tabName + '-tab');
+                });
+            }
+            
+            loadCurrentSettings() {
+                const settings = gameSettings.getAll();
+                
+                // Load values
+                this.scrollSpeedInput.value = settings.scrollSpeed;
+                this.offsetInput.value = settings.offset;
+                this.scaleInput.value = settings.scale;
+                this.masterVolumeInput.value = settings.masterVolume;
+                this.musicVolumeInput.value = settings.musicVolume;
+                this.effectsVolumeInput.value = settings.effectsVolume;
+                this.backgroundDimInput.value = settings.backgroundDim;
+                this.showFpsInput.checked = settings.showFPS;
+                this.particleEffectsInput.checked = settings.particleEffects;
+                this.screenShakeInput.checked = settings.screenShake;
+                this.keyLayoutSelect.value = settings.keyLayout;
+                
+                // Update displays
+                this.scrollSpeedValue.textContent = settings.scrollSpeed;
+                this.offsetValue.textContent = settings.offset + 'ms';
+                this.scaleValue.textContent = settings.scale + '%';
+                this.masterVolumeValue.textContent = settings.masterVolume + '%';
+                this.musicVolumeValue.textContent = settings.musicVolume + '%';
+                this.effectsVolumeValue.textContent = settings.effectsVolume + '%';
+                this.backgroundDimValue.textContent = settings.backgroundDim + '%';
+                
+                this.updateKeyDisplay();
+                this.updateCalibrationStatus();
+            }
+            
+            updateKeyDisplay() {
+                const layout = this.keyLayoutSelect.value;
+                const preset = gameSettings.keyPresets[layout];
+                if (preset) {
+                    const keyNames = preset.keys.map(key => gameSettings.getKeyName(key));
+                    this.currentKeysDisplay.textContent = keyNames.join(' - ');
+                }
+            }
+            
+            updateCalibrationStatus() {
+                const isCalibrated = gameSettings.get('isCalibrated');
+                const audioOffset = gameSettings.get('audioOffset');
+                
+                if (isCalibrated) {
+                    this.calibrationStatus.textContent = 'Audio calibrated ✓';
+                    this.calibrationStatus.style.color = '#00FFAA';
+                } else {
+                    this.calibrationStatus.textContent = 'Not calibrated';
+                    this.calibrationStatus.style.color = '#FF6464';
+                }
+                
+                this.currentAudioOffset.textContent = `Current offset: ${audioOffset}ms`;
+            }
+            
+            saveSettings() {
+                const updates = {
+                    scrollSpeed: parseInt(this.scrollSpeedInput.value),
+                    offset: parseInt(this.offsetInput.value),
+                    scale: parseInt(this.scaleInput.value),
+                    masterVolume: parseInt(this.masterVolumeInput.value),
+                    musicVolume: parseInt(this.musicVolumeInput.value),
+                    effectsVolume: parseInt(this.effectsVolumeInput.value),
+                    backgroundDim: parseInt(this.backgroundDimInput.value),
+                    showFPS: this.showFpsInput.checked,
+                    particleEffects: this.particleEffectsInput.checked,
+                    screenShake: this.screenShakeInput.checked,
+                    keyLayout: this.keyLayoutSelect.value
+                };
+                
+                gameSettings.setMultiple(updates);
+                gameSettings.setKeyLayout(this.keyLayoutSelect.value);
+                
+                // Update game setup inputs if they exist
+                this.updateGameSetupInputs();
+                
+                this.closeModal();
+                this.showNotification('Settings saved successfully!');
+            }
+            
+            resetSettings() {
+                if (confirm('Reset all settings to defaults? This action cannot be undone.')) {
+                    gameSettings.resetToDefaults();
+                    this.loadCurrentSettings();
+                    this.updateGameSetupInputs();
+                    this.showNotification('Settings reset to defaults');
+                }
+            }
+            
+            updateGameSetupInputs() {
+                // Update the game setup inputs to reflect new settings
+                const setupScale = document.getElementById('inputScale');
+                const setupSpeed = document.getElementById('scrollDurationInput');
+                const setupOffset = document.getElementById('inputOffset');
+                
+                if (setupScale) setupScale.value = gameSettings.get('scale');
+                if (setupSpeed) setupSpeed.value = gameSettings.get('scrollSpeed');
+                if (setupOffset) {
+                    const totalOffset = gameSettings.getEffectiveOffset();
+                    setupOffset.value = totalOffset;
+                    updateOffsetDisplay();
+                }
+                
+                updateGameSetupDisplays();
+            }
+            
+            startCalibration() {
+                this.closeModal();
+                
+                // Create and show calibration overlay similar to index.html
+                this.createCalibrationOverlay();
+            }
+            
+            createCalibrationOverlay() {
+                // Remove existing overlay if any
+                const existing = document.getElementById('game-calibration-overlay');
+                if (existing) existing.remove();
+                
+                // Create calibration overlay
+                const overlay = document.createElement('div');
+                overlay.id = 'game-calibration-overlay';
+                overlay.className = 'calibration-overlay active';
+                
+                overlay.innerHTML = `
+                    <div class="calibration-modal">
+                        <h2 class="calibration-title">Audio Offset Calibration</h2>
+                        <p class="calibration-description">
+                            Let's calibrate your audio offset for the best rhythm game experience!<br>
+                            This will help synchronize the audio with your input for perfect timing.<br>
+                            <small style="color: #80E0FF; margin-top: 0.5rem; display: block;">
+                                Don't worry if you miss the first few beats - the calibration focuses on your most recent consistent taps.
+                            </small>
+                        </p>
+                        
+                        <div class="metronome-container">
+                            <div id="game-metronome-beat" class="metronome-beat"></div>
+                        </div>
+                        
+                        <div class="calibration-instructions">
+                            Press <span class="calibration-key">D</span> in sync with the beat
+                        </div>
+                        
+                        <div class="calibration-progress">
+                            <div id="game-calibration-progress-fill" class="calibration-progress-fill"></div>
+                        </div>
+                        
+                        <div id="game-calibration-stats" class="calibration-stats">
+                            <div class="stat-row">
+                                <span>Taps recorded:</span>
+                                <span class="stat-value" id="game-taps-count">0</span>
+                            </div>
+                            <div class="stat-row">
+                                <span>Average offset:</span>
+                                <span class="stat-value" id="game-avg-offset">0ms</span>
+                            </div>
+                            <div class="stat-row">
+                                <span>Consistency:</span>
+                                <span class="stat-value" id="game-consistency">0%</span>
+                            </div>
+                        </div>
+                        
+                        <div class="calibration-buttons">
+                            <button id="game-start-calibration" class="btn primary">Start Calibration</button>
+                            <button id="game-finish-calibration" class="btn" style="display: none;">Save & Continue</button>
+                            <button id="game-skip-calibration" class="btn">Skip for Now</button>
+                        </div>
+                    </div>
+                `;
+                
+                document.body.appendChild(overlay);
+                
+                // Initialize the calibration system
+                this.initGameCalibration();
+            }
+            
+            async initGameCalibration() {
+                this.isCalibrating = false;
+                this.audioContext = null;
+                this.metronomeGain = null;
+                this.metronomeOscillator = null;
+                this.bpm = 120;
+                this.beatInterval = 60000 / this.bpm;
+                this.startTime = 0;
+                this.beatCount = 0;
+                this.tapOffsets = [];
+                this.beatTimes = [];
+                this.tappedBeats = new Set();
+                this.minTaps = 8;
+                this.maxTaps = 20;
+                this.targetTaps = 12;
+                
+                // Bind events
+                document.getElementById('game-start-calibration').addEventListener('click', () => this.startGameCalibration());
+                document.getElementById('game-finish-calibration').addEventListener('click', () => this.finishGameCalibration());
+                document.getElementById('game-skip-calibration').addEventListener('click', () => this.skipGameCalibration());
+                
+                // Key listener for D key
+                this.calibrationKeyListener = (e) => {
+                    if (this.isCalibrating && e.code === 'KeyD') {
+                        this.recordGameTap();
+                    }
+                };
+                document.addEventListener('keydown', this.calibrationKeyListener);
+            }
+            
+            async startGameCalibration() {
+                try {
+                    this.audioContext = new (window.AudioContext || window.webkitAudioContext)();
+                    this.metronomeGain = this.audioContext.createGain();
+                    this.metronomeGain.connect(this.audioContext.destination);
+                    this.metronomeGain.gain.value = 0.3;
+                    
+                    this.isCalibrating = true;
+                    this.tapOffsets = [];
+                    this.beatTimes = [];
+                    this.tappedBeats.clear();
+                    this.beatCount = 0;
+                    this.startTime = this.audioContext.currentTime;
+                    
+                    document.getElementById('game-start-calibration').style.display = 'none';
+                    document.getElementById('game-calibration-stats').classList.add('active');
+                    
+                    this.runGameMetronome();
+                } catch (error) {
+                    alert('Unable to start audio calibration. Please ensure your browser supports Web Audio API.');
+                }
+            }
+            
+            runGameMetronome() {
+                if (!this.isCalibrating) return;
+                
+                this.playGameBeat();
+                this.beatCount++;
+                
+                if (this.beatCount < this.maxTaps + 5) {
+                    setTimeout(() => this.runGameMetronome(), this.beatInterval);
+                } else {
+                    this.isCalibrating = false;
+                    document.getElementById('game-finish-calibration').style.display = 'block';
+                }
+            }
+            
+            playGameBeat() {
+                const oscillator = this.audioContext.createOscillator();
+                oscillator.connect(this.metronomeGain);
+                oscillator.frequency.value = 800;
+                oscillator.start();
+                oscillator.stop(this.audioContext.currentTime + 0.1);
+                
+                const beatElement = document.getElementById('game-metronome-beat');
+                beatElement.classList.add('active');
+                setTimeout(() => beatElement.classList.remove('active'), 100);
+                
+                this.beatTimes.push(Date.now());
+            }
+            
+            recordGameTap() {
+                const tapTime = Date.now();
+                if (!this.beatTimes.length) return;
+
+                let closestBeatIndex = -1;
+                let minDiff = Infinity;
+
+                // Find the beat with the minimum time difference
+                for (let i = 0; i < this.beatTimes.length; i++) {
+                    const diff = Math.abs(tapTime - this.beatTimes[i]);
+                    if (diff < minDiff) {
+                        minDiff = diff;
+                        closestBeatIndex = i;
+                    }
+                }
+
+                // Ignore tap if it's too far from any beat (more than half a beat interval)
+                if (minDiff > this.beatInterval / 2) {
+                    console.log(`Ignoring tap, too far from beat: ${minDiff}ms`);
+                    return;
+                }
+
+                // Ignore tap if this beat has already been matched
+                if (this.tappedBeats.has(closestBeatIndex)) {
+                    console.log(`Ignoring tap, beat ${closestBeatIndex} already has a tap.`);
+                    return;
+                }
+
+                const offset = tapTime - this.beatTimes[closestBeatIndex];
+                this.tapOffsets.push(offset);
+                this.tappedBeats.add(closestBeatIndex);
+
+                this.updateGameStats();
+                this.updateGameProgress();
+            }
+            
+            updateGameStats() {
+                const tapsCount = document.getElementById('game-taps-count');
+                const avgOffset = document.getElementById('game-avg-offset');
+                const consistency = document.getElementById('game-consistency');
+                
+                tapsCount.textContent = this.tapOffsets.length;
+                
+                if (this.tapOffsets.length >= 3) {
+                    const offset = this.calculateGameOffset();
+                    const consistencyValue = this.calculateGameConsistency();
+                    
+                    avgOffset.textContent = Math.round(offset) + 'ms';
+                    consistency.textContent = Math.round(consistencyValue) + '%';
+                    
+                    // Show which taps are being used for calculation
+                    const windowSize = Math.min(10, this.tapOffsets.length);
+                    if (this.tapOffsets.length >= 3) {
+                        avgOffset.title = `Average of last ${windowSize} taps`;
+                        consistency.title = `Consistency of last ${windowSize} taps`;
+                    }
+                }
+            }
+            
+            updateGameProgress() {
+                const progress = Math.min(this.tapOffsets.length / this.targetTaps, 1) * 100;
+                document.getElementById('game-calibration-progress-fill').style.width = progress + '%';
+            }
+            
+            calculateGameOffset() {
+                if (this.tapOffsets.length < 3) return 0;
+                
+                // Use only the last 8-10 taps (sliding window approach)
+                const windowSize = Math.min(10, this.tapOffsets.length);
+                const startIndex = Math.max(0, this.tapOffsets.length - windowSize);
+                const recentOffsets = this.tapOffsets.slice(startIndex);
+                
+                // Calculate simple average of recent taps
+                const sum = recentOffsets.reduce((a, b) => a + b, 0);
+                return Math.round(sum / recentOffsets.length);
+            }
+            
+            calculateGameConsistency() {
+                if (this.tapOffsets.length < 3) return 0;
+                
+                // Use only the last 8-10 taps (sliding window approach)
+                const windowSize = Math.min(10, this.tapOffsets.length);
+                const startIndex = Math.max(0, this.tapOffsets.length - windowSize);
+                const recentOffsets = this.tapOffsets.slice(startIndex);
+                
+                // Calculate standard deviation of recent taps
+                const mean = recentOffsets.reduce((a, b) => a + b, 0) / recentOffsets.length;
+                const variance = recentOffsets.reduce((sum, offset) => sum + Math.pow(offset - mean, 2), 0) / recentOffsets.length;
+                const stdDev = Math.sqrt(variance);
+                
+                // Convert standard deviation to consistency percentage
+                // Lower stdDev = higher consistency (0ms stdDev = 100%, increases as stdDev gets worse)
+                return Math.max(0, Math.min(100, 100 - (stdDev / 15)));
+            }
+            
+            finishGameCalibration() {
+                this.isCalibrating = false;
+                
+                if (this.tapOffsets.length >= this.minTaps) {
+                    const offset = this.calculateGameOffset();
+                    const savedOffset = gameSettings.saveCalibration(offset);
+                    
+                    this.removeCalibrationOverlay();
+                    this.updateCalibrationStatus();
+                    this.showNotification(`Audio calibration saved! Offset: ${savedOffset}ms`);
+                } else {
+                    this.showNotification('Not enough taps recorded. Please try again.', true);
+                }
+            }
+            
+            skipGameCalibration() {
+                this.isCalibrating = false;
+                this.removeCalibrationOverlay();
+            }
+            
+            removeCalibrationOverlay() {
+                const overlay = document.getElementById('game-calibration-overlay');
+                if (overlay) {
+                    document.removeEventListener('keydown', this.calibrationKeyListener);
+                    overlay.remove();
+                }
+                
+                if (this.audioContext) {
+                    this.audioContext.close();
+                    this.audioContext = null;
+                }
+            }
+            
+            openModal() {
+                this.modal.classList.add('active');
+                this.loadCurrentSettings(); // Refresh values
+            }
+            
+            closeModal() {
+                this.modal.classList.remove('active');
+            }
+            
+            showNotification(message, isError = false) {
+                // Create a simple notification
+                const notification = document.createElement('div');
+                notification.className = `notification ${isError ? 'error' : 'success'}`;
+                notification.textContent = message;
+                notification.style.cssText = `
+                    position: fixed;
+                    top: 20px;
+                    right: 20px;
+                    background: ${isError ? 'rgba(255, 100, 100, 0.9)' : 'rgba(0, 255, 170, 0.9)'};
+                    color: white;
+                    padding: 15px 20px;
+                    border-radius: 10px;
+                    z-index: 3000;
+                    font-family: 'Orbitron', monospace;
+                    box-shadow: 0 5px 20px rgba(0, 0, 0, 0.3);
+                    transform: translateX(100%);
+                    transition: transform 0.3s ease;
+                `;
+                
+                document.body.appendChild(notification);
+                
+                // Animate in
+                setTimeout(() => {
+                    notification.style.transform = 'translateX(0)';
+                }, 10);
+                
+                // Remove after delay
+                setTimeout(() => {
+                    notification.style.transform = 'translateX(100%)';
+                    setTimeout(() => {
+                        document.body.removeChild(notification);
+                    }, 300);
+                }, 3000);
+            }
+        }
+        
+        // --- Enhanced Game Setup Functionality ---
+        function initializeGameSetup() {
+            const settings = gameSettings.getAll();
+            
+            // Set default values from settings
+            const scaleInput = document.getElementById('inputScale');
+            const speedInput = document.getElementById('scrollDurationInput');
+            const offsetInput = document.getElementById('inputOffset');
+            const scaleDisplay = document.getElementById('scale-display');
+            const speedDisplay = document.getElementById('speed-display');
+            const offsetDisplay = document.getElementById('offset-display');
+            const offsetBreakdown = document.getElementById('offset-breakdown');
+            
+            if (scaleInput) {
+                scaleInput.value = settings.scale;
+                scaleInput.addEventListener('input', updateGameSetupDisplays);
+            }
+            
+            if (speedInput) {
+                speedInput.value = settings.scrollSpeed;
+                speedInput.addEventListener('input', updateGameSetupDisplays);
+            }
+            
+            if (offsetInput) {
+                // Use the audio calibration offset as the default for new games
+                const defaultOffset = gameSettings.getDefaultGameOffset();
+                offsetInput.value = defaultOffset;
+                offsetInput.addEventListener('input', updateOffsetDisplay);
+                
+                // Log for debugging
+                console.log('Setting default offset to:', defaultOffset);
+                console.log('Audio calibration offset:', gameSettings.get('audioOffset'));
+            }
+            
+            updateGameSetupDisplays();
+            updateOffsetDisplay();
+            
+            // Setup scroll detection for better UX
+            setupScrollDetection();
+        }
+        
+        function setupScrollDetection() {
+            const gameSetup = document.getElementById('game-setup');
+            const customUploadSection = document.getElementById('custom-upload-section');
+            const gameSettingsGrid = document.querySelector('.game-settings-grid');
+            
+            function checkScrollable(element) {
+                if (!element) return;
+                
+                const hasScroll = element.scrollHeight > element.clientHeight;
+                element.classList.toggle('has-scroll', hasScroll);
+                
+                // Add scroll event listener for fade effect
+                if (hasScroll) {
+                    element.addEventListener('scroll', () => {
+                        const isNearBottom = element.scrollTop + element.clientHeight >= element.scrollHeight - 10;
+                        element.classList.toggle('scrolled-to-bottom', isNearBottom);
+                    });
+                }
+            }
+            
+            // Check all scrollable elements
+            setTimeout(() => {
+                checkScrollable(gameSetup);
+                checkScrollable(customUploadSection);
+                checkScrollable(gameSettingsGrid);
+            }, 100);
+            
+            // Recheck on window resize
+            window.addEventListener('resize', () => {
+                setTimeout(() => {
+                    checkScrollable(gameSetup);
+                    checkScrollable(customUploadSection);
+                    checkScrollable(gameSettingsGrid);
+                }, 100);
+            });
+        }
+        
+        function updateGameSetupDisplays() {
+            const scaleInput = document.getElementById('inputScale');
+            const speedInput = document.getElementById('scrollDurationInput');
+            const scaleDisplay = document.getElementById('scale-display');
+            const speedDisplay = document.getElementById('speed-display');
+            
+            if (scaleInput && scaleDisplay) {
+                scaleDisplay.textContent = scaleInput.value + '%';
+            }
+            
+            if (speedInput && speedDisplay) {
+                speedDisplay.textContent = speedInput.value;
+            }
+        }
+        
+        function updateOffsetDisplay() {
+            const offsetInput = document.getElementById('inputOffset');
+            const offsetDisplay = document.getElementById('offset-display');
+            const offsetBreakdown = document.getElementById('offset-breakdown');
+            
+            if (offsetInput && offsetDisplay) {
+                const totalOffset = parseInt(offsetInput.value);
+                const audioOffset = gameSettings.get('audioOffset');
+                const manualOffset = totalOffset - audioOffset;
+                
+                offsetDisplay.textContent = totalOffset + 'ms';
+                
+                if (offsetBreakdown) {
+                    offsetBreakdown.innerHTML = `Manual: ${manualOffset}ms + Audio Calibration: ${audioOffset}ms`;
+                }
+            }
+        }
+
         // Use GameUtils if available, otherwise use fallback
         const beatmapAPI = (typeof GameUtils !== 'undefined' && GameUtils.beatmap) ? GameUtils.beatmap : BeatmapUtils;
         
@@ -440,6 +1257,9 @@
             const setupScreen = document.getElementById('game-setup');
             setupScreen.classList.add('active');
             document.getElementById('setup-title').textContent = songTitle || "Custom Song";
+
+            // Initialize the enhanced game setup
+            initializeGameSetup();
 
             // If chartText is null, it means we are in custom upload mode.
             if (!chartText) {
@@ -782,6 +1602,9 @@
             const songManager = new SongManager();
             window.songManager = songManager;
             
+            // Initialize settings UI
+            window.gameSettingsUI = new GameSettingsUI();
+            
             // Initialize wave manager in background (non-blocking)
             if (typeof WaveAnimationManager !== 'undefined') {
                 console.log('WaveAnimationManager class found, initializing wave manager...');
@@ -801,6 +1624,17 @@
             
             const songId = songManager.getSongFromURL();
             console.log('Song ID from URL:', songId);
+            
+            // Check if settings should be opened
+            const urlParams = new URLSearchParams(window.location.search);
+            if (urlParams.get('settings') === 'true') {
+                // Small delay to ensure everything is loaded
+                setTimeout(() => {
+                    if (window.gameSettingsUI) {
+                        window.gameSettingsUI.openModal();
+                    }
+                }, 100);
+            }
             
             if (songId) {
                 console.log('Loading song:', songId);

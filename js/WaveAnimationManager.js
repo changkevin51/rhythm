@@ -150,7 +150,7 @@ class WaveAnimationManager {
     calculateNotePosition(noteTime, currentTime) {
         // This is a simplified version - should match the actual game's calcPOS logic
         const timeDiff = noteTime - currentTime;
-        const scrollSpeed = 450; // Should match game settings
+        const scrollSpeed = 500; // Should match game settings
         return (timeDiff / 1000) * scrollSpeed;
     }
     

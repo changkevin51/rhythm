@@ -61,29 +61,31 @@ class SongManager {
                 background: "linear-gradient(135deg, #001166 0%, #0066AA 50%, #00AAFF 100%)", 
                 description: "Microscopic tsunamis in electronic form" 
             },
-            "zenith": { 
-                id: "zenith", 
-                title: "Blue Zenith", 
-                artist: "xi", 
-                difficulty: "FOUR DIMENSIONS", 
-                difficultyColor: "#0080FF", 
-                oszFile: null,
-                audioFile: "Songs/zenith/zenith.mp3", 
-                chartFile: "Songs/zenith/xi - Blue Zenith (Jepetski) [FOUR DIMENSIONS].txt", 
-                background: "linear-gradient(135deg, #001144 0%, #0080FF 50%, #00CCFF 100%)", 
-                description: "Ascend to the peak of the ocean's wave" 
+            "senbonzakura": { 
+                id: "senbonzakura", 
+                title: "Senbonzakura", 
+                artist: "Lindsey Stirling", 
+                difficulty: "Multiple Difficulties", 
+                difficultyColor: "#FF69B4", 
+                oszFile: "Songs/senbonzakura/senbonzakura.osz",
+                allowDifficultySelection: true,
+                audioFile: null, 
+                chartFile: null, 
+                background: "linear-gradient(135deg, #330022 0%, #660044 50%, #FF69B4 100%)", 
+                description: "Cherry blossoms dance on ocean waves" 
             },
-            "zenith-another": { 
-                id: "zenith-another", 
-                title: "Blue Zenith", 
-                artist: "xi", 
-                difficulty: "Frenzy Another", 
-                difficultyColor: "#003366", 
-                oszFile: null,
-                audioFile: "Songs/zenith/zenith.mp3", 
-                chartFile: "Songs/zenith/xi - Blue Zenith (Jepetski) [Frenzy Another].txt", 
-                background: "linear-gradient(135deg, #000022 0%, #003366 50%, #006699 100%)", 
-                description: "The deepest depths of wave mastery" 
+            "bad-apple": { 
+                id: "bad-apple", 
+                title: "Bad Apple!!", 
+                artist: "Alstroemeria Records feat. nomico", 
+                difficulty: "Multiple Difficulties", 
+                difficultyColor: "#8B0000", 
+                oszFile: "Songs/bad-apple/bad-apple.osz",
+                allowDifficultySelection: true,
+                audioFile: null, 
+                chartFile: null, 
+                background: "linear-gradient(135deg, #000000 0%, #330000 50%, #8B0000 100%)", 
+                description: "Silhouettes flow like dark tidal waves" 
             }
         };
     }

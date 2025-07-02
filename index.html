@@ -63,39 +63,39 @@
         
         <div class="menu-grid">
             <a href="game.html?song=naruto" class="song-card">
-                <div class="difficulty-badge expert">EXPERT</div>
+                <div class="difficulty-badge expert">MULTIPLE</div>
                 <div class="song-title">Naruto - Silhouette</div>
                 <div class="song-artist">KANA-BOOM</div>
             </a>
             
             <a href="game.html?song=nano-death" class="song-card">
-                <div class="difficulty-badge expert">EXPERT</div>
+                <div class="difficulty-badge expert">MULTIPLE</div>
                 <div class="song-title">NANO DEATH!!!!!</div>
                 <div class="song-artist">LeaF</div>
             </a>
             
             <a href="game.html?song=quiet-water" class="song-card">
-                <div class="difficulty-badge hard">MULTIPLE</div>
+                <div class="difficulty-badge expert">MULTIPLE</div>
                 <div class="song-title">Quiet Water</div>
                 <div class="song-artist">Toby Fox</div>
             </a>
             
             <a href="game.html?song=yeah-boy" class="song-card">
-                <div class="difficulty-badge expert">EXPERT</div>
+                <div class="difficulty-badge expert">MULTIPLE</div>
                 <div class="song-title">Yeah Boy</div>
                 <div class="song-artist">Shooting Stars</div>
             </a>
             
-            <a href="game.html?song=zenith-another" class="song-card">
-                <div class="difficulty-badge expert">EXPERT++</div>
-                <div class="song-title">Blue Zenith</div>
-                <div class="song-artist">xi - Frenzy Another</div>
+            <a href="game.html?song=senbonzakura" class="song-card">
+                <div class="difficulty-badge expert">MULTIPLE</div>
+                <div class="song-title">Senbonzakura</div>
+                <div class="song-artist">Lindsey Stirling</div>
             </a>
             
-            <a href="game.html?song=zenith" class="song-card">
-                <div class="difficulty-badge expert">EXPERT+</div>
-                <div class="song-title">Blue Zenith</div>
-                <div class="song-artist">xi - Four Dimensions</div>
+            <a href="game.html?song=bad-apple" class="song-card">
+                <div class="difficulty-badge expert">MULTIPLE</div>
+                <div class="song-title">Bad Apple</div>
+                <div class="song-artist">Masayoshi Minoshima</div>
             </a>
             
             <a href="game.html" class="song-card custom-card">
@@ -360,7 +360,9 @@
             }
             
             hideCalibration() {
+                console.log('Hiding calibration modal...');
                 this.overlay.classList.remove('active');
+                this.overlay.style.display = 'none';
                 this.isActive = false;
                 
                 if (this.audioContext) {
@@ -378,7 +380,17 @@
             }
             
             show() {
+                console.log('Showing calibration modal...');
+                console.log('Overlay element:', this.overlay);
+                console.log('Adding active class...');
                 this.overlay.classList.add('active');
+                console.log('Active class added, overlay classes:', this.overlay.className);
+                
+                // Force display style as backup
+                this.overlay.style.display = 'flex';
+                this.overlay.style.zIndex = '9999';
+                
+                console.log('Calibration modal should now be visible');
             }
         }
         
@@ -401,46 +413,39 @@
         }
 
         function openSettings() {
-            // Create a more detailed settings modal
-            const currentOffset = gameSettings.get('audioOffset');
-            const isCalibrated = gameSettings.get('isCalibrated');
-            const lastCalibration = gameSettings.get('lastCalibrationDate');
-            
-            let calibrationInfo = '';
-            if (isCalibrated) {
-                const date = lastCalibration ? new Date(lastCalibration).toLocaleDateString() : 'Unknown';
-                calibrationInfo = `\nCurrent audio offset: ${currentOffset}ms\nLast calibrated: ${date}`;
-            } else {
-                calibrationInfo = '\nAudio offset: Not calibrated';
-            }
-            
-            const choice = confirm(`Settings:\n• Key bindings: D-F-J-K\n• Audio offset: ${currentOffset}ms\n• Visual effects: Enabled\n• Scroll speed: ${gameSettings.get('scrollSpeed')}\n• Scale: ${gameSettings.get('scale')}%${calibrationInfo}\n\nWould you like to recalibrate your audio offset?`);
-            
-            if (choice) {
-                audioCalibration.show();
-            }
+            // Navigate to game.html with settings parameter to open settings modal
+            window.location.href = 'game.html?settings=true';
         }
         
         // Check if user needs calibration on page load
         function checkCalibrationNeeded() {
             console.log('Checking calibration need...');
+            console.log('gameSettings available:', typeof gameSettings !== 'undefined');
+            console.log('audioCalibration available:', typeof audioCalibration !== 'undefined');
+            
             try {
                 // Check if user needs calibration
                 const needsCalibration = gameSettings.isCalibrationNeeded();
                 console.log('Needs calibration:', needsCalibration);
+                console.log('Current calibration status:', gameSettings.get('isCalibrated'));
                 
                 if (needsCalibration) {
                     console.log('Showing calibration modal in 1 second...');
                     // Show calibration after a short delay to let page load
                     setTimeout(() => {
+                        console.log('Attempting to show calibration...');
                         audioCalibration.show();
-                        console.log('Calibration modal should be visible now');
+                        console.log('Calibration show method called');
                     }, 1000);
                 } else {
                     console.log('User already calibrated, skipping calibration modal');
                 }
             } catch (error) {
                 console.error('Error checking calibration:', error);
+                console.log('Forcing calibration show for debugging...');
+                setTimeout(() => {
+                    audioCalibration.show();
+                }, 1000);
             }
         }
 

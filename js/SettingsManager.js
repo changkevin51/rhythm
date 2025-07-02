@@ -7,15 +7,12 @@ class SettingsManager {
     constructor() {
         this.defaultSettings = {
             // Gameplay settings
-            scrollSpeed: 450,
+            scrollSpeed: 500,
             offset: -50,
-            audioOffset: 0,  // User-calibrated audio offset
-            isCalibrated: false,  // Whether user has completed calibration
-            scale: 100,
+            audioOffset: 0,            isCalibrated: false,            scale: 100,
             
             // Controls
-            keyBindings: [68, 70, 74, 75], // D, F, J, K
-            keyLayout: 'DFJK',
+            keyBindings: [68, 70, 74, 75],            keyLayout: 'DFJK',
             
             // Audio settings
             masterVolume: 100,
@@ -362,6 +359,13 @@ class SettingsManager {
         this.saveSettings();
     }
 
+    // Update the default offset getter to prioritize calibrated offset
+    getDefaultGameOffset() {
+        // Return just the audio calibration offset for new games
+        // This makes the calibrated offset the starting point for games
+        return this.settings.audioOffset;
+    }
+    
     // Event system for settings changes
     onSettingChange(callback) {
         const id = Date.now() + Math.random();
