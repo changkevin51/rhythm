@@ -1,127 +1,74 @@
-# 🌊 Tidal Beats
+![Tidal Beats - Banner](https://github.com/user-attachments/assets/3a70f718-9b72-4bbb-9d50-f0f41ff6a3a8)
 
-[Banner image showing ocean waves with musical notes flowing through them]
+# Tidal Beats
 
-A beautiful ocean-themed rhythm game that brings the flow of music to life through stunning wave animations. Dive into an immersive musical experience where every beat creates ripples across the digital ocean.
+A beautiful ocean-themed rhythm game that brings the flow of music to life. 
 
-## ✨ What is Tidal Beats?
+## What is Tidal Beats?
 
-Tidal Beats is a 4-key rhythm game inspired by the mesmerizing patterns of ocean waves. Each note you hit creates visual waves that flow across the screen, making your musical performance part of a living, breathing oceanic experience. Whether you're a rhythm game veteran or just starting out, Tidal Beats offers an accessible yet challenging way to ride the musical waves.
+Tidal Beats is a 4-key rhythm game inspired by the mesmerizing patterns of ocean waves. Whether you're a rhythm game veteran or just starting out, Tidal Beats offers an accessible yet challenging way to ride the musical waves.
 
-[Screenshot of the main game interface with wave animations]
+![image](https://github.com/user-attachments/assets/e50143bb-d91b-4edf-a5f2-e48a14eeb892)
 
-## 🎮 Key Features
 
-- **Wave-Based Visual System**: Every note creates dynamic wave animations that respond to your gameplay
-- **4-Key Gameplay**: Classic VSRG (Vertical Scrolling Rhythm Game) mechanics with D-F-J-K controls
-- **Multiple Song Support**: Includes curated tracks like Silhouette (KANA-BOON), Quiet Water (Toby Fox), and more
-- **Custom Chart Loading**: Import your own .osz files and custom beatmaps
-- **Audio Calibration**: Built-in metronome-based calibration system for perfect timing
-- **Comprehensive Settings**: Adjust scroll speed, visual effects, audio levels, and more
-- **Oceanic Theme**: Immersive underwater aesthetics with flowing animations
-- **Cross-Platform**: Runs in any modern web browser
+## Key Features
 
-[GIF showing wave animations during gameplay]
+- Every note creates dynamic wave animations
+- Classic VSRG (Vertical Scrolling Rhythm Game) mechanics with D-F-J-K controls
+- Includes pre-existing tracks like Silhouette (KANA-BOON), Senbonzakura (Lindsey Stirling), Bad Apple! and more
+- Import your own .osz files and custom beatmaps --> This means you can play ANY osu!mania songs right from your browser
+- Built-in calibration system for audio offset
+- Adjust scroll speed, visual effects, audio levels, and more
+- Underwater aesthetics with flowing animations
+- Runs in any modern web browser
 
-## 🌊 Songs & Content
 
-The game comes with several pre-loaded songs:
-- **Silhouette** by KANA-BOON (Multiple difficulties)
-- **Quiet Water** by Toby Fox (Multiple difficulties) 
+##  Songs & Content
+
+The game comes with several pre-loaded songs, all having multiple difficulties:
+- **Silhouette (Naruto)** by KANA-BOON 
+- **Quiet Water** by Toby Fox
 - **Bad Apple** by Masayoshi Minoshima
 - **NANO DEATH** by LeaF
+- **Senbonzakura** by Lindsey Stirling
+- **Yeah Boy** by Shooting Stars
 - Plus support for custom .osz file imports
 
-## 🚀 Getting Started
+## Getting started
 
 ### Quick Start
-1. Clone or download this repository
-2. Start a local web server in the project directory
-3. Open `index.html` in your browser
-4. Calibrate your audio offset (recommended)
-5. Select a song and start playing!
-
-### Using the Built-in Server
-The project includes a Python server for easy local hosting:
-
-```bash
-python -m http.server 8000
-```
-
-Then visit `http://localhost:8000` in your browser.
+1. Open the link in your browser
+2. Calibrate your audio offset (recommended)
+3. Select a song/difficulty and start playing!
 
 ### Controls
 - **D, F, J, K** - Hit the notes as they reach the judgment line
 - **ESC** - Pause/resume game
-- **Settings** - Customize your experience before playing
+- **Settings** - Customize your experience
 
-## ⚙️ Features Deep Dive
-
-### Audio Calibration
-Tidal Beats includes a sophisticated audio calibration system that helps sync your inputs with the music perfectly. The built-in metronome guides you through measuring your audio latency for optimal gameplay.
-
-### Wave Animation System
-The signature feature of Tidal Beats is its dynamic wave generation. Each note creates ripples that flow across the screen, with intensity and patterns matching your performance. Perfect hits create more dramatic wave effects!
-
-### Customization Options
-- Scroll speed adjustment
-- Note scaling
-- Background dimming
-- Volume controls for music and effects
-- Key binding customization
-- Visual effect toggles
-
-[Screenshot of the settings panel]
-
-## 🎵 Adding Your Own Songs
-
-Tidal Beats supports .osz files (osu!mania format). Simply:
-
-1. Click "Custom Chart" on the main menu
-2. Upload your .osz file or separate chart/audio files
-3. The game will validate and load your content
-4. Start playing your custom songs!
+### Importing Custom Songs
+1. Go to [https://osu.ppy.sh/beatmapsets?m=3&sort=plays_desc](url)
+2. Choose or search for a song that you like (ensure that it supports osu!mania)
+3. Download the song (.osz file)
+4. In the game, go to Custom Charts --> OSZ file and then upload the song
+5. Select a difficulty and start playing!
 
 **Note**: Only 4-key (4K) osu!mania charts are supported.
 
-## 🛠️ Technical Details
+### Running Locally
+1. Clone this repository
+2. Start a local web server in the project directory
+3. Open `index.html` in your browser
+
+## Technical Details
 
 Built with:
-- **Vanilla JavaScript** - No frameworks, pure performance
-- **HTML5 Canvas** - Smooth 60fps rendering
-- **Web Audio API** - Precise audio timing and effects
-- **Modern CSS** - Beautiful oceanic styling with animations
+- **Vanilla JavaScript**
+- **HTML5 Canvas**
+- **Web Audio API**
+- **Modern CSS**
 
-### Browser Compatibility
-- Chrome/Chromium (recommended)
-- Firefox
-- Safari
-- Edge
 
-**Requirements**: Modern browser with Web Audio API support
-
-## 🌊 The Ocean Theme
-
-Every aspect of Tidal Beats is designed around the ocean:
-- Wave particles that flow with the music
-- Aquatic color palettes (blues, teals, seafoam)
-- Dolphin mascot animations
-- Ripple effects for note hits
-- Flowing gradients that mimic water currents
-
-[Animated GIF of the dolphin mascot and particle effects]
-
-## 🎯 Performance & Optimization
-
-Tidal Beats is optimized for smooth gameplay:
-- Efficient canvas rendering with hardware acceleration
-- Smart particle system management
-- Responsive design for different screen sizes
-- Background process optimization for consistent framerate
-
-## 🤝 Contributing
-
-This is a personal rhythm game project, but feedback and suggestions are always welcome! If you create cool custom charts or find ways to improve the wave animations, feel free to share.
 
 ## 📄 License
 
@@ -129,6 +76,4 @@ This project is for educational and personal use. Song files and charts belong t
 
 ---
 
-*Ride the rhythm, flow with the waves* 🌊🎵
-
-**Created with ❤️ for music and ocean lovers**
+*Ride the rhythm of the ocean!* 🌊🎵
