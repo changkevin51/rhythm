@@ -8,7 +8,7 @@ class SettingsManager {
         this.defaultSettings = {
             // Gameplay settings
             scrollSpeed: 500,
-            offset: -50,
+            offset: 0,
             audioOffset: 0,            isCalibrated: false,            scale: 100,
             
             // Controls

@@ -38,7 +38,7 @@
                             <label for="offset-setting">Manual Offset (ms):</label>
                             <div class="setting-input-group">
                                 <input type="range" id="offset-setting" min="-200" max="200" step="5">
-                                <span class="setting-value" id="offset-value">-50</span>
+                                <span class="setting-value" id="offset-value">0</span>
                             </div>
                         </div>
                         <div class="setting-group">
@@ -163,24 +163,38 @@
         <div id="game-setup" class="game-setup">
             <h2 id="setup-title">Game Settings</h2>
             
+            <!-- Custom Upload Section - Main Container 1 -->
             <div id="custom-upload-section" style="display:none;">
+                <div class="upload-header">
+                    <h3>Load Your Music</h3>
+                    <p>Upload your own beatmap files to play custom songs</p>
+                </div>
+                
                 <div class="upload-mode-selector">
                     <button class="mode-btn active" onclick="switchUploadMode('individual')">Individual Files</button>
                     <button class="mode-btn" onclick="switchUploadMode('osz')">OSZ Archive</button>
                 </div>
                 
                 <div id="individual-upload" class="upload-section active">
-                    <div class="form-group">
-                        <label for="uploadOsu">Chart File (.osu / .txt):</label>
-                        <input type="file" id="uploadOsu" class="custom-file-input" accept=".osu,.txt">
-                        <label for="uploadOsu" class="file-input-label">Choose Chart File</label>
-                        <div id="chart-status" class="file-status" style="display:none;"></div>
-                    </div>
-                    <div class="form-group">
-                        <label for="uploadAudio">Audio File (.mp3, .ogg, .wav):</label>
-                        <input type="file" id="uploadAudio" class="custom-file-input" accept=".mp3,.wav,.ogg">
-                        <label for="uploadAudio" class="file-input-label">Choose Audio File</label>
-                        <div id="audio-status" class="file-status" style="display:none;"></div>
+                    <div class="upload-grid">
+                        <div class="form-group">
+                            <label for="uploadOsu">Chart File (.osu / .txt):</label>
+                            <input type="file" id="uploadOsu" class="custom-file-input" accept=".osu,.txt">
+                            <label for="uploadOsu" class="file-input-label">
+                                <span class="file-icon">📊</span>
+                                <span class="file-text">Choose Chart File</span>
+                            </label>
+                            <div id="chart-status" class="file-status" style="display:none;"></div>
+                        </div>
+                        <div class="form-group">
+                            <label for="uploadAudio">Audio File (.mp3, .ogg, .wav):</label>
+                            <input type="file" id="uploadAudio" class="custom-file-input" accept=".mp3,.wav,.ogg">
+                            <label for="uploadAudio" class="file-input-label">
+                                <span class="file-icon">🎵</span>
+                                <span class="file-text">Choose Audio File</span>
+                            </label>
+                            <div id="audio-status" class="file-status" style="display:none;"></div>
+                        </div>
                     </div>
                 </div>
                 
@@ -188,18 +202,44 @@
                     <div class="form-group">
                         <label for="uploadOsz">OSZ Archive (.osz):</label>
                         <input type="file" id="uploadOsz" class="custom-file-input" accept=".osz">
-                        <label for="uploadOsz" class="file-input-label">Choose OSZ File</label>
+                        <label for="uploadOsz" class="file-input-label">
+                            <span class="file-icon">📦</span>
+                            <span class="file-text">Choose OSZ File</span>
+                        </label>
                         <div id="osz-status" class="file-status" style="display:none;"></div>
-                    </div>
-                    <div id="chart-selection" style="display:none;">
-                        <label for="chartSelect">Select Chart:</label>
-                        <select id="chartSelect" style="width: 100%; padding: 10px; margin-top: 5px; background: rgba(255, 255, 255, 0.1); color: white; border: 2px solid rgba(255, 255, 255, 0.3); border-radius: 8px;">
-                        </select>
                     </div>
                 </div>
             </div>
 
-            <div class="game-settings-grid">
+            <!-- Difficulty Selection Container - Main Container 2 -->
+            <div id="difficulty-selection-container" style="display:none;">
+                <div class="difficulty-header">
+                    <h3>Select Difficulty</h3>
+                    <p>Choose your preferred difficulty level</p>
+                </div>
+                
+                <div id="chart-selection">
+                    <label>Available Charts:</label>
+                    <div id="chart-preview-container" style="margin-top: 10px;">
+                        <div id="charts-found-count" style="color: #80E0FF; font-size: 0.9rem; margin-bottom: 10px;"></div>
+                        <button id="select-chart-btn" class="btn primary" style="width: 100%; padding: 15px; margin-bottom: 10px;">
+                            Select Difficulty
+                        </button>
+                        <div id="selected-chart-info" style="display: none; background: rgba(0, 212, 255, 0.1); border: 1px solid rgba(0, 212, 255, 0.3); border-radius: 8px; padding: 10px; margin-top: 10px;">
+                            <div id="selected-chart-title" style="font-weight: bold; color: #00d4ff; margin-bottom: 5px;"></div>
+                            <div id="selected-chart-details" style="font-size: 0.9em; color: #ccc;"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Settings Divider - Hidden by default, shown after file selection -->
+            <div class="settings-divider" id="settings-divider" style="display: none;">
+                <span>Game Settings</span>
+            </div>
+
+            <!-- Game Settings Grid - Hidden by default, shown after file selection -->
+            <div class="game-settings-grid" id="game-settings-grid" style="display: none;">
                 <div class="setting-card">
                     <label for="inputScale">Display Scale</label>
                     <div class="input-with-unit">
@@ -240,7 +280,7 @@
                 </div>
             </div>
             
-            <div class="quick-settings">
+            <div class="quick-settings" id="quick-settings" style="display: none;">
                 <div class="quick-setting-item">
                     <label class="checkbox-label">
                         <input type="checkbox" id="auto-play-setup">
@@ -1230,6 +1270,9 @@
             availableCharts = [];
             document.getElementById('start-game-btn').disabled = true;
             
+            // Clear background image
+            clearBackgroundImage();
+            
             // Hide all status messages
             document.querySelectorAll('.file-status').forEach(status => {
                 status.style.display = 'none';
@@ -1239,6 +1282,9 @@
             document.querySelectorAll('input[type="file"]').forEach(input => {
                 input.value = '';
             });
+            
+            // Hide game settings
+            hideGameSettings();
         }
 
         function showStatus(elementId, message, isError = false) {
@@ -1263,11 +1309,19 @@
 
             // If chartText is null, it means we are in custom upload mode.
             if (!chartText) {
+                // Clear background image for custom uploads
+                clearBackgroundImage();
+                
                 document.getElementById('custom-upload-section').style.display = 'block';
+                setupScreen.classList.add('has-custom-upload');
                 document.getElementById('start-game-btn').disabled = true;
+                
+                // Update title for custom mode
+                document.getElementById('setup-title').textContent = "Custom Song Setup";
             } else {
-                 document.getElementById('custom-upload-section').style.display = 'none';
-                 document.getElementById('start-game-btn').disabled = false;
+                document.getElementById('custom-upload-section').style.display = 'none';
+                setupScreen.classList.remove('has-custom-upload');
+                document.getElementById('start-game-btn').disabled = false;
             }
         }
 
@@ -1438,6 +1492,7 @@
                 
                 if (filesLoaded.audio) {
                     document.getElementById('start-game-btn').disabled = false;
+                    showGameSettings();
                 }
             } catch (error) {
                 showStatus('chart-status', `Error: ${error.message}`, true);
@@ -1465,6 +1520,7 @@
                 
                 if (filesLoaded.chart) {
                     document.getElementById('start-game-btn').disabled = false;
+                    showGameSettings();
                 }
             } catch (error) {
                 showStatus('audio-status', `Error: ${error.message}`, true);
@@ -1521,21 +1577,221 @@
         });
 
         function populateChartSelector(charts) {
-            const selector = document.getElementById('chartSelect');
-            selector.innerHTML = '';
+            availableCharts = charts;
+            const chartsCountElement = document.getElementById('charts-found-count');
+            const selectBtn = document.getElementById('select-chart-btn');
+            const selectedInfo = document.getElementById('selected-chart-info');
             
-            charts.forEach((chart, index) => {
-                const option = document.createElement('option');
-                option.value = index;
-                const title = chart.metadata.title || 'Unknown Title';
-                const version = chart.metadata.version || 'Unknown Difficulty';
-                option.textContent = `${title} [${version}]`;
-                selector.appendChild(option);
-            });
+            chartsCountElement.textContent = `${charts.length} chart${charts.length > 1 ? 's' : ''} found`;
             
-            // Add change event listener
-            selector.addEventListener('change', (e) => {
-                selectChart(parseInt(e.target.value));
+            // Show difficulty selection container
+            document.getElementById('difficulty-selection-container').style.display = 'block';
+            
+            // Add click event to select button
+            selectBtn.onclick = () => showChartSelectionModal(charts);
+            
+            // Auto-select if only one chart
+            if (charts.length === 1) {
+                selectChart(0);
+                selectBtn.textContent = 'Chart Selected';
+                selectBtn.disabled = true;
+                selectBtn.style.background = 'rgba(0, 212, 255, 0.3)';
+            }
+        }
+
+        function showChartSelectionModal(charts) {
+            return new Promise((resolve) => {
+                // Create modal overlay
+                const overlay = document.createElement('div');
+                overlay.style.cssText = `
+                    position: fixed;
+                    top: 0;
+                    left: 0;
+                    width: 100%;
+                    height: 100%;
+                    background: rgba(0, 0, 0, 0.9);
+                    backdrop-filter: blur(15px);
+                    display: flex;
+                    justify-content: center;
+                    align-items: center;
+                    z-index: 5000;
+                    animation: fadeIn 0.3s ease;
+                `;
+
+                // Create modal dialog
+                const dialog = document.createElement('div');
+                dialog.style.cssText = `
+                    background: rgba(0, 40, 80, 0.95);
+                    border: 3px solid rgba(0, 180, 255, 0.5);
+                    border-radius: 20px;
+                    padding: 2rem;
+                    max-width: 700px;
+                    width: 90%;
+                    max-height: 80vh;
+                    overflow-y: auto;
+                    box-shadow: 0 0 100px rgba(0, 180, 255, 0.3);
+                    color: white;
+                    font-family: 'Exo 2', sans-serif;
+                    position: relative;
+                `;
+
+                // Build chart info
+                const chartInfo = charts.map((chart, index) => {
+                    const metadata = beatmapAPI.parseChartMetadata(chart.content);
+                    return { index, metadata, chart };
+                });
+
+                dialog.innerHTML = `
+                    <h2 style="
+                        font-family: 'Orbitron', monospace;
+                        font-size: 2rem;
+                        font-weight: 700;
+                        background: linear-gradient(45deg, #00d4ff, #00ffaa);
+                        -webkit-background-clip: text;
+                        background-clip: text;
+                        -webkit-text-fill-color: transparent;
+                        margin-bottom: 1rem;
+                        text-align: center;
+                    ">
+                        Select Difficulty
+                    </h2>
+                    <p style="
+                        margin-bottom: 1.5rem;
+                        text-align: center;
+                        color: #a0a0ff;
+                        font-size: 1.1rem;
+                    ">
+                        ${charts.length} chart${charts.length > 1 ? 's' : ''} found. Choose your preferred difficulty.
+                    </p>
+                    <div id="chartList" style="margin-bottom: 1.5rem;">
+                        ${chartInfo.map(chart => `
+                            <div class="chart-option" data-index="${chart.index}" style="
+                                border: 2px solid rgba(0, 180, 255, 0.3);
+                                border-radius: 15px;
+                                padding: 1.2rem;
+                                margin-bottom: 1rem;
+                                cursor: pointer;
+                                transition: all 0.3s ease;
+                                background: rgba(255, 255, 255, 0.05);
+                                backdrop-filter: blur(10px);
+                                position: relative;
+                                overflow: hidden;
+                            ">
+                                <div class="chart-option-content">
+                                    <div style="
+                                        font-weight: bold;
+                                        font-size: 1.2rem;
+                                        color: #00d4ff;
+                                        margin-bottom: 8px;
+                                        font-family: 'Orbitron', monospace;
+                                    ">
+                                        ${chart.metadata.version || 'Unknown Difficulty'}
+                                    </div>
+                                    <div style="
+                                        font-size: 0.95rem;
+                                        color: #ccc;
+                                        margin-bottom: 4px;
+                                    ">
+                                        ${chart.metadata.title || 'Unknown Title'}
+                                    </div>
+                                    <div style="
+                                        font-size: 0.85rem;
+                                        color: #80e0ff;
+                                    ">
+                                        by ${chart.metadata.artist || 'Unknown Artist'}
+                                    </div>
+                                </div>
+                                <div class="chart-option-glow" style="
+                                    position: absolute;
+                                    top: 0;
+                                    left: -100%;
+                                    width: 100%;
+                                    height: 100%;
+                                    background: linear-gradient(90deg, 
+                                        transparent, 
+                                        rgba(0, 212, 255, 0.1),
+                                        transparent
+                                    );
+                                    transition: left 0.6s ease;
+                                    pointer-events: none;
+                                "></div>
+                            </div>
+                        `).join('')}
+                    </div>
+                    <div style="
+                        display: flex;
+                        gap: 1rem;
+                        justify-content: center;
+                    ">
+                        <button id="cancelChartSelection" class="btn secondary" style="
+                            padding: 0.8rem 1.5rem;
+                            font-family: 'Orbitron', monospace;
+                            font-weight: 600;
+                        ">
+                            Cancel
+                        </button>
+                    </div>
+                `;
+
+                // Add hover effects and click handlers
+                overlay.appendChild(dialog);
+                document.body.appendChild(overlay);
+
+                // Add CSS keyframes for fade animation
+                if (!document.getElementById('chart-modal-styles')) {
+                    const style = document.createElement('style');
+                    style.id = 'chart-modal-styles';
+                    style.textContent = `
+                        @keyframes fadeIn {
+                            from { opacity: 0; transform: scale(0.95); }
+                            to { opacity: 1; transform: scale(1); }
+                        }
+                    `;
+                    document.head.appendChild(style);
+                }
+
+                // Add event listeners for chart options
+                const chartOptions = dialog.querySelectorAll('.chart-option');
+                chartOptions.forEach(option => {
+                    const glow = option.querySelector('.chart-option-glow');
+                    
+                    option.addEventListener('mouseenter', () => {
+                        option.style.borderColor = '#00ffaa';
+                        option.style.background = 'rgba(0, 255, 170, 0.1)';
+                        option.style.transform = 'translateY(-2px)';
+                        option.style.boxShadow = '0 8px 25px rgba(0, 255, 170, 0.2)';
+                        glow.style.left = '100%';
+                    });
+                    
+                    option.addEventListener('mouseleave', () => {
+                        option.style.borderColor = 'rgba(0, 180, 255, 0.3)';
+                        option.style.background = 'rgba(255, 255, 255, 0.05)';
+                        option.style.transform = 'translateY(0)';
+                        option.style.boxShadow = 'none';
+                        glow.style.left = '-100%';
+                    });
+                    
+                    option.addEventListener('click', () => {
+                        const index = parseInt(option.dataset.index);
+                        document.body.removeChild(overlay);
+                        selectChart(index);
+                        resolve(index);
+                    });
+                });
+
+                // Cancel button
+                dialog.querySelector('#cancelChartSelection').addEventListener('click', () => {
+                    document.body.removeChild(overlay);
+                    resolve(null);
+                });
+
+                // Close on overlay click
+                overlay.addEventListener('click', (e) => {
+                    if (e.target === overlay) {
+                        document.body.removeChild(overlay);
+                        resolve(null);
+                    }
+                });
             });
         }
 
@@ -1577,6 +1833,30 @@
                 const chartInfo = availableCharts.length > 0 ? availableCharts[chartIndex] : 
                     { metadata: beatmapAPI.parseChartMetadata(selectedChart.content) };
                 
+                // Update UI elements
+                const selectBtn = document.getElementById('select-chart-btn');
+                const selectedInfo = document.getElementById('selected-chart-info');
+                const selectedTitle = document.getElementById('selected-chart-title');
+                const selectedDetails = document.getElementById('selected-chart-details');
+                
+                selectBtn.textContent = 'Change Selection';
+                selectBtn.style.background = 'rgba(0, 212, 255, 0.3)';
+                
+                selectedInfo.style.display = 'block';
+                selectedTitle.textContent = `${chartInfo.metadata.version || 'Unknown Difficulty'}`;
+                selectedDetails.textContent = `${chartInfo.metadata.title || 'Unknown Title'} - ${chartInfo.metadata.artist || 'Unknown Artist'}`;
+                
+                // Set background image if available
+                if (oszData && oszData.images && oszData.images.length > 0) {
+                    const backgroundImage = findBackgroundImage(chartInfo.metadata.title || '', oszData.images);
+                    if (backgroundImage) {
+                        setBackgroundImage(backgroundImage.url);
+                    }
+                }
+                
+                // Show game settings after chart selection
+                showGameSettings();
+                
                 showStatus('osz-status', `Selected: ${chartInfo.metadata.title} [${chartInfo.metadata.version}]`);
                 document.getElementById('start-game-btn').disabled = false;
                 
@@ -1589,10 +1869,77 @@
         function resetOszData() {
             oszData = null;
             availableCharts = [];
-            document.getElementById('chart-selection').style.display = 'none';
+            
+            // Clear background image
+            clearBackgroundImage();
+            
+            // Hide difficulty selection container
+            document.getElementById('difficulty-selection-container').style.display = 'none';
+            
+            // Reset UI elements
+            const selectBtn = document.getElementById('select-chart-btn');
+            const selectedInfo = document.getElementById('selected-chart-info');
+            
+            selectBtn.textContent = 'Select Difficulty';
+            selectBtn.style.background = '';
+            selectBtn.disabled = false;
+            selectedInfo.style.display = 'none';
+            
+            // Hide game settings
+            hideGameSettings();
+            
             filesLoaded = { chart: false, audio: false };
             chartDataFromLoader = null;
             document.getElementById('start-game-btn').disabled = true;
+        }
+
+        // Show game settings after files are loaded
+        function showGameSettings() {
+            const settingsDivider = document.getElementById('settings-divider');
+            const gameSettingsGrid = document.getElementById('game-settings-grid');
+            const quickSettings = document.getElementById('quick-settings');
+            
+            // Show elements
+            settingsDivider.style.display = 'block';
+            gameSettingsGrid.style.display = 'grid';
+            quickSettings.style.display = 'flex';
+            
+            // Add animation
+            settingsDivider.style.animation = 'slideIn 0.4s ease';
+            gameSettingsGrid.style.animation = 'slideIn 0.4s ease';
+            quickSettings.style.animation = 'slideIn 0.4s ease';
+            
+            // Initialize settings display
+            updateGameSetupDisplays();
+            updateOffsetDisplay();
+        }
+
+        // Hide game settings
+        function hideGameSettings() {
+            const settingsDivider = document.getElementById('settings-divider');
+            const gameSettingsGrid = document.getElementById('game-settings-grid');
+            const quickSettings = document.getElementById('quick-settings');
+            
+            settingsDivider.classList.remove('show');
+            gameSettingsGrid.classList.remove('show');
+            quickSettings.classList.remove('show');
+        }
+
+        // Reset upload states for individual files
+        function resetUploadStates() {
+            filesLoaded = { chart: false, audio: false };
+            chartDataFromLoader = null;
+            document.getElementById('start-game-btn').disabled = true;
+            
+            // Reset file status displays
+            document.getElementById('chart-status').style.display = 'none';
+            document.getElementById('audio-status').style.display = 'none';
+            
+            // Hide difficulty selection container
+            document.getElementById('difficulty-selection-container').style.display = 'none';
+            
+            // Hide game settings
+            hideGameSettings();
         }
         
         // --- Initializer ---
@@ -1719,6 +2066,77 @@
                     }, 500);
                 }, 200);
             }, duration);
+        }
+
+        // Function to find the background image for a song
+        function findBackgroundImage(songTitle, images) {
+            if (!images || images.length === 0) return null;
+            
+            const title = songTitle.toLowerCase();
+            
+            // Define known background image mappings
+            const backgroundMappings = {
+                'bad apple': 'badapple.jpg',
+                'quiet water': 'quiet water.jpg',
+                'nano death': 'bg.png',
+                'yeah boy': 'mania.jpg',
+                'silhouette': 'BG.png',
+                'senbonzakura': '1645085.jpg'
+            };
+            
+            // First, try to find exact matches based on known mappings
+            for (const [keyword, filename] of Object.entries(backgroundMappings)) {
+                if (title.includes(keyword)) {
+                    const found = images.find(img => 
+                        img.filename.toLowerCase().includes(filename.toLowerCase())
+                    );
+                    if (found) return found;
+                }
+            }
+            
+            // If no exact match, try to find common background image names
+            const commonNames = ['bg', 'background', 'cover', 'album'];
+            for (const name of commonNames) {
+                const found = images.find(img => 
+                    img.filename.toLowerCase().includes(name)
+                );
+                if (found) return found;
+            }
+            
+            // If still no match, return the first image
+            return images[0];
+        }
+        
+        // Function to set background image
+        function setBackgroundImage(imageUrl) {
+            const gameSetup = document.getElementById('game-setup');
+            if (imageUrl) {
+                gameSetup.style.setProperty('--bg-image', `url(${imageUrl})`);
+                gameSetup.classList.add('has-background');
+                // Update the CSS custom property
+                const style = document.createElement('style');
+                style.textContent = `
+                    .game-setup.has-background::before {
+                        background-image: url(${imageUrl});
+                    }
+                `;
+                document.head.appendChild(style);
+            } else {
+                gameSetup.classList.remove('has-background');
+            }
+        }
+        
+        // Function to clear background image
+        function clearBackgroundImage() {
+            const gameSetup = document.getElementById('game-setup');
+            gameSetup.classList.remove('has-background');
+            // Remove any existing background style elements
+            const existingStyles = document.querySelectorAll('style');
+            existingStyles.forEach(style => {
+                if (style.textContent.includes('game-setup.has-background::before')) {
+                    style.remove();
+                }
+            });
         }
     </script>
 </body>

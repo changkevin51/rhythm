@@ -107,6 +107,13 @@ class SongManager {
         difficultyBadge.style.backgroundColor = song.difficultyColor;
         document.body.style.background = song.background;
         document.title = `Rhythm Nexus - ${song.title}`;
+        
+        // Set background image if available
+        if (song.backgroundImage) {
+            this.setBackgroundImage(song.backgroundImage);
+        } else {
+            this.clearBackgroundImage();
+        }
     }
 
     async loadSongAndSetup(songId) {
@@ -202,6 +209,9 @@ class SongManager {
                 
                 await this.setupAudioFromOsz(this.selectBestAudioFile(extractedData.audio));
                 
+                // Set background image if available
+                this.extractAndSetBackgroundImage(extractedData, selectedChart);
+                
                 return {
                     success: true,
                     chartData: selectedChart.content,
@@ -224,6 +234,9 @@ class SongManager {
                 }
 
                 await this.setupAudioFromOsz(this.selectBestAudioFile(extractedData.audio));
+                
+                // Set background image if available
+                this.extractAndSetBackgroundImage(extractedData, selectedChart);
                 
                 return {
                     success: true,
@@ -330,7 +343,7 @@ class SongManager {
                     Select Difficulty - ${song.title}
                 </h2>
                 <p style="margin-bottom: 20px; text-align: center; color: #ccc;">
-                    Multiple difficulties found. Choose which one to play:
+                    Multiple difficulties found. Do not choose [5K] or [7K] difficulties.
                 </p>
                 <div id="chartList" style="margin-bottom: 20px;">
                     ${chartInfo.map(chart => `
@@ -540,5 +553,71 @@ class SongManager {
                 return metadata;
             }
         };
+    }
+
+    extractAndSetBackgroundImage(extractedData, selectedChart) {
+        try {
+            // Try to find background image from the OSZ data
+            if (extractedData.images && extractedData.images.length > 0) {
+                // Use the background image functions from game.html
+                const chartMetadata = this.getBeatmapAPI().parseChartMetadata(selectedChart.content);
+                
+                if (typeof window !== 'undefined' && window.findBackgroundImage) {
+                    const backgroundImage = window.findBackgroundImage(chartMetadata.title || '', extractedData.images);
+                    if (backgroundImage) {
+                        this.setBackgroundImage(backgroundImage.url);
+                        return;
+                    }
+                }
+                
+                // Fallback: use first available image
+                if (extractedData.images[0]) {
+                    this.setBackgroundImage(extractedData.images[0].url);
+                }
+            }
+        } catch (error) {
+            console.warn('Failed to set background image:', error);
+        }
+    }
+
+    // Background image helper functions
+    setBackgroundImage(imageUrl) {
+        if (typeof window !== 'undefined' && window.setBackgroundImage) {
+            window.setBackgroundImage(imageUrl);
+        } else {
+            // Fallback implementation
+            const gameSetup = document.getElementById('game-setup');
+            if (imageUrl && gameSetup) {
+                gameSetup.style.setProperty('--bg-image', `url(${imageUrl})`);
+                gameSetup.classList.add('has-background');
+                // Update the CSS custom property
+                const style = document.createElement('style');
+                style.textContent = `
+                    .game-setup.has-background::before {
+                        background-image: url(${imageUrl});
+                    }
+                `;
+                document.head.appendChild(style);
+            }
+        }
+    }
+
+    clearBackgroundImage() {
+        if (typeof window !== 'undefined' && window.clearBackgroundImage) {
+            window.clearBackgroundImage();
+        } else {
+            // Fallback implementation
+            const gameSetup = document.getElementById('game-setup');
+            if (gameSetup) {
+                gameSetup.classList.remove('has-background');
+                // Remove any existing background style elements
+                const existingStyles = document.querySelectorAll('style');
+                existingStyles.forEach(style => {
+                    if (style.textContent.includes('game-setup.has-background::before')) {
+                        style.remove();
+                    }
+                });
+            }
+        }
     }
 }

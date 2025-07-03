@@ -595,7 +595,7 @@ const GameUtils = {
 
                 dialog.innerHTML = `
                     <h2 style="color: #00d4ff; margin-bottom: 20px; text-align: center;">
-                        Select Difficulty
+                        Select Difficulty [Exclude 5K or 7K]
                     </h2>
                     <p style="margin-bottom: 20px; text-align: center; color: #ccc;">
                         Multiple osu!mania charts found. Choose which difficulty to play:

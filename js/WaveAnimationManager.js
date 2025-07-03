@@ -1,8 +1,3 @@
-/**
- * Wave Animation Manager for Wave-themed Rhythm Game
- * Handles wave effects that follow notes and visual enhancements
- */
-
 class WaveAnimationManager {
     constructor() {
         this.waveFrames = [];
@@ -10,17 +5,21 @@ class WaveAnimationManager {
         this.frameCount = 12; // frame_0000.svg to frame_0011.svg
         this.loadPromise = this.loadWaveFrames();
         
+        // Game constants
+        this.JUDGEMENT_LINE_Y = 650;
+        this.CANVAS_HEIGHT = 800;
+        
         // Wave animation settings
         this.waveSettings = {
-            fadeDistance: 200, // Distance over which wave fades
-            minOpacity: 0.1,
-            maxOpacity: 0.6,
-            animationSpeed: 120, // ms per frame
-            trailLength: 5, // Number of wave instances per note
-            offsetDistance: 30 // Distance between wave instances
+            fadeDistance: 600, // Distance over which wave fades
+            minOpacity: 0,
+            maxOpacity: 0.3, // Increased visibility to distinguish from notes
+            animationSpeed: 20, // Slower animation for better visibility
+            trailLength: 1, // Number of wave instances per note
+            offsetDistance: 50 // Distance between wave instances
         };
         
-        // Performance tracking
+        // Performance trackin g
         this.lastFrameTime = 0;
         this.currentFrame = 0;
     }
@@ -57,11 +56,11 @@ class WaveAnimationManager {
                 console.warn(`Failed to load wave frame: ${path}`);
                 // Create a placeholder canvas for missing frames
                 const canvas = document.createElement('canvas');
-                canvas.width = 150;
-                canvas.height = 60;
+                canvas.width = 120; // Adjusted for vertical orientation
+                canvas.height = 150;
                 const ctx = canvas.getContext('2d');
                 ctx.fillStyle = '#00AAFF';
-                ctx.fillRect(0, 0, 150, 60);
+                ctx.fillRect(0, 0, 120, 150);
                 this.waveFrames[index] = canvas;
                 resolve();
             };
@@ -81,11 +80,21 @@ class WaveAnimationManager {
     }
     
     // Add a wave effect for a note
-    addWaveForNote(lane, startY, startTime, endTime = null) {
-        if (this.waveFrames.length === 0) return;
+    addWaveForNote(lane, noteY, startTime, endTime = null) {
+        if (this.waveFrames.length === 0) {
+            console.warn('Wave frames not loaded yet');
+            return;
+        }
+        
+        const isLongNote = endTime !== null;
+        
+        // Don't animate long notes to avoid confusion
+        if (isLongNote) {
+            console.log('Skipping wave animation for long note to avoid confusion');
+            return;
+        }
         
         const laneX = lane * 150;
-        const isLongNote = endTime !== null;
         
         // Create multiple wave instances for trail effect
         for (let i = 0; i < this.waveSettings.trailLength; i++) {
@@ -93,13 +102,12 @@ class WaveAnimationManager {
                 id: Date.now() + Math.random(),
                 lane: lane,
                 x: laneX + 75, // Center of lane
-                y: startY - (i * this.waveSettings.offsetDistance),
-                startY: startY,
+                y: noteY - (i * this.waveSettings.offsetDistance),
                 startTime: startTime,
                 endTime: endTime,
                 isLongNote: isLongNote,
-                opacity: this.waveSettings.maxOpacity * (1 - i * 0.15),
-                scale: 1 - (i * 0.1),
+                opacity: this.waveSettings.maxOpacity * (1 - i * 0.15), // Less opacity reduction for better visibility
+                scale: 1.2 - (i * 0.1), // Larger base scale, less reduction
                 frameOffset: i * 2, // Offset animation frames for variety
                 creationTime: Date.now(),
                 active: true
@@ -107,6 +115,7 @@ class WaveAnimationManager {
             
             this.activeWaves.push(wave);
         }
+        
     }
     
     // Update wave animations
@@ -123,21 +132,26 @@ class WaveAnimationManager {
         this.activeWaves = this.activeWaves.filter(wave => {
             if (!wave.active) return false;
             
-            // Calculate wave position based on note movement
+            // Calculate wave position to follow the note
             const notePos = this.calculateNotePosition(wave.startTime, currentTime);
-            wave.y = wave.startY - notePos;
+            wave.y = this.JUDGEMENT_LINE_Y - notePos;
             
-            // Calculate fade based on distance from judgement line
-            const distanceFromJudgement = Math.abs(wave.y - 650); // JUDGEMENT_LINE_Y
+            // Calculate fade based on distance from judgement line and age
+            const distanceFromJudgement = Math.abs(wave.y - this.JUDGEMENT_LINE_Y);
             const fadeProgress = Math.min(distanceFromJudgement / this.waveSettings.fadeDistance, 1);
             
-            // Update opacity with fade
-            const baseOpacity = this.waveSettings.maxOpacity * (1 - fadeProgress * 0.7);
+            // Age-based fading for smoother transitions
+            const age = now - wave.creationTime;
+            const maxAge = 8000; // 8 seconds max life
+            const ageFade = Math.min(age / maxAge, 1);
+            
+            // Combine distance and age fading
+            const totalFade = Math.max(fadeProgress, ageFade * 0.5);
+            const baseOpacity = this.waveSettings.maxOpacity * (1 - totalFade * 0.6);
             wave.opacity = Math.max(baseOpacity * wave.scale, this.waveSettings.minOpacity);
             
             // Remove waves that are too far or too old
-            const age = now - wave.creationTime;
-            if (wave.y < -100 || wave.y > 900 || age > 10000) {
+            if (wave.y < -150 || wave.y > this.CANVAS_HEIGHT + 50 || age > maxAge) {
                 wave.active = false;
                 return false;
             }
@@ -146,22 +160,32 @@ class WaveAnimationManager {
         });
     }
     
-    // Calculate note position (similar to calcPOS function)
+    // Calculate note position (using the same logic as the main game)
     calculateNotePosition(noteTime, currentTime) {
-        // This is a simplified version - should match the actual game's calcPOS logic
+        // Use the same logic as calcPOS function in Game_Pre.js
+        if (typeof calcPOS === 'function') {
+            return calcPOS(noteTime);
+        }
+        
+        // Fallback calculation if calcPOS is not available
         const timeDiff = noteTime - currentTime;
-        const scrollSpeed = 500; // Should match game settings
+        const scrollSpeed = (typeof scrollDuration !== 'undefined') ? scrollDuration : 500;
         return (timeDiff / 1000) * scrollSpeed;
     }
     
     // Render all active waves
     render(ctx) {
-        if (this.waveFrames.length === 0 || this.activeWaves.length === 0) return;
-        
+        if (this.waveFrames.length === 0) {
+            console.warn('No wave frames loaded');
+            return;
+        }
+        if (this.activeWaves.length === 0) {
+            // Debug: Show when no active waves
+            // console.log('No active waves to render');
+            return;
+        }
+                
         ctx.save();
-        
-        // Set blend mode for wave effects
-        ctx.globalCompositeOperation = 'screen';
         
         this.activeWaves.forEach(wave => {
             if (!wave.active || wave.opacity <= 0) return;
@@ -171,34 +195,79 @@ class WaveAnimationManager {
             
             if (!frame) return;
             
-            ctx.globalAlpha = wave.opacity;
-            
-            // Position and scale the wave
-            const width = 150 * wave.scale;
-            const height = 60 * wave.scale;
+            // Position and scale the wave to follow the note
+            const noteWidth = 140; // Standard note width
+            const width = (noteWidth * 2) * wave.scale; // 2 times wider than note width
+            const height = 420 * wave.scale; // Height for wave animation
             const x = wave.x - width / 2;
-            const y = wave.y - height / 2;
+            // Position wave so it touches the note and extends upward
+            const y = wave.y; // Wave bottom touches note position, extends upward
             
-            // Add wave color tinting based on lane
             ctx.save();
             
-            // Apply lane-specific coloring
+            // Add a stronger glow effect to distinguish from notes
+            ctx.shadowBlur = 25;
+            ctx.shadowColor = this.getLaneColor(wave.lane);
+            
+            // Apply more distinct lane-specific coloring to avoid confusion with notes
             switch (wave.lane) {
                 case 0:
                 case 3:
-                    ctx.filter = 'hue-rotate(0deg) saturate(150%)'; // White/Blue tint
+                    ctx.filter = 'hue-rotate(-30deg) saturate(200%) brightness(1.3)'; // More distinct blue-white tint
                     break;
                 case 1:
                 case 2:
-                    ctx.filter = 'hue-rotate(180deg) saturate(150%)'; // Cyan tint
+                    ctx.filter = 'hue-rotate(150deg) saturate(200%) brightness(1.3)'; // More distinct cyan-aqua tint
                     break;
             }
             
-            ctx.drawImage(frame, x, y, width, height);
+            // Rotate the wave by 90 degrees to make it vertical
+            ctx.translate(wave.x, wave.y);
+            ctx.rotate(Math.PI / 2); // 90 degrees rotation
+            
+            // Create a vertical gradient for consistent opacity pattern
+            const tempCanvas = document.createElement('canvas');
+            const tempCtx = tempCanvas.getContext('2d');
+            tempCanvas.width = height;
+            tempCanvas.height = width;
+            
+            tempCtx.drawImage(frame, 0, 0, height, width);
+            
+            const gradient = tempCtx.createLinearGradient(0, 0, height, 0);
+            const maxOpacity = wave.opacity; // Use wave opacity as the maximum
+            gradient.addColorStop(0, `rgba(255, 255, 255, ${maxOpacity * 0.1})`); // 10% of wave opacity at far end
+            gradient.addColorStop(0.3, `rgba(255, 255, 255, ${maxOpacity * 0.4})`); // 40% of wave opacity
+            gradient.addColorStop(0.6, `rgba(255, 255, 255, ${maxOpacity * 0.7})`); // 70% of wave opacity
+            gradient.addColorStop(0.85, `rgba(255, 255, 255, ${maxOpacity * 0.9})`); // 90% of wave opacity
+            gradient.addColorStop(1, `rgba(255, 255, 255, ${maxOpacity})`); // Full wave opacity at note position
+            
+            // Apply the gradient mask (wave opacity is already factored into the gradient)
+            tempCtx.globalCompositeOperation = 'destination-in';
+            tempCtx.fillStyle = gradient;
+            tempCtx.fillRect(0, 0, height, width);
+            
+            // Draw the final result without additional opacity since it's already in the gradient
+            ctx.globalAlpha = 1.0;
+            ctx.drawImage(tempCanvas, -height+40, -width / 2); // Wave starts at note position, extends upward
+            
             ctx.restore();
         });
         
         ctx.restore();
+    }
+    
+    // Get appropriate glow color for each lane
+    getLaneColor(lane) {
+        switch (lane) {
+            case 0:
+            case 3:
+                return '#00AAFF'; // Blue glow
+            case 1:
+            case 2:
+                return '#00FFCC'; // Cyan glow
+            default:
+                return '#00CCFF';
+        }
     }
     
     // Clear all waves (useful for song restart)
@@ -212,18 +281,18 @@ class WaveAnimationManager {
         const intensity = this.getIntensityForJudgement(judgement);
         
         // Create a more intense wave effect for hits
-        for (let i = 0; i < 3; i++) {
+        for (let i = 0; i < 4; i++) { // Increased number of splash effects
             const splash = {
                 id: Date.now() + Math.random(),
                 lane: lane,
-                x: laneX + 75 + (Math.random() - 0.5) * 50,
-                y: 650 + (Math.random() - 0.5) * 20, // Around judgement line
-                startY: 650,
+                x: laneX + 75 + (Math.random() - 0.5) * 60,
+                y: this.JUDGEMENT_LINE_Y + (Math.random() - 0.5) * 30, // Around judgement line
+                startY: this.JUDGEMENT_LINE_Y,
                 startTime: 0,
                 endTime: null,
                 isLongNote: false,
-                opacity: intensity * 0.8,
-                scale: 1.2 + Math.random() * 0.5,
+                opacity: intensity * 0.9, // Increased opacity for splash
+                scale: 1.4 + Math.random() * 0.6, // Larger splash effects
                 frameOffset: Math.floor(Math.random() * this.frameCount),
                 creationTime: Date.now(),
                 active: true,
