@@ -34,6 +34,12 @@ let LaserTime=150;
 let offset = -40;
 let effectiveOffset = offset;
 
+// Hit sound variables
+let hitSound;
+let hitSoundPool = [];
+let holdSoundIntervals = [-1, -1, -1, -1]; 
+const HOLD_SOUND_INTERVAL = 80; 
+
 const JUDGEMENT_LINE_Y = 650;
 const CANVAS_HEIGHT = 800;
 
@@ -49,6 +55,67 @@ function updateOffsetFromSettings() {
     } else {
         console.warn('gameSettings not available, using default offset');
         effectiveOffset = offset;
+    }
+}
+
+function loadHitSound() {
+    console.log('Loading hit sound...');
+    try {
+        // Create a pool of audio objects for simultaneous playback
+        for (let i = 0; i < 10; i++) {
+            const sound = new Audio('assets/sound/hitsound.mp3');
+            sound.volume = 0.8; // Set volume to 80% to be audible over music
+            sound.preload = 'auto';
+            hitSoundPool.push(sound);
+        }
+        hitSound = hitSoundPool[0]; // Keep reference to first one for basic operations
+        console.log('Hit sound loaded successfully');
+    } catch (error) {
+        console.error('Failed to load hit sound:', error);
+    }
+}
+
+function playHitSound() {
+    if (!hitSoundPool || hitSoundPool.length === 0) return;
+    
+    try {
+        // Find an available audio object from the pool
+        let availableSound = hitSoundPool.find(sound => sound.paused || sound.ended);
+        
+        // If no available sound, use the first one (interrupt)
+        if (!availableSound) {
+            availableSound = hitSoundPool[0];
+        }
+        
+        availableSound.currentTime = 0;
+        const playPromise = availableSound.play();
+        if (playPromise !== undefined) {
+            playPromise.catch(error => {
+                console.warn('Hit sound play failed:', error);
+            });
+        }
+    } catch (error) {
+        console.warn('Error playing hit sound:', error);
+    }
+}
+
+function startHoldSound(lane) {
+    if (holdSoundIntervals[lane] !== -1) return; // Already playing
+    
+    // Start interval for repeated sounds
+    holdSoundIntervals[lane] = setInterval(() => {
+        playHitSound();
+    }, HOLD_SOUND_INTERVAL);
+}
+
+function stopHoldSound(lane, playFinalSound = true) {
+    if (holdSoundIntervals[lane] !== -1) {
+        clearInterval(holdSoundIntervals[lane]);
+        holdSoundIntervals[lane] = -1;
+        // Only play final hit sound if it's a proper hold note completion
+        if (playFinalSound) {
+            playHitSound();
+        }
     }
 }
 
@@ -76,6 +143,10 @@ function initializeGameElements() {
     waveGradient.addColorStop(0, "rgba(0, 180, 255, 0.3)");
     waveGradient.addColorStop(0.5, "rgba(0, 255, 200, 0.2)");
     waveGradient.addColorStop(1, "rgba(0, 120, 200, 0.3)");
+    
+    // Load hit sound
+    loadHitSound();
+    
     console.log('Game elements initialized successfully');
     return true;
 }
@@ -333,7 +404,7 @@ function MissEvent(early) {
     JudgeNew=time+JudgeTime;
     if(early)FastCount++;else SlowCount++;
 }
-function HitEvent(Key, number, early) {
+function HitEvent(Key, number, early, isHoldStart = false) {
     if(number<5)Combo++;else Combo=0;
     if(Combo>MaxCombo)MaxCombo=Combo;
     Score+=5-number;
@@ -343,6 +414,17 @@ function HitEvent(Key, number, early) {
         if(early)FastCount++;else SlowCount++;
     Result[number]++;
     JudgeNew=time+JudgeTime;
+    
+    // Play hit sound for successful hits (not for misses)
+    if (number < 6) { // 0-5 are successful hits, 6 is miss
+        playHitSound();
+        
+        // Only start hold sound when explicitly starting a hold note
+        if (isHoldStart && number < 5) {
+            startHoldSound(Key);
+        }
+    }
+    
     if(typeof waveManager !== 'undefined' && waveManager.isReady()) {
         waveManager.addHitSplash(Key, number);
     }
@@ -408,17 +490,17 @@ function processTouchstart(e) {
             }
             LineHold[Key]=LineQueue[Key][i];
             if (time - timing[0] <= st && st <= time + timing[0]) {
-                HitEvent(Key, 0, time<st);
+                HitEvent(Key, 0, time<st, true); // true = this is a hold start
             } else if (time - timing[1] <= st && st <= time + timing[1]) {
-                HitEvent(Key, 1, time<st);
+                HitEvent(Key, 1, time<st, true);
             } else if (time - timing[2] <= st && st <= time + timing[2]) {
-                HitEvent(Key, 2, time<st);
+                HitEvent(Key, 2, time<st, true);
             } else if (time - timing[3] <= st && st <= time + timing[3]) {
-                HitEvent(Key, 3, time<st);
+                HitEvent(Key, 3, time<st, true);
             } else if (time - timing[4] <= st && st <= time + timing[4]) {
-                HitEvent(Key, 4, time<st);
+                HitEvent(Key, 4, time<st, true);
             } else {
-                HitEvent(Key, 5, time<st);
+                HitEvent(Key, 5, time<st, true);
             }
         }
     }
@@ -433,6 +515,8 @@ function processTouchend(e){
             keyLaserTime[i] = LaserTime+time;
             Finded=true;
             Key=i;
+            // Stop hold sound when touch is released
+            stopHoldSound(i, false); // false = don't play final sound for early release
             break;
         }
     }
@@ -449,6 +533,8 @@ function processTouchend(e){
         }
         let et = Objs[LineQueue[Key][i]]["EndTime"];
         LineHold[Key] = -1;
+        // Stop hold sound for long notes (touch)
+        stopHoldSound(Key);
         Objs[LineQueue[Key][i]]["Available"] = false;
         if (time + timing[5] < et) {
             MissEvent(time<et);
@@ -534,17 +620,17 @@ function processKeydown(e) {
             }
             LineHold[Key]=LineQueue[Key][i];
             if (time - timing[0] <= st && st <= time + timing[0]) {
-                HitEvent(Key, 0, time<st);
+                HitEvent(Key, 0, time<st, true); // true = this is a hold start
             } else if (time - timing[1] <= st && st <= time + timing[1]) {
-                HitEvent(Key, 1, time<st);
+                HitEvent(Key, 1, time<st, true);
             } else if (time - timing[2] <= st && st <= time + timing[2]) {
-                HitEvent(Key, 2, time<st);
+                HitEvent(Key, 2, time<st, true);
             } else if (time - timing[3] <= st && st <= time + timing[3]) {
-                HitEvent(Key, 3, time<st);
+                HitEvent(Key, 3, time<st, true);
             } else if (time - timing[4] <= st && st <= time + timing[4]) {
-                HitEvent(Key, 4, time<st);
+                HitEvent(Key, 4, time<st, true);
             } else {
-                HitEvent(Key, 5, time<st);
+                HitEvent(Key, 5, time<st, true);
             }
         }
     }
@@ -557,6 +643,8 @@ function processKeyup(e){
             keyLaserTime[i] = LaserTime+time;
             Finded=true;
             Key=i;
+            // Stop hold sound when key is released
+            stopHoldSound(i, false); // false = don't play final sound for early release
             break;
         }
     }
@@ -574,6 +662,8 @@ function processKeyup(e){
         }
         let et = Objs[LineQueue[Key][i]]["EndTime"];
         LineHold[Key] = -1;
+        // Stop hold sound for long notes (keyboard)
+        stopHoldSound(Key);
         Objs[LineQueue[Key][i]]["Available"] = false;
         if (time + timing[5] < et) {
             MissEvent(time<et);
@@ -1050,6 +1140,13 @@ function resetGameState() {
     if (audio1) {
         audio1.pause();
         audio1.currentTime = 0;
+    }
+    // Clear hold sound intervals
+    for (let i = 0; i < 4; i++) {
+        if (holdSoundIntervals[i] !== -1) {
+            clearInterval(holdSoundIntervals[i]);
+            holdSoundIntervals[i] = -1;
+        }
     }
     // Clear animations
     if (typeof waveManager !== 'undefined') {
