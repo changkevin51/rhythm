@@ -1143,6 +1143,7 @@ function draw() {
     }
     ctx.clearRect(0, 0, c.width, c.height);
     drawWaveBackground();
+    draw_Progress_Bar();
     draw_Bar_Line();
     draw_Notes();
     if(typeof waveManager !== 'undefined' && waveManager.isReady()) {
@@ -1210,7 +1211,6 @@ let keyBindingDisplayTime = 1000; // Show for 1 second
 let keyBindingFadeTime = 1000; // Fade out over 0.8 seconds
 let keyBindingShown = false;
 
-// Key code to character mapping
 const keyCodeToChar = {
     68: 'D',
     70: 'F', 
@@ -1292,4 +1292,137 @@ function resetKeyBindingDisplay() {
             element.style.opacity = '1';
         }
     });
+}
+
+function draw_Progress_Bar() {
+    if (!audio1 || audio1.duration === 0 || isNaN(audio1.duration)) return;
+    
+    ctx.save();
+    
+    // Progress bar dimensions and position
+    const barX = 50;
+    const barY = 20;
+    const barWidth = 500;
+    const barHeight = 12;
+    const borderRadius = 6;
+    
+    // Calculate progress percentage
+    const currentTime = audio1.currentTime || 0;
+    const duration = audio1.duration || 1;
+    const progress = Math.min(currentTime / duration, 1);
+    
+    // Create wave effect for the progress bar
+    const waveOffset = (time / 300) % (Math.PI * 2);
+    const waveAmplitude = 2;
+    
+    // Helper function for rounded rectangle (fallback for older browsers)
+    function drawRoundedRect(x, y, width, height, radius) {
+        if (ctx.roundRect) {
+            ctx.roundRect(x, y, width, height, radius);
+        } else {
+            // Fallback for older browsers
+            ctx.beginPath();
+            ctx.moveTo(x + radius, y);
+            ctx.lineTo(x + width - radius, y);
+            ctx.quadraticCurveTo(x + width, y, x + width, y + radius);
+            ctx.lineTo(x + width, y + height - radius);
+            ctx.quadraticCurveTo(x + width, y + height, x + width - radius, y + height);
+            ctx.lineTo(x + radius, y + height);
+            ctx.quadraticCurveTo(x, y + height, x, y + height - radius);
+            ctx.lineTo(x, y + radius);
+            ctx.quadraticCurveTo(x, y, x + radius, y);
+            ctx.closePath();
+        }
+    }
+    
+    // Draw background (empty part of progress bar)
+    ctx.beginPath();
+    drawRoundedRect(barX, barY, barWidth, barHeight, borderRadius);
+    const bgGradient = ctx.createLinearGradient(barX, barY, barX + barWidth, barY);
+    bgGradient.addColorStop(0, 'rgba(0, 60, 120, 0.3)');
+    bgGradient.addColorStop(0.5, 'rgba(0, 80, 140, 0.4)');
+    bgGradient.addColorStop(1, 'rgba(0, 60, 120, 0.3)');
+    ctx.fillStyle = bgGradient;
+    ctx.fill();
+    
+    // Draw border with glow effect
+    ctx.shadowColor = '#00CCFF';
+    ctx.shadowBlur = 8;
+    ctx.strokeStyle = 'rgba(0, 180, 255, 0.6)';
+    ctx.lineWidth = 1;
+    ctx.stroke();
+    ctx.shadowBlur = 0;
+    
+    // Draw filled progress with wave effect
+    if (progress > 0) {
+        const progressWidth = barWidth * progress;
+        
+        // Create clipping path for the progress
+        ctx.save();
+        ctx.beginPath();
+        drawRoundedRect(barX, barY, progressWidth, barHeight, borderRadius);
+        ctx.clip();
+        
+        // Draw animated wave fill
+        ctx.beginPath();
+        ctx.moveTo(barX, barY + barHeight);
+        for (let x = 0; x <= progressWidth; x += 2) {
+            const waveY = barY + barHeight/2 + Math.sin((x * 0.05) + waveOffset) * waveAmplitude;
+            ctx.lineTo(barX + x, waveY);
+        }
+        ctx.lineTo(barX + progressWidth, barY);
+        ctx.lineTo(barX, barY);
+        ctx.closePath();
+        
+        // Create progress gradient
+        const progressGradient = ctx.createLinearGradient(barX, barY, barX + progressWidth, barY);
+        progressGradient.addColorStop(0, '#00CCFF');
+        progressGradient.addColorStop(0.3, '#00FFAA');
+        progressGradient.addColorStop(0.7, '#80E0FF');
+        progressGradient.addColorStop(1, '#00CCFF');
+        ctx.fillStyle = progressGradient;
+        ctx.fill();
+        
+        // Add shimmer effect
+        const shimmerGradient = ctx.createLinearGradient(barX, barY, barX + progressWidth, barY + barHeight);
+        shimmerGradient.addColorStop(0, 'rgba(255, 255, 255, 0.4)');
+        shimmerGradient.addColorStop(0.5, 'rgba(255, 255, 255, 0.1)');
+        shimmerGradient.addColorStop(1, 'rgba(255, 255, 255, 0.3)');
+        ctx.fillStyle = shimmerGradient;
+        ctx.fillRect(barX, barY, progressWidth, barHeight * 0.4);
+        
+        ctx.restore();
+        
+        // Add glow effect to the progress
+        ctx.shadowColor = '#00FFAA';
+        ctx.shadowBlur = 15;
+        ctx.beginPath();
+        drawRoundedRect(barX, barY, progressWidth, barHeight, borderRadius);
+        ctx.strokeStyle = 'rgba(0, 255, 170, 0.8)';
+        ctx.lineWidth = 2;
+        ctx.stroke();
+        ctx.shadowBlur = 0;
+    }
+    
+    // Draw time indicators
+    ctx.font = '12px Orbitron, monospace';
+    ctx.textAlign = 'left';
+    ctx.fillStyle = '#80E0FF';
+    ctx.shadowColor = '#00CCFF';
+    ctx.shadowBlur = 5;
+    
+    // Current time
+    const currentMinutes = Math.floor(currentTime / 60);
+    const currentSeconds = Math.floor(currentTime % 60);
+    const currentTimeText = `${currentMinutes}:${currentSeconds.toString().padStart(2, '0')}`;
+    ctx.fillText(currentTimeText, barX, barY + barHeight + 18);
+    
+    // Total duration
+    ctx.textAlign = 'right';
+    const totalMinutes = Math.floor(duration / 60);
+    const totalSeconds = Math.floor(duration % 60);
+    const durationText = `${totalMinutes}:${totalSeconds.toString().padStart(2, '0')}`;
+    ctx.fillText(durationText, barX + barWidth, barY + barHeight + 18);
+    
+    ctx.restore();
 }
