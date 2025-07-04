@@ -346,6 +346,10 @@ function HitEvent(Key, number, early) {
     if(typeof waveManager !== 'undefined' && waveManager.isReady()) {
         waveManager.addHitSplash(Key, number);
     }
+    // Add splash animation for note hits
+    if(typeof splashManager !== 'undefined' && splashManager.isReady()) {
+        splashManager.addHitSplash(Key, number);
+    }
 }
 function processTouchstart(e) {
 	e.preventDefault();
@@ -1012,6 +1016,11 @@ function draw() {
     }
     draw_Judgement_Line();
     draw_Lasers();
+    // Update and render splash animations
+    if(typeof splashManager !== 'undefined' && splashManager.isReady()) {
+        splashManager.update();
+        splashManager.render(ctx);
+    }
     draw_Combo();
     draw_Score();
     draw_ACC();
@@ -1041,6 +1050,13 @@ function resetGameState() {
     if (audio1) {
         audio1.pause();
         audio1.currentTime = 0;
+    }
+    // Clear animations
+    if (typeof waveManager !== 'undefined') {
+        waveManager.clearWaves();
+    }
+    if (typeof splashManager !== 'undefined') {
+        splashManager.clearSplashes();
     }
     console.log('Game state reset complete');
 }
