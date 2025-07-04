@@ -105,6 +105,18 @@
         </div>
     </div>
 
+    <!-- First Time Player Suggestion Modal -->
+    <div id="suggestion-overlay" class="suggestion-overlay">
+        <div class="suggestion-modal">
+            <h2 class="suggestion-title">New to Rhythm Games?</h2>
+            <p class="suggestion-description">
+                If this is your first time, we recommend starting with <strong>"Quiet Water"</strong>. 
+                It's a great way to get a feel for the game's mechanics.
+            </p>
+            <button id="close-suggestion" class="btn">Got it!</button>
+        </div>
+    </div>
+
     <script src="js/SettingsManager.js"></script>
     <script>
         // Audio Offset Calibration System
@@ -343,20 +355,26 @@
                 this.hideCalibration();
                 updateSettingsButtonStatus();
                 
+                // Show suggestion modal for first-time players after calibration
+                if (!gameSettings.get('hasPlayedBefore')) {
+                    setTimeout(() => {
+                        showSuggestionModal();
+                    }, 500);
+                }
+                
                 // Show confirmation
                 this.showCalibrationResult(savedOffset);
             }
             
             skipCalibration() {
-                gameSettings.set('isCalibrated', true); // Mark as calibrated (skipped)
-                gameSettings.saveSettings();
+                this.stopCalibration();
                 this.hideCalibration();
-                updateSettingsButtonStatus();
-                
-                // Show info about manual calibration
-                setTimeout(() => {
-                    alert('Calibration skipped.\n\nYou can calibrate your audio offset later by clicking the settings button (⚙️) in the top-right corner.\n\nProper calibration helps ensure the best rhythm game experience!');
-                }, 100);
+                // Show suggestion modal for first-time players even if calibration is skipped
+                if (!gameSettings.get('hasPlayedBefore')) {
+                    setTimeout(() => {
+                        showSuggestionModal();
+                    }, 300);
+                }
             }
             
             hideCalibration() {
@@ -380,23 +398,36 @@
             }
             
             show() {
-                console.log('Showing calibration modal...');
-                console.log('Overlay element:', this.overlay);
-                console.log('Adding active class...');
                 this.overlay.classList.add('active');
-                console.log('Active class added, overlay classes:', this.overlay.className);
-                
-                // Force display style as backup
-                this.overlay.style.display = 'flex';
-                this.overlay.style.zIndex = '9999';
-                
-                console.log('Calibration modal should now be visible');
             }
         }
-        
+
+        // Suggestion Modal Logic
+        const suggestionOverlay = document.getElementById('suggestion-overlay');
+        const closeSuggestionBtn = document.getElementById('close-suggestion');
+
+        function showSuggestionModal() {
+            if (suggestionOverlay) {
+                suggestionOverlay.classList.add('active');
+            }
+        }
+
+        function hideSuggestionModal() {
+            if (suggestionOverlay) {
+                suggestionOverlay.classList.remove('active');
+            }
+        }
+
+        if (closeSuggestionBtn) {
+            closeSuggestionBtn.addEventListener('click', () => {
+                hideSuggestionModal();
+                gameSettings.set('hasPlayedBefore', true);
+            });
+        }
+
         // Initialize calibration system
         const audioCalibration = new AudioCalibration();
-        
+
         // Create floating particles
         function createParticles() {
             const container = document.getElementById('particles');
@@ -420,44 +451,24 @@
         // Check if user needs calibration on page load
         function checkCalibrationNeeded() {
             console.log('Checking calibration need...');
-            console.log('gameSettings available:', typeof gameSettings !== 'undefined');
-            console.log('audioCalibration available:', typeof audioCalibration !== 'undefined');
-            
-            try {
-                // Check if user needs calibration
-                const needsCalibration = gameSettings.isCalibrationNeeded();
-                console.log('Needs calibration:', needsCalibration);
-                console.log('Current calibration status:', gameSettings.get('isCalibrated'));
-                
-                if (needsCalibration) {
-                    console.log('Showing calibration modal in 1 second...');
-                    // Show calibration after a short delay to let page load
-                    setTimeout(() => {
-                        console.log('Attempting to show calibration...');
-                        audioCalibration.show();
-                        console.log('Calibration show method called');
-                    }, 1000);
-                } else {
-                    console.log('User already calibrated, skipping calibration modal');
-                }
-            } catch (error) {
-                console.error('Error checking calibration:', error);
-                console.log('Forcing calibration show for debugging...');
-                setTimeout(() => {
-                    audioCalibration.show();
-                }, 1000);
+            const isCalibrated = gameSettings.get('isCalibrated');
+            const hasPlayedBefore = gameSettings.get('hasPlayedBefore');
+
+            console.log('Calibration status:', { isCalibrated, hasPlayedBefore });
+
+            if (!isCalibrated) {
+                console.log('Showing calibration modal');
+                audioCalibration.show();
             }
+            // Don't show suggestion modal here - it will be shown after calibration is completed
         }
 
         // Initialize when page loads
         document.addEventListener('DOMContentLoaded', () => {
             console.log('DOM loaded, initializing...');
-            console.log('gameSettings available:', typeof gameSettings !== 'undefined');
-            
             createParticles();
             checkCalibrationNeeded();
             updateSettingsButtonStatus();
-            
             console.log('Initialization complete');
         });
         
