@@ -52,12 +52,15 @@ class GameplayEnhancer {
         judgementElement.textContent = judgementData.text;
         judgementElement.classList.add(judgementData.class);
 
+        // Add subtle randomness to positioning while keeping it in the same general area
         const canvasRect = this.canvas.getBoundingClientRect();
-        const chaoticPos = this.getChaoticPosition(judgementType, lane, canvasRect);
-
+        const randomPos = this.getSubtlyRandomPosition(judgementType, canvasRect);
+        
+        // Override CSS positioning with subtle variations
         judgementElement.style.position = 'absolute';
-        judgementElement.style.left = chaoticPos.x + 'px';
-        judgementElement.style.top = chaoticPos.y + 'px';
+        judgementElement.style.left = randomPos.x + 'px';
+        judgementElement.style.top = randomPos.y + 'px';
+        judgementElement.style.transform = 'translateX(-50%)';
         judgementElement.style.zIndex = '1500';
 
         if (this.hitEffectOverlay) {
@@ -69,12 +72,9 @@ class GameplayEnhancer {
         this.activeJudgements.push(judgementElement);
 
         if (judgementType <= 1) {
-            this.createParticleEffect(chaoticPos.x, chaoticPos.y, judgementData.color);
+            this.createParticleEffect(randomPos.x, randomPos.y, judgementData.color);
         }
 
-        if (judgementType === 0) {
-            this.addScreenShake();
-        }
 
         setTimeout(() => {
             this.removeJudgement(judgementElement);
@@ -94,34 +94,29 @@ class GameplayEnhancer {
         return judgements[type] || judgements[6];
     }
 
-    getChaoticPosition(judgementType, lane, canvasRect) {
+    getSubtlyRandomPosition(judgementType, canvasRect) {
         const baseX = canvasRect.left + canvasRect.width / 2;
-        const baseY = canvasRect.top + canvasRect.height * 0.1;
+        const baseY = canvasRect.top + canvasRect.height * 0.30;
 
-        const chaosMultiplier = {
-            0: 0.3,
-            1: 0.4,
-            2: 0.6,
-            3: 0.8,
-            4: 1.2,
-            5: 1.5,
-            6: 1.5
+        const variationMultiplier = {
+            0: 0.8,   // Perfect - small variation
+            1: 0.8,   // Perfect - small variation  
+            2: 1.0,   // Great - moderate variation
+            3: 1.2,   // Good - bit more variation
+            4: 1.5,   // Bad - more variation
+            5: 1.8,   // Miss - most variation
+            6: 1.8    // Miss - most variation
         };
 
-        const chaos = chaosMultiplier[judgementType] || 1.0;
+        const variation = variationMultiplier[judgementType] || 1.0;
+        const variationX = (Math.random() - 0.5) * 80 * variation;
+        const variationY = (Math.random() - 0.5) * 40 * variation;
 
-        let laneOffset = 0;
-        if (lane !== null) {
-            const laneWidth = canvasRect.width / 4;
-            laneOffset = (lane - 1.5) * laneWidth * 0.5;
-        }
+        const finalX = baseX + variationX;
+        const finalY = baseY + variationY;
 
-        const chaoticX = baseX + laneOffset + (Math.random() - 0.5) * 200 * chaos;
-        const chaoticY = baseY + (Math.random() - 0.5) * 80 * chaos;
-
-        const boundedX = Math.max(50, Math.min(window.innerWidth - 100, chaoticX));
-        const topHalfLimit = canvasRect.top + canvasRect.height * 0.5;
-        const boundedY = Math.max(canvasRect.top + 50, Math.min(topHalfLimit - 50, chaoticY));
+        const boundedX = Math.max(canvasRect.left + 150, Math.min(canvasRect.right - 150, finalX));
+        const boundedY = Math.max(canvasRect.top + canvasRect.height * 0.15, Math.min(canvasRect.top + canvasRect.height * 0.45, finalY));
 
         return { x: boundedX, y: boundedY };
     }
@@ -156,17 +151,6 @@ class GameplayEnhancer {
                     particle.parentNode.removeChild(particle);
                 }
             }, 1500);
-        }
-    }
-
-    addScreenShake() {
-        if (this.canvas) {
-            this.canvas.parentElement.classList.add('screen-shake');
-            setTimeout(() => {
-                if (this.canvas && this.canvas.parentElement) {
-                    this.canvas.parentElement.classList.remove('screen-shake');
-                }
-            }, 300);
         }
     }
 

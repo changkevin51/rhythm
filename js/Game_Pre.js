@@ -40,7 +40,7 @@ let hitSoundPool = [];
 let holdSoundIntervals = [-1, -1, -1, -1]; 
 const HOLD_SOUND_INTERVAL = 80; 
 
-const JUDGEMENT_LINE_Y = 650;
+const JUDGEMENT_LINE_Y = 680;
 const CANVAS_HEIGHT = 800;
 
 function updateOffsetFromSettings() {
@@ -102,7 +102,6 @@ function playHitSound() {
 function startHoldSound(lane) {
     if (holdSoundIntervals[lane] !== -1) return; // Already playing
     
-    // Start interval for repeated sounds
     holdSoundIntervals[lane] = setInterval(() => {
         playHitSound();
     }, HOLD_SOUND_INTERVAL);
@@ -719,59 +718,51 @@ function draw_Bar_Line() {
     ctx.restore();
 }
 function EndingScene() {
-    ctx.clearRect(0, 0, c.width, c.height);
-    ctx.save();
-    ctx.font = "bold 50px Arial";
-    ctx.textAlign = "start";
-    ctx.textBaseline = "bottom";
-    ctx.lineWidth=2;
-    ctx.fillStyle = "#00FFFF";
-    ctx.strokeStyle = "#007F7F";
-    ctx.fillText("300 : "+String(Result[0]), 50, 150-50);
-    ctx.strokeText("300 : "+String(Result[0]), 50, 150-50);
-    ctx.fillStyle = "#FFFF00";
-    ctx.strokeStyle = "#7F7F00";
-    ctx.fillText("300 : "+String(Result[1]), 50, 215-50);
-    ctx.strokeText("300 : "+String(Result[1]), 50, 215-50);
-    ctx.fillStyle = "#00FF00";
-    ctx.strokeStyle = "#007F00";
-    ctx.fillText("200 : "+String(Result[2]), 50, 280-50);
-    ctx.strokeText("200 : "+String(Result[2]), 50, 280-50);
-    ctx.fillStyle = "#0000FF";
-    ctx.strokeStyle = "#00007F";
-    ctx.fillText("100 : "+String(Result[3]), 50, 345-50);
-    ctx.strokeText("100 : "+String(Result[3]), 50, 345-50);
-    ctx.fillStyle = "#7F7F7F";
-    ctx.strokeStyle = "#3F3F3F";
-    ctx.fillText("50 : "+String(Result[4]), 50, 410-50);
-    ctx.strokeText("50 : "+String(Result[4]), 50, 410-50);
-    ctx.fillStyle = "#FF0000";
-    ctx.strokeStyle = "#7F0000";
-    ctx.fillText("MISS : "+String(Result[5]+Result[6]), 50, 475-50);
-    ctx.strokeText("MISS : "+String(Result[5]+Result[6]), 50, 475-50);
-    ctx.fillStyle = "#0000FF";
-    ctx.strokeStyle = "#00007F";
-    ctx.fillText("FAST : "+String(FastCount), 50, 540-50);
-    ctx.strokeText("FAST : "+String(FastCount), 50, 540-50);
-    ctx.fillStyle = "#FF0000";
-    ctx.strokeStyle = "#7F0000";
-    ctx.fillText("SLOW : "+String(SlowCount), 50, 605-50);
-    ctx.strokeText("SLOW : "+String(SlowCount), 50, 605-50);
-    ctx.fillStyle = "#FFFFFF";
-    ctx.strokeStyle = "#7F7F7F";
-    ctx.fillText("Score : "+String(Score)+"/"+String(EndScore), 50, 670-50);
-    ctx.strokeText("Score : "+String(Score)+"/"+String(EndScore), 50, 670-50);
-    ctx.fillStyle = "#FFFFFF";
-    ctx.strokeStyle = "#7F7F7F";
-    ctx.fillText("Combo : "+String(MaxCombo)+"/"+String(HOnums+LN), 50, 735-50);
-    ctx.strokeText("Combo : "+String(MaxCombo)+"/"+String(HOnums+LN), 50, 735-50);
-    ctx.fillStyle = "#FFFFFF";
-    ctx.strokeStyle = "#7F7F7F";
-    let accText = "ACC : 0.00%";
-    if(EndScore > 0) accText = "ACC : "+String(Math.round(Score/EndScore*10000)/100)+"%";
-    ctx.fillText(accText, 50, 800-50);
-    ctx.strokeText(accText, 50, 800-50);
-    ctx.restore();
+    audio1.pause();
+    removeKeyListener();
+
+    const totalNotes = HOnums + LN;
+    const perfects = Result[0] + Result[1];
+    const greats = Result[2];
+    const goods = Result[3];
+    const bads = Result[4];
+    const misses = Result[5] + Result[6];
+
+    // Calculate accuracy
+    const weightedScore = perfects * 300 + greats * 150 + goods * 100 + bads * 50;
+    const maxWeightedScore = totalNotes * 300;
+    const accuracy = maxWeightedScore > 0 ? (weightedScore / maxWeightedScore) * 100 : 0;
+
+    // Determine rank
+    let rank = 'D';
+    if (accuracy >= 95) rank = 'S';
+    else if (accuracy >= 90) rank = 'A';
+    else if (accuracy >= 80) rank = 'B';
+    else if (accuracy >= 65) rank = 'C';
+
+    // Factor in combo
+    const comboFactor = Math.min(MaxCombo / totalNotes, 1) * 0.2; // 20% weight to combo
+    const finalScore = accuracy * 0.8 + comboFactor * 100;
+
+    // Determine rank with the combined score
+    if (finalScore >= 95) rank = 'S';
+    else if (finalScore >= 90) rank = 'A';
+    else if (finalScore >= 80) rank = 'B';
+    else if (finalScore >= 65) rank = 'C';
+
+    // Update the ending scene elements
+    document.getElementById('end-rank').textContent = rank;
+    document.getElementById('end-score').textContent = Score;
+    document.getElementById('end-max-combo').textContent = MaxCombo;
+    document.getElementById('end-perfect').textContent = perfects;
+    document.getElementById('end-great').textContent = greats;
+    document.getElementById('end-good').textContent = goods;
+    document.getElementById('end-bad').textContent = bads;
+    document.getElementById('end-miss').textContent = misses;
+
+    // Hide game container and show ending scene
+    document.getElementById('game-container').style.display = 'none';
+    document.getElementById('ending-scene').style.display = 'flex';
 }
 function draw_Notes() {
     ctx.save();
@@ -1036,29 +1027,25 @@ function draw_Judge() {
     ctx.restore();
 }
 function draw_FS() {
-    if(JudgeNew==0)return;
-    if(JudgeNew-time<0){
-        JudgeNew=0;
-        return;
+    // Display the indicator if a judgement was just made and it wasn't a perfect hit.
+    // JudgeType 0 and 1 are for PERFECT, so we only show this for GREAT or lower.
+    if (JudgeNew > time && JudgeType > 1) {
+        ctx.save();
+        ctx.textAlign = "center";
+        ctx.font = "18px 'Exo 2', sans-serif";
+        ctx.shadowColor = 'rgba(0, 0, 0, 0.7)';
+        ctx.shadowBlur = 5;
+
+        // FSType is true for early hits, false for late hits.
+        if (FSType) { // Early
+            ctx.fillStyle = "#80E0FF"; // A cool blue for "early"
+            ctx.fillText("EARLY", 300, 560);
+        } else { // Late
+            ctx.fillStyle = "#FFB86C"; // A warm orange for "late"
+            ctx.fillText("LATE", 300, 560);
+        }
+        ctx.restore();
     }
-    if(JudgeType==0)return;
-    ctx.save();
-    ctx.font = "bold 20px Arial";
-    ctx.textAlign = "center";
-    ctx.textBaseline = "bottom";
-    ctx.lineWidth=2;
-    if(FSType) {
-        ctx.fillStyle = "#0000FF";
-        ctx.strokeStyle = "#00007F";
-        ctx.strokeText("FAST", 300, 192);
-        ctx.fillText("FAST", 300, 192);
-    }else{
-        ctx.fillStyle = "#FF0000";
-        ctx.strokeStyle = "#7F0000";
-        ctx.strokeText("LATE", 300, 192);
-        ctx.fillText("LATE", 300, 192);
-    }
-    ctx.restore();
 }
 function draw_Judgement_Line() {
     ctx.save();

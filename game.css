@@ -182,185 +182,206 @@ body::before {
 .game-container { display: none; }
 .game-container.active { display: block; }
 
-/* Game-like Judgement Text Animations - Chaotic positioning */
+/* Game-like Judgement Text Animations - Centered top positioning */
 .judgement-text {
     position: absolute;
     font-family: 'Orbitron', monospace;
     font-weight: 900;
-    font-size: 4rem;
+    font-size: 3.5rem;
     text-align: center;
     pointer-events: none;
     z-index: 1500;
+    /* Improved readability with stronger outline and less overwhelming glow */
     text-shadow: 
-        0 0 10px currentColor,
-        0 0 20px currentColor,
-        0 0 30px currentColor,
-        2px 2px 4px rgba(0, 0, 0, 0.8);
-    animation: chaoticJudgement 1s ease-out forwards;
+        0 0 8px rgba(0, 0, 0, 0.9),
+        0 0 16px rgba(0, 0, 0, 0.7),
+        2px 2px 0px rgba(0, 0, 0, 0.9),
+        -2px -2px 0px rgba(0, 0, 0, 0.9),
+        2px -2px 0px rgba(0, 0, 0, 0.9),
+        -2px 2px 0px rgba(0, 0, 0, 0.9),
+        0 0 4px currentColor;
+    animation: gentleJudgement 1s ease-out forwards;
     transform-origin: center;
+    /* Removed background box for cleaner look */
+    left: 50%;
+    top: 30% !important;
+    transform: translateX(-50%);
 }
 
-/* Different judgement styles with chaotic animations */
+/* Different judgement styles with improved readability */
 .judgement-perfect {
-    color: #00FFFF;
-    filter: drop-shadow(0 0 20px #00FFFF);
-    animation: chaoticPerfect 1.2s ease-out forwards;
+    color: #FFFFFF;
+    text-shadow: 
+        0 0 8px rgba(0, 0, 0, 0.9),
+        0 0 16px rgba(0, 0, 0, 0.7),
+        2px 2px 0px rgba(0, 0, 0, 0.9),
+        -2px -2px 0px rgba(0, 0, 0, 0.9),
+        2px -2px 0px rgba(0, 0, 0, 0.9),
+        -2px 2px 0px rgba(0, 0, 0, 0.9),
+        0 0 12px #00FFFF,
+        0 0 24px #00FFFF;
+    animation: gentlePerfect 1.2s ease-out forwards;
 }
 
 .judgement-great {
-    color: #00FF00;
-    filter: drop-shadow(0 0 15px #00FF00);
-    animation: chaoticGreat 1s ease-out forwards;
+    color: #FFFFFF;
+    text-shadow: 
+        0 0 8px rgba(0, 0, 0, 0.9),
+        0 0 16px rgba(0, 0, 0, 0.7),
+        2px 2px 0px rgba(0, 0, 0, 0.9),
+        -2px -2px 0px rgba(0, 0, 0, 0.9),
+        2px -2px 0px rgba(0, 0, 0, 0.9),
+        -2px 2px 0px rgba(0, 0, 0, 0.9),
+        0 0 10px #00FF88,
+        0 0 20px #00FF88;
+    animation: gentleGreat 1s ease-out forwards;
 }
 
 .judgement-good {
-    color: #0088FF;
-    filter: drop-shadow(0 0 12px #0088FF);
-    animation: chaoticGood 0.9s ease-out forwards;
+    color: #FFFFFF;
+    text-shadow: 
+        0 0 8px rgba(0, 0, 0, 0.9),
+        0 0 16px rgba(0, 0, 0, 0.7),
+        2px 2px 0px rgba(0, 0, 0, 0.9),
+        -2px -2px 0px rgba(0, 0, 0, 0.9),
+        2px -2px 0px rgba(0, 0, 0, 0.9),
+        -2px 2px 0px rgba(0, 0, 0, 0.9),
+        0 0 8px #4488FF,
+        0 0 16px #4488FF;
+    animation: gentleGood 0.9s ease-out forwards;
 }
 
 .judgement-bad {
-    color: #FF6600;
-    filter: drop-shadow(0 0 10px #FF6600);
-    animation: chaoticBad 0.8s ease-out forwards;
+    color: #FFFFFF;
+    text-shadow: 
+        0 0 8px rgba(0, 0, 0, 0.9),
+        0 0 16px rgba(0, 0, 0, 0.7),
+        2px 2px 0px rgba(0, 0, 0, 0.9),
+        -2px -2px 0px rgba(0, 0, 0, 0.9),
+        2px -2px 0px rgba(0, 0, 0, 0.9),
+        -2px 2px 0px rgba(0, 0, 0, 0.9),
+        0 0 8px #FF8844,
+        0 0 16px #FF8844;
+    animation: gentleBad 0.8s ease-out forwards;
 }
 
 .judgement-miss {
-    color: #FF0000;
-    filter: drop-shadow(0 0 15px #FF0000);
-    animation: chaoticMiss 1s ease-out forwards;
+    color: #FFFFFF;
+    text-shadow: 
+        0 0 8px rgba(0, 0, 0, 0.9),
+        0 0 16px rgba(0, 0, 0, 0.7),
+        2px 2px 0px rgba(0, 0, 0, 0.9),
+        -2px -2px 0px rgba(0, 0, 0, 0.9),
+        2px -2px 0px rgba(0, 0, 0, 0.9),
+        -2px 2px 0px rgba(0, 0, 0, 0.9),
+        0 0 10px #FF4444,
+        0 0 20px #FF4444;
+    animation: gentleMiss 1s ease-out forwards;
 }
 
-/* Chaotic Perfect animation - explosive and celebratory */
-@keyframes chaoticPerfect {
+/* Gentle Perfect animation - celebratory but stable */
+@keyframes gentlePerfect {
     0% {
-        transform: scale(0.3) rotate(-15deg) translateX(-50px) translateY(-30px);
-        opacity: 0;
-    }
-    15% {
-        transform: scale(1.5) rotate(8deg) translateX(20px) translateY(10px);
-        opacity: 1;
-    }
-    30% {
-        transform: scale(1.2) rotate(-3deg) translateX(-10px) translateY(15px);
-    }
-    50% {
-        transform: scale(1.3) rotate(2deg) translateX(30px) translateY(-20px);
-    }
-    70% {
-        transform: scale(1.1) rotate(-1deg) translateX(-15px) translateY(5px);
-    }
-    100% {
-        transform: scale(0) rotate(360deg) translateX(40px) translateY(-40px);
-        opacity: 0;
-    }
-}
-
-/* Chaotic Great animation - bouncy and energetic */
-@keyframes chaoticGreat {
-    0% {
-        transform: scale(0.5) rotate(10deg) translateY(-20px);
+        transform: translateX(-50%) scale(0.5);
         opacity: 0;
     }
     20% {
-        transform: scale(1.3) rotate(-5deg) translateY(0px);
+        transform: translateX(-50%) scale(1.3);
         opacity: 1;
     }
     40% {
-        transform: scale(1.1) rotate(3deg) translateY(-10px);
+        transform: translateX(-50%) scale(1.1);
     }
     60% {
-        transform: scale(1.2) rotate(-2deg) translateY(5px);
-    }
-    80% {
-        transform: scale(1.0) rotate(1deg) translateY(0px);
+        transform: translateX(-50%) scale(1.2);
     }
     100% {
-        transform: scale(0.2) rotate(-180deg) translateY(-50px);
+        transform: translateX(-50%) scale(0);
         opacity: 0;
     }
 }
 
-/* Chaotic Good animation - wobbly and playful */
-@keyframes chaoticGood {
+/* Gentle Great animation - smooth and stable */
+@keyframes gentleGreat {
     0% {
-        transform: scale(0.4) skewX(-10deg);
+        transform: translateX(-50%) scale(0.6);
         opacity: 0;
     }
     25% {
-        transform: scale(1.2) skewX(5deg);
+        transform: translateX(-50%) scale(1.2);
         opacity: 1;
     }
     50% {
-        transform: scale(1.0) skewX(-3deg);
-    }
-    75% {
-        transform: scale(1.1) skewX(2deg);
+        transform: translateX(-50%) scale(1.0);
     }
     100% {
-        transform: scale(0.1) skewX(0deg) translateX(100px);
+        transform: translateX(-50%) scale(0.2);
         opacity: 0;
     }
 }
 
-/* Chaotic Bad animation - shaky and unstable */
-@keyframes chaoticBad {
+/* Gentle Good animation - simple and clean */
+@keyframes gentleGood {
     0% {
-        transform: scale(0.6) rotate(0deg);
+        transform: translateX(-50%) scale(0.7);
         opacity: 0;
     }
-    10% {
-        transform: scale(1.1) rotate(-3deg);
+    30% {
+        transform: translateX(-50%) scale(1.1);
         opacity: 1;
+    }
+    100% {
+        transform: translateX(-50%) scale(0.3);
+        opacity: 0;
+    }
+}
+
+/* Gentle Bad animation - subtle shake but controlled */
+@keyframes gentleBad {
+    0% {
+        transform: translateX(-50%) scale(0.8);
+        opacity: 0;
     }
     20% {
-        transform: scale(1.0) rotate(2deg);
+        transform: translateX(-50%) scale(1.0);
+        opacity: 1;
     }
     30% {
-        transform: scale(1.05) rotate(-4deg);
+        transform: translateX(-52%) scale(1.0);
     }
     40% {
-        transform: scale(0.95) rotate(3deg);
+        transform: translateX(-48%) scale(1.0);
     }
     50% {
-        transform: scale(1.02) rotate(-2deg);
+        transform: translateX(-51%) scale(1.0);
     }
     60% {
-        transform: scale(0.98) rotate(1deg);
-    }
-    70% {
-        transform: scale(1.01) rotate(-1deg);
+        transform: translateX(-49%) scale(1.0);
     }
     100% {
-        transform: scale(0) rotate(0deg);
+        transform: translateX(-50%) scale(0.1);
         opacity: 0;
     }
 }
 
-/* Chaotic Miss animation - dramatic and failing */
-@keyframes chaoticMiss {
+/* Gentle Miss animation - disappointed but not chaotic */
+@keyframes gentleMiss {
     0% {
-        transform: scale(1.2) rotate(0deg);
+        transform: translateX(-50%) scale(1.0);
         opacity: 0;
     }
-    15% {
-        transform: scale(1.5) rotate(-10deg);
+    20% {
+        transform: translateX(-50%) scale(1.2);
         opacity: 1;
     }
-    30% {
-        transform: scale(1.3) rotate(5deg);
+    40% {
+        transform: translateX(-50%) scale(1.0);
     }
-    50% {
-        transform: scale(1.1) rotate(-15deg);
-    }
-    70% {
-        transform: scale(0.8) rotate(10deg);
-    }
-    85% {
-        transform: scale(0.5) rotate(-5deg);
+    60% {
+        transform: translateX(-50%) scale(0.8);
     }
     100% {
-        transform: scale(0.1) rotate(-90deg) translateY(100px);
+        transform: translateX(-50%) scale(0.2) translateY(20px);
         opacity: 0;
     }
 }
@@ -608,7 +629,9 @@ body::before {
 /* Responsive judgement text sizing */
 @media (max-width: 768px) {
     .judgement-text {
-        font-size: 2.5rem;
+        font-size: 2.8rem;
+        padding: 6px 12px;
+        top: 12%;
     }
     
     .combo-display {
@@ -618,7 +641,18 @@ body::before {
 
 @media (max-width: 480px) {
     .judgement-text {
-        font-size: 2rem;
+        font-size: 2.2rem;
+        padding: 4px 8px;
+        top: 10%;
+        /* Maintain strong contrast on small screens */
+        text-shadow: 
+            0 0 6px rgba(0, 0, 0, 0.9),
+            0 0 12px rgba(0, 0, 0, 0.7),
+            1px 1px 0px rgba(0, 0, 0, 0.9),
+            -1px -1px 0px rgba(0, 0, 0, 0.9),
+            1px -1px 0px rgba(0, 0, 0, 0.9),
+            -1px 1px 0px rgba(0, 0, 0, 0.9),
+            0 0 3px currentColor;
     }
     
     .combo-display {

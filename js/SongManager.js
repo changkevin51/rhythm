@@ -106,7 +106,7 @@ class SongManager {
         difficultyBadge.textContent = song.difficulty;
         difficultyBadge.style.backgroundColor = song.difficultyColor;
         document.body.style.background = song.background;
-        document.title = `Rhythm Nexus - ${song.title}`;
+        document.title = `Tidal Wave - ${song.title}`;
         
         // Set background image if available
         if (song.backgroundImage) {

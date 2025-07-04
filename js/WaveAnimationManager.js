@@ -4,13 +4,13 @@ class WaveAnimationManager {
         this.activeWaves = [];
         this.frameCount = 12;
         this.loadPromise = this.loadWaveFrames();
-        this.JUDGEMENT_LINE_Y = 650;
+        this.JUDGEMENT_LINE_Y = 680;
         this.CANVAS_HEIGHT = 800;
         this.waveSettings = {
             fadeDistance: 600,
             minOpacity: 0,
             maxOpacity: 0.3,
-            animationSpeed: 20,
+            animationSpeed: 10,
             trailLength: 1,
             offsetDistance: 50
         };

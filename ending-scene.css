@@ -1,0 +1,127 @@
+/* Ending Scene Styles */
+.ending-scene {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 25, 50, 0.8);
+    backdrop-filter: blur(15px);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 2000;
+    opacity: 0;
+    animation: fadeIn 0.5s ease forwards;
+}
+
+@keyframes fadeIn {
+    to {
+        opacity: 1;
+    }
+}
+
+.ending-content {
+    background: rgba(0, 50, 80, 0.5);
+    border: 2px solid rgba(0, 180, 255, 0.4);
+    border-radius: 20px;
+    padding: 40px;
+    width: 90%;
+    max-width: 700px;
+    text-align: center;
+    box-shadow: 0 10px 40px rgba(0, 180, 255, 0.3);
+    transform: scale(0.9);
+    animation: scaleIn 0.5s 0.2s ease-out forwards;
+}
+
+@keyframes scaleIn {
+    to {
+        transform: scale(1);
+    }
+}
+
+.ending-title {
+    font-family: 'Orbitron', monospace;
+    font-size: 2.8rem;
+    background: linear-gradient(45deg, #00CCFF, #00FFAA);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    margin-bottom: 30px;
+    text-shadow: 0 0 25px rgba(0, 180, 255, 0.6);
+}
+
+.ending-stats {
+    display: flex;
+    justify-content: space-around;
+    margin-bottom: 30px;
+    gap: 20px;
+}
+
+.stat-item {
+    display: flex;
+    flex-direction: column;
+}
+
+.stat-label {
+    font-size: 1rem;
+    color: #80E0FF;
+    margin-bottom: 10px;
+}
+
+.stat-value {
+    font-family: 'Orbitron', monospace;
+    font-size: 2.5rem;
+    font-weight: 700;
+    color: white;
+}
+
+.stat-item.rank .stat-value {
+    font-size: 4rem;
+    line-height: 1;
+}
+
+.judgement-counts {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 15px;
+    background: rgba(0, 30, 60, 0.3);
+    padding: 20px;
+    border-radius: 15px;
+    margin-bottom: 30px;
+}
+
+.judgement-item {
+    display: flex;
+    flex-direction: column;
+}
+
+.judgement-label {
+    font-size: 0.9rem;
+    margin-bottom: 8px;
+}
+
+.judgement-value {
+    font-size: 1.8rem;
+    font-weight: 600;
+}
+
+.judgement-item.perfect .judgement-label { color: #00FFFF; }
+.judgement-item.perfect .judgement-value { color: #00FFFF; }
+
+.judgement-item.great .judgement-label { color: #00FF00; }
+.judgement-item.great .judgement-value { color: #00FF00; }
+
+.judgement-item.good .judgement-label { color: #0088FF; }
+.judgement-item.good .judgement-value { color: #0088FF; }
+
+.judgement-item.bad .judgement-label { color: #FF6600; }
+.judgement-item.bad .judgement-value { color: #FF6600; }
+
+.judgement-item.miss .judgement-label { color: #FF0000; }
+.judgement-item.miss .judgement-value { color: #FF0000; }
+
+.ending-buttons .btn {
+    font-size: 1.1rem;
+    padding: 12px 30px;
+}
