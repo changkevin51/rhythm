@@ -512,6 +512,48 @@ body::before {
     box-shadow: 0 8px 20px rgba(0, 212, 255, 0.4);
 }
 
+.footer-credit {
+    position: fixed;
+    bottom: 15px;
+    left: 50%;
+    transform: translateX(-50%);
+    font-size: 0.9rem;
+    color: rgba(160, 240, 255, 0.7);
+    text-align: center;
+    z-index: 10;
+    font-family: 'Exo 2', sans-serif;
+    font-weight: 300;
+    text-shadow: 0 0 10px rgba(0, 180, 255, 0.3);
+}
+
+.footer-credit a {
+    color: #00CCFF;
+    text-decoration: none;
+    font-weight: 400;
+    transition: all 0.3s ease;
+    position: relative;
+}
+
+.footer-credit a:hover {
+    color: #00FFAA;
+    text-shadow: 0 0 15px rgba(0, 255, 170, 0.6);
+}
+
+.footer-credit a::after {
+    content: '';
+    position: absolute;
+    bottom: -2px;
+    left: 0;
+    width: 0;
+    height: 1px;
+    background: linear-gradient(90deg, #00CCFF, #00FFAA);
+    transition: width 0.3s ease;
+}
+
+.footer-credit a:hover::after {
+    width: 100%;
+}
+
 @media (max-width: 768px) {
     .title { font-size: 2.5rem; }
     .menu-grid { grid-template-columns: 1fr; }
