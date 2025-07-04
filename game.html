@@ -313,45 +313,50 @@
 
         <div id="ending-scene" class="ending-scene" style="display: none;">
             <div class="ending-content">
-                <h2 class="ending-title">Song Cleared</h2>
+                <h2 class="ending-title">Clear!</h2>
                 <div class="ending-stats">
-                    <div class="stat-item rank">
-                        <span class="stat-label">Rank</span>
-                        <span id="end-rank" class="stat-value">S</span>
-                    </div>
-                    <div class="stat-item score">
+                    <div class="stat-item">
                         <span class="stat-label">Score</span>
-                        <span id="end-score" class="stat-value">0</span>
+                        <span class="stat-value" id="end-score">0</span>
                     </div>
-                    <div class="stat-item max-combo">
+                    <div class="stat-item">
+                        <span class="stat-label">Rank</span>
+                        <span class="stat-value" id="end-rank">S</span>
+                    </div>
+                    <div class="stat-item">
                         <span class="stat-label">Max Combo</span>
-                        <span id="end-max-combo" class="stat-value">0</span>
+                        <span class="stat-value" id="end-max-combo">0</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-label">Accuracy</span>
+                        <span class="stat-value" id="end-accuracy">0.00%</span>
                     </div>
                 </div>
                 <div class="judgement-counts">
                     <div class="judgement-item perfect">
                         <span class="judgement-label">Perfect</span>
-                        <span id="end-perfect" class="judgement-value">0</span>
+                        <span class="judgement-value" id="judgement-perfect">0</span>
                     </div>
                     <div class="judgement-item great">
                         <span class="judgement-label">Great</span>
-                        <span id="end-great" class="judgement-value">0</span>
+                        <span class="judgement-value" id="judgement-great">0</span>
                     </div>
                     <div class="judgement-item good">
                         <span class="judgement-label">Good</span>
-                        <span id="end-good" class="judgement-value">0</span>
+                        <span class="judgement-value" id="judgement-good">0</span>
                     </div>
                     <div class="judgement-item bad">
                         <span class="judgement-label">Bad</span>
-                        <span id="end-bad" class="judgement-value">0</span>
+                        <span class="judgement-value" id="judgement-bad">0</span>
                     </div>
                     <div class="judgement-item miss">
                         <span class="judgement-label">Miss</span>
-                        <span id="end-miss" class="judgement-value">0</span>
+                        <span class="judgement-value" id="judgement-miss">0</span>
                     </div>
                 </div>
                 <div class="ending-buttons">
-                    <a href="index.html" class="btn">Back to Menu</a>
+                    <button class="btn" onclick="location.reload()">Retry</button>
+                    <a class="btn" href="index.html">Change Song</a>
                 </div>
             </div>
         </div>

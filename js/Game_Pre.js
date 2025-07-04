@@ -717,52 +717,60 @@ function draw_Bar_Line() {
     }
     ctx.restore();
 }
+
+function calculateAccuracy() {
+    const perfects = Result[1] || 0;
+    const greats = Result[2] || 0;
+    const goods = Result[3] || 0;
+    const bads = Result[4] || 0;
+    const misses = (Result[5] || 0) + (Result[6] || 0);
+
+    const totalNotes = perfects + greats + goods + bads + misses;
+    if (totalNotes === 0) return 0;
+
+    // Using a weighted score system for accuracy
+    const weightedScore = (perfects * 300) + (greats * 200) + (goods * 100) + (bads * 50);
+    const maxScore = totalNotes * 300;
+
+    return (weightedScore / maxScore) * 100;
+}
+
 function EndingScene() {
-    audio1.pause();
-    removeKeyListener();
+    const endingScene = document.getElementById('ending-scene');
+    if (!endingScene) return;
 
-    const totalNotes = HOnums + LN;
-    const perfects = Result[0] + Result[1];
-    const greats = Result[2];
-    const goods = Result[3];
-    const bads = Result[4];
-    const misses = Result[5] + Result[6];
+    const songTitle = document.getElementById('song-title').textContent;
+    const songArtist = document.getElementById('song-artist').textContent;
 
-    // Calculate accuracy
-    const weightedScore = perfects * 300 + greats * 150 + goods * 100 + bads * 50;
-    const maxWeightedScore = totalNotes * 300;
-    const accuracy = maxWeightedScore > 0 ? (weightedScore / maxWeightedScore) * 100 : 0;
+    const accuracy = calculateAccuracy();
 
-    // Determine rank
-    let rank = 'D';
-    if (accuracy >= 95) rank = 'S';
-    else if (accuracy >= 90) rank = 'A';
-    else if (accuracy >= 80) rank = 'B';
-    else if (accuracy >= 65) rank = 'C';
-
-    // Factor in combo
-    const comboFactor = Math.min(MaxCombo / totalNotes, 1) * 0.2; // 20% weight to combo
-    const finalScore = accuracy * 0.8 + comboFactor * 100;
-
-    // Determine rank with the combined score
-    if (finalScore >= 95) rank = 'S';
-    else if (finalScore >= 90) rank = 'A';
-    else if (finalScore >= 80) rank = 'B';
-    else if (finalScore >= 65) rank = 'C';
-
-    // Update the ending scene elements
-    document.getElementById('end-rank').textContent = rank;
     document.getElementById('end-score').textContent = Score;
     document.getElementById('end-max-combo').textContent = MaxCombo;
-    document.getElementById('end-perfect').textContent = perfects;
-    document.getElementById('end-great').textContent = greats;
-    document.getElementById('end-good').textContent = goods;
-    document.getElementById('end-bad').textContent = bads;
-    document.getElementById('end-miss').textContent = misses;
+    document.getElementById('end-accuracy').textContent = `${accuracy.toFixed(2)}%`;
 
-    // Hide game container and show ending scene
-    document.getElementById('game-container').style.display = 'none';
-    document.getElementById('ending-scene').style.display = 'flex';
+    const judgements = {
+        perfect: Result[1] || 0,
+        great: Result[2] || 0,
+        good: Result[3] || 0,
+        bad: Result[4] || 0,
+        miss: (Result[5] || 0) + (Result[6] || 0)
+    };
+
+    document.getElementById('judgement-perfect').textContent = judgements.perfect;
+    document.getElementById('judgement-great').textContent = judgements.great;
+    document.getElementById('judgement-good').textContent = judgements.good;
+    document.getElementById('judgement-bad').textContent = judgements.bad;
+    document.getElementById('judgement-miss').textContent = judgements.miss;
+
+    // Determine Rank
+    let rank = 'D';
+    if (accuracy >= 98) rank = 'S';
+    else if (accuracy >= 95) rank = 'A';
+    else if (accuracy >= 90) rank = 'B';
+    else if (accuracy >= 80) rank = 'C';
+    document.getElementById('end-rank').textContent = rank;
+
+    endingScene.style.display = 'flex';
 }
 function draw_Notes() {
     ctx.save();
