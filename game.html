@@ -297,13 +297,16 @@
                 </div>
             </div>
             
-            <div class="start-button-container">
-                <button class="btn primary large" id="start-game-btn">Start Game</button>
+            <div class="button-wrapper" style="width: 100%; text-align: center; padding: 20px 0;">
+                <div class="start-button-container">
+                    <button class="btn primary large" id="start-game-btn">Start Game</button>
+                </div>
             </div>
         </div>
 
         <div id="game-container" class="game-container">
             <canvas id="myCanvas" width="600" height="800"></canvas>
+            <div class="combo-display">0</div>
         </div>
     </div>
 
@@ -315,6 +318,7 @@
     <script src="js/SongManager.js"></script>
     <script src="js/WaveAnimationManager.js"></script>
     <script src="js/SplashAnimationManager.js"></script>
+    <script src="js/GameplayEnhancer.js"></script>
     <script src="js/Game_Pre.js"></script>
 
     <script>
@@ -1900,15 +1904,14 @@
             const gameSettingsGrid = document.getElementById('game-settings-grid');
             const quickSettings = document.getElementById('quick-settings');
             
-            // Show elements
-            settingsDivider.style.display = 'block';
-            gameSettingsGrid.style.display = 'grid';
-            quickSettings.style.display = 'flex';
+            // Remove inline styles and add show classes
+            settingsDivider.style.display = '';
+            gameSettingsGrid.style.display = '';
+            quickSettings.style.display = '';
             
-            // Add animation
-            settingsDivider.style.animation = 'slideIn 0.4s ease';
-            gameSettingsGrid.style.animation = 'slideIn 0.4s ease';
-            quickSettings.style.animation = 'slideIn 0.4s ease';
+            settingsDivider.classList.add('show');
+            gameSettingsGrid.classList.add('show');
+            quickSettings.classList.add('show');
             
             // Initialize settings display
             updateGameSetupDisplays();
@@ -1921,9 +1924,14 @@
             const gameSettingsGrid = document.getElementById('game-settings-grid');
             const quickSettings = document.getElementById('quick-settings');
             
+            // Remove show classes and hide with inline styles
             settingsDivider.classList.remove('show');
             gameSettingsGrid.classList.remove('show');
             quickSettings.classList.remove('show');
+            
+            settingsDivider.style.display = 'none';
+            gameSettingsGrid.style.display = 'none';
+            quickSettings.style.display = 'none';
         }
 
         // Reset upload states for individual files

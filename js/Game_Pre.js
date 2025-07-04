@@ -403,6 +403,11 @@ function MissEvent(early) {
     Result[6]++;
     JudgeNew=time+JudgeTime;
     if(early)FastCount++;else SlowCount++;
+    
+    // Trigger chaotic judgement display for miss
+    if (typeof window !== 'undefined' && window.gameplayEnhancer) {
+        window.gameplayEnhancer.showChaoticJudgement(6, null);
+    }
 }
 function HitEvent(Key, number, early, isHoldStart = false) {
     if(number<5)Combo++;else Combo=0;
@@ -414,6 +419,11 @@ function HitEvent(Key, number, early, isHoldStart = false) {
         if(early)FastCount++;else SlowCount++;
     Result[number]++;
     JudgeNew=time+JudgeTime;
+    
+    // Trigger chaotic judgement display
+    if (typeof window !== 'undefined' && window.gameplayEnhancer) {
+        window.gameplayEnhancer.showChaoticJudgement(number, Key);
+    }
     
     // Play hit sound for successful hits (not for misses)
     if (number < 6) { // 0-5 are successful hits, 6 is miss
@@ -840,28 +850,46 @@ function draw_Notes() {
                     continue;
                 }
                 ctx.save();
-                const longNoteGradient = ctx.createLinearGradient(L, JUDGEMENT_LINE_Y-pos2, L, JUDGEMENT_LINE_Y-pos+noteThick);
-                longNoteGradient.addColorStop(0, color);
-                longNoteGradient.addColorStop(0.5, color.replace('0.9', '0.7'));
-                longNoteGradient.addColorStop(1, color.replace('0.9', '0.9'));
-                ctx.fillStyle = longNoteGradient;
-                ctx.fillRect(L,JUDGEMENT_LINE_Y-pos2,150,pos2-pos+noteThick);
-                ctx.strokeRect(L+2,JUDGEMENT_LINE_Y-pos2+2,150-4,pos2-pos+noteThick-4);
+                
+                // Enhanced long note rendering
+                if (typeof window !== 'undefined' && window.gameplayEnhancer) {
+                    window.gameplayEnhancer.enhanceNoteRendering(
+                        ctx, L, JUDGEMENT_LINE_Y-pos2, 150, pos2-pos+noteThick, Col, true
+                    );
+                } else {
+                    // Fallback to original rendering
+                    const longNoteGradient = ctx.createLinearGradient(L, JUDGEMENT_LINE_Y-pos2, L, JUDGEMENT_LINE_Y-pos+noteThick);
+                    longNoteGradient.addColorStop(0, color);
+                    longNoteGradient.addColorStop(0.5, color.replace('0.9', '0.7'));
+                    longNoteGradient.addColorStop(1, color.replace('0.9', '0.9'));
+                    ctx.fillStyle = longNoteGradient;
+                    ctx.fillRect(L,JUDGEMENT_LINE_Y-pos2,150,pos2-pos+noteThick);
+                    ctx.strokeRect(L+2,JUDGEMENT_LINE_Y-pos2+2,150-4,pos2-pos+noteThick-4);
+                }
                 ctx.restore();
             }else{
                 if(pos<0){
                     continue;
                 }
                 ctx.save();
-                const rippleGradient = ctx.createRadialGradient(L+75, JUDGEMENT_LINE_Y-pos+noteThick/2, 0, L+75, JUDGEMENT_LINE_Y-pos+noteThick/2, 75);
-                rippleGradient.addColorStop(0, color);
-                rippleGradient.addColorStop(0.7, color.replace('0.9', '0.6'));
-                rippleGradient.addColorStop(1, color.replace('0.9', '0.2'));
-                ctx.fillStyle = rippleGradient;
-                ctx.fillRect(L,JUDGEMENT_LINE_Y-pos,150,noteThick);
-                ctx.strokeStyle = ctx.strokeStyle;
-                ctx.lineWidth = 2;
-                ctx.strokeRect(L+1,JUDGEMENT_LINE_Y-pos+1,148,noteThick-2);
+                
+                // Enhanced single note rendering
+                if (typeof window !== 'undefined' && window.gameplayEnhancer) {
+                    window.gameplayEnhancer.enhanceNoteRendering(
+                        ctx, L, JUDGEMENT_LINE_Y-pos, 150, noteThick, Col, false
+                    );
+                } else {
+                    // Fallback to original rendering
+                    const rippleGradient = ctx.createRadialGradient(L+75, JUDGEMENT_LINE_Y-pos+noteThick/2, 0, L+75, JUDGEMENT_LINE_Y-pos+noteThick/2, 75);
+                    rippleGradient.addColorStop(0, color);
+                    rippleGradient.addColorStop(0.7, color.replace('0.9', '0.6'));
+                    rippleGradient.addColorStop(1, color.replace('0.9', '0.2'));
+                    ctx.fillStyle = rippleGradient;
+                    ctx.fillRect(L,JUDGEMENT_LINE_Y-pos,150,noteThick);
+                    ctx.strokeStyle = ctx.strokeStyle;
+                    ctx.lineWidth = 2;
+                    ctx.strokeRect(L+1,JUDGEMENT_LINE_Y-pos+1,148,noteThick-2);
+                }
                 ctx.restore();
             }
         }
@@ -912,6 +940,14 @@ function draw_Lasers() {
 }
 function draw_Combo() {
     if(Combo===0)return;
+    
+    // Update enhanced combo display if available
+    if (typeof window !== 'undefined' && window.gameplayEnhancer) {
+        window.gameplayEnhancer.updateComboDisplay(Combo);
+        return; // Skip canvas rendering since we're using HTML element
+    }
+    
+    // Fallback to canvas rendering
     ctx.save();
     ctx.font = "bold 80px Arial";
     ctx.textAlign = "center";
@@ -974,6 +1010,15 @@ function draw_Judge() {
         JudgeNew=0;
         return;
     }
+    
+    // Use enhanced chaotic judgement display if available
+    if (typeof window !== 'undefined' && window.gameplayEnhancer) {
+        // The chaotic judgement is already triggered in HitEvent/MissEvent
+        // So we don't need to do anything here anymore
+        return;
+    }
+    
+    // Fallback to original display if enhancer is not available
     ctx.save();
     ctx.font = "bold 90px Arial";
     ctx.textAlign = "center";
