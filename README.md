@@ -1,4 +1,4 @@
-![Tidal Beats - Banner](https://github.com/user-attachments/assets/3a70f718-9b72-4bbb-9d50-f0f41ff6a3a8)
+![tidal beats banner long](https://github.com/user-attachments/assets/be588338-19e7-4c75-bb4b-aeddc60700b3)
 
 # Tidal Beats
 
