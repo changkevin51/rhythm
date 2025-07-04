@@ -146,6 +146,9 @@ function initializeGameElements() {
     // Load hit sound
     loadHitSound();
     
+    // Initialize key binding display
+    initializeKeyBindingDisplay();
+    
     console.log('Game elements initialized successfully');
     return true;
 }
@@ -297,6 +300,8 @@ function startTime() {
     if (!gameStarted) {
         gameStarted = true;
         console.log('Game loop started');
+        // Show key binding display at the start of the game
+        showKeyBindingDisplay();
     }
     if(preTime>0){
         time=-preTime+effectiveOffset;
@@ -1177,18 +1182,19 @@ function resetGameState() {
     JudgeNew = 0;
     JudgeType = 0;
     FSType = false;
+    
+    resetKeyBindingDisplay();
+    
     if (audio1) {
         audio1.pause();
         audio1.currentTime = 0;
     }
-    // Clear hold sound intervals
     for (let i = 0; i < 4; i++) {
         if (holdSoundIntervals[i] !== -1) {
             clearInterval(holdSoundIntervals[i]);
             holdSoundIntervals[i] = -1;
         }
     }
-    // Clear animations
     if (typeof waveManager !== 'undefined') {
         waveManager.clearWaves();
     }
@@ -1196,4 +1202,94 @@ function resetGameState() {
         splashManager.clearSplashes();
     }
     console.log('Game state reset complete');
+}
+
+// Key binding display variables
+let laneKeyElements = [];
+let keyBindingDisplayTime = 1000; // Show for 1 second  
+let keyBindingFadeTime = 1000; // Fade out over 0.8 seconds
+let keyBindingShown = false;
+
+// Key code to character mapping
+const keyCodeToChar = {
+    68: 'D',
+    70: 'F', 
+    74: 'J',
+    75: 'K'
+};
+
+function initializeKeyBindingDisplay() {
+    laneKeyElements = [];
+    for (let i = 0; i < 4; i++) {
+        const element = document.getElementById(`lane-key-${i}`);
+        if (element) {
+            laneKeyElements.push(element);
+        } else {
+            console.warn(`Lane key element ${i} not found`);
+        }
+    }
+    
+    // Update key displays based on current bindings
+    updateKeyBindingDisplay();
+}
+
+function updateKeyBindingDisplay() {
+    for (let i = 0; i < 4; i++) {
+        const keyElement = laneKeyElements[i];
+        if (keyElement && bindKey[i]) {
+            const keyChar = keyCodeToChar[bindKey[i]] || String.fromCharCode(bindKey[i]);
+            keyElement.textContent = keyChar;
+        }
+    }
+}
+
+function showKeyBindingDisplay() {
+    if (keyBindingShown || laneKeyElements.length === 0) return;
+    
+    console.log('Showing lane key displays');
+    keyBindingShown = true;
+    
+    // Show all lane key displays
+    laneKeyElements.forEach((element, index) => {
+        if (element) {
+            element.style.display = 'flex';
+            element.classList.remove('fade-out');
+            
+            // Add a slight stagger to the appearance
+            setTimeout(() => {
+                element.style.opacity = '1';
+            }, index * 50);
+        }
+    });
+    
+    setTimeout(() => {
+        hideLaneKeyDisplays();
+    }, keyBindingDisplayTime);
+}
+
+function hideLaneKeyDisplays() {
+    laneKeyElements.forEach((element) => {
+        if (element) {
+            element.classList.add('fade-out');
+        }
+    });
+    
+    setTimeout(() => {
+        laneKeyElements.forEach((element) => {
+            if (element) {
+                element.style.display = 'none';
+            }
+        });
+    }, keyBindingFadeTime);
+}
+
+function resetKeyBindingDisplay() {
+    keyBindingShown = false;
+    laneKeyElements.forEach((element) => {
+        if (element) {
+            element.classList.remove('fade-out');
+            element.style.display = 'none';
+            element.style.opacity = '1';
+        }
+    });
 }

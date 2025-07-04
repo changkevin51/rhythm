@@ -666,3 +666,147 @@ body::before {
 .game-setup.has-custom-upload .quick-settings {
     display: none !important;
 }
+
+.lane-key-display {
+    position: absolute;
+    top: 80%;
+    width: 150px;
+    height: 80px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'Orbitron', monospace;
+    font-weight: 900;
+    font-size: 4rem;
+    color: white;
+    background: rgba(0, 40, 80, 0.85);
+    backdrop-filter: blur(15px);
+    border: 3px solid rgba(0, 180, 255, 0.6);
+    border-radius: 15px;
+    text-shadow: 
+        0 0 8px rgba(0, 0, 0, 0.9),
+        0 0 16px rgba(0, 180, 255, 0.6),
+        2px 2px 0px rgba(0, 0, 0, 0.9),
+        -2px -2px 0px rgba(0, 0, 0, 0.9);
+    box-shadow: 
+        0 0 30px rgba(0, 180, 255, 0.4),
+        inset 0 0 20px rgba(0, 180, 255, 0.1);
+    pointer-events: none;
+    z-index: 1200;
+    opacity: 1;
+    transform: translateY(-50%) scale(1);
+    transition: opacity 0.8s ease-out, transform 0.8s ease-out;
+}
+
+.lane-key-display.fade-out {
+    opacity: 0;
+    transform: translateY(-50%) scale(0.9);
+}
+
+/* Position each lane key display - centered on canvas */
+#lane-key-0 {
+    left: calc(50% - 300px); /* Center of screen minus half canvas width (300px) */
+    background: linear-gradient(135deg, 
+        rgba(0, 150, 255, 0.85) 0%, 
+        rgba(0, 200, 255, 0.9) 50%, 
+        rgba(0, 180, 255, 0.85) 100%);
+    border-color: rgba(0, 180, 255, 0.6);
+    box-shadow: 
+        0 0 30px rgba(0, 180, 255, 0.4),
+        inset 0 0 20px rgba(0, 180, 255, 0.1);
+}
+
+#lane-key-1 {
+    left: calc(50% - 150px); /* Center minus 150px for lane 1 */
+    background: linear-gradient(135deg, 
+        rgba(0, 200, 160, 0.85) 0%, 
+        rgba(0, 255, 200, 0.9) 50%, 
+        rgba(0, 220, 180, 0.85) 100%);
+    border-color: rgba(0, 255, 170, 0.6);
+    text-shadow: 
+        0 0 8px rgba(0, 0, 0, 0.9),
+        0 0 16px rgba(0, 255, 170, 0.6),
+        2px 2px 0px rgba(0, 0, 0, 0.9),
+        -2px -2px 0px rgba(0, 0, 0, 0.9);
+    box-shadow: 
+        0 0 30px rgba(0, 255, 170, 0.4),
+        inset 0 0 20px rgba(0, 255, 170, 0.1);
+}
+
+#lane-key-2 {
+    left: calc(50% + 0px); /* Center of screen for lane 2 */
+    background: linear-gradient(135deg, 
+        rgba(0, 200, 160, 0.85) 0%, 
+        rgba(0, 255, 200, 0.9) 50%, 
+        rgba(0, 220, 180, 0.85) 100%);
+    border-color: rgba(0, 255, 170, 0.6);
+    text-shadow: 
+        0 0 8px rgba(0, 0, 0, 0.9),
+        0 0 16px rgba(0, 255, 170, 0.6),
+        2px 2px 0px rgba(0, 0, 0, 0.9),
+        -2px -2px 0px rgba(0, 0, 0, 0.9);
+    box-shadow: 
+        0 0 30px rgba(0, 255, 170, 0.4),
+        inset 0 0 20px rgba(0, 255, 170, 0.1);
+}
+
+#lane-key-3 {
+    left: calc(50% + 150px); /* Center plus 150px for lane 3 */
+    background: linear-gradient(135deg, 
+        rgba(0, 150, 255, 0.85) 0%, 
+        rgba(0, 200, 255, 0.9) 50%, 
+        rgba(0, 180, 255, 0.85) 100%);
+    border-color: rgba(0, 180, 255, 0.6);
+    box-shadow: 
+        0 0 30px rgba(0, 180, 255, 0.4),
+        inset 0 0 20px rgba(0, 180, 255, 0.1);
+}
+
+/* Responsive design for smaller screens */
+@media (max-width: 768px) {
+    .lane-key-display {
+        width: 120px;
+        height: 65px;
+        font-size: 3.2rem;
+    }
+    
+    #lane-key-0 {
+        left: calc(50% - 240px); /* Adjusted for smaller lane width */
+    }
+    
+    #lane-key-1 {
+        left: calc(50% - 120px);
+    }
+    
+    #lane-key-2 {
+        left: calc(50% + 0px);
+    }
+    
+    #lane-key-3 {
+        left: calc(50% + 120px);
+    }
+}
+
+@media (max-width: 480px) {
+    .lane-key-display {
+        width: 100px;
+        height: 55px;
+        font-size: 2.8rem;
+    }
+    
+    #lane-key-0 {
+        left: calc(50% - 200px); /* Adjusted for smallest lane width */
+    }
+    
+    #lane-key-1 {
+        left: calc(50% - 100px);
+    }
+    
+    #lane-key-2 {
+        left: calc(50% + 0px);
+    }
+    
+    #lane-key-3 {
+        left: calc(50% + 100px);
+    }
+}
