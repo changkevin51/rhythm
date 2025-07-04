@@ -764,10 +764,10 @@ function EndingScene() {
 
     // Determine Rank
     let rank = 'D';
-    if (accuracy >= 98) rank = 'S';
-    else if (accuracy >= 95) rank = 'A';
-    else if (accuracy >= 90) rank = 'B';
-    else if (accuracy >= 80) rank = 'C';
+    if (accuracy >= 95) rank = 'S';
+    else if (accuracy >= 85) rank = 'A';
+    else if (accuracy >= 75) rank = 'B';
+    else if (accuracy >= 65) rank = 'C';
     document.getElementById('end-rank').textContent = rank;
 
     endingScene.style.display = 'flex';
