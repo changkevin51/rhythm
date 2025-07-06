@@ -60,31 +60,89 @@ function updateOffsetFromSettings() {
 
 function loadHitSound() {
     console.log('Loading hit sound...');
-    try {
-        // Create a pool of audio objects for simultaneous playback
-        for (let i = 0; i < 10; i++) {
-            const sound = new Audio('assets/sound/hitsound.mp3');
-            sound.volume = 0.8; // Set volume to 80% to be audible over music
-            sound.preload = 'auto';
-            hitSoundPool.push(sound);
+    return new Promise((resolve) => {
+        try {
+            let soundsLoaded = 0;
+            const totalSounds = 10;
+            
+            // Create a pool of audio objects for simultaneous playback
+            for (let i = 0; i < totalSounds; i++) {
+                const sound = new Audio('assets/sound/hitsound.mp3');
+                sound.volume = 0.8; // Set volume to 80% to be audible over music
+                sound.preload = 'auto';
+                
+                // Handle successful loading
+                const onCanPlay = () => {
+                    soundsLoaded++;
+                    sound.removeEventListener('canplaythrough', onCanPlay);
+                    sound.removeEventListener('error', onError);
+                    
+                    if (soundsLoaded === 1) {
+                        // As soon as the first sound is loaded, we can continue
+                        hitSound = sound;
+                        console.log('First hit sound loaded successfully');
+                        resolve();
+                    }
+                };
+                
+                // Handle loading errors
+                const onError = (e) => {
+                    console.warn(`Hit sound ${i} failed to load:`, e);
+                    sound.removeEventListener('canplaythrough', onCanPlay);
+                    sound.removeEventListener('error', onError);
+                    
+                    soundsLoaded++;
+                    if (soundsLoaded === 1) {
+                        // Even if the first sound fails, continue without hit sounds
+                        console.warn('Hit sound failed to load, continuing without hit sounds');
+                        resolve();
+                    }
+                };
+                
+                sound.addEventListener('canplaythrough', onCanPlay);
+                sound.addEventListener('error', onError);
+                
+                hitSoundPool.push(sound);
+            }
+            
+            // Fallback timeout in case audio loading gets stuck
+            setTimeout(() => {
+                if (soundsLoaded === 0) {
+                    console.warn('Hit sound loading timed out, continuing without hit sounds');
+                    resolve();
+                }
+            }, 2000); // 2 second timeout
+            
+        } catch (error) {
+            console.error('Failed to load hit sound:', error);
+            resolve(); // Continue without hit sounds
         }
-        hitSound = hitSoundPool[0]; // Keep reference to first one for basic operations
-        console.log('Hit sound loaded successfully');
-    } catch (error) {
-        console.error('Failed to load hit sound:', error);
-    }
+    });
 }
 
 function playHitSound() {
-    if (!hitSoundPool || hitSoundPool.length === 0) return;
+    if (!hitSoundPool || hitSoundPool.length === 0) {
+        console.warn('Hit sound pool not available');
+        return;
+    }
     
     try {
+        // Check game settings for hit sound enable/disable
+        if (typeof gameSettings !== 'undefined' && !gameSettings.hitSounds) {
+            return; // Hit sounds are disabled
+        }
+        
         // Find an available audio object from the pool
         let availableSound = hitSoundPool.find(sound => sound.paused || sound.ended);
         
         // If no available sound, use the first one (interrupt)
         if (!availableSound) {
             availableSound = hitSoundPool[0];
+        }
+        
+        if (!availableSound) {
+            console.warn('No hit sound available to play');
+            return;
         }
         
         availableSound.currentTime = 0;
@@ -118,7 +176,7 @@ function stopHoldSound(lane, playFinalSound = true) {
     }
 }
 
-function initializeGameElements() {
+async function initializeGameElements() {
     console.log('Initializing game elements...');
     audio1 = document.getElementById("audioPlayer");
     if (!audio1) {
@@ -143,8 +201,8 @@ function initializeGameElements() {
     waveGradient.addColorStop(0.5, "rgba(0, 255, 200, 0.2)");
     waveGradient.addColorStop(1, "rgba(0, 120, 200, 0.3)");
     
-    // Load hit sound
-    loadHitSound();
+    // Load hit sound (now async)
+    await loadHitSound();
     
     // Initialize key binding display
     initializeKeyBindingDisplay();

@@ -2,8 +2,7 @@
     background: rgba(0, 40, 80, 0.9); 
     backdrop-filter: blur(25px); 
     border-radius: 20px; 
-    /* Adjust the padding for consistency */
-    padding: 40px; /* CHANGE from '40px 40px 120px 40px' */
+    padding: 40px; 
     text-align: center; 
     max-width: 1000px; 
     width: 95%; 
@@ -15,10 +14,7 @@
     padding-bottom: 100px;
 }
 
-/* Add a subtle animation to the floating button */
-.start-button-container {
-    animation: fadeInUp 0.5s ease-out;
-}
+
 
 @keyframes fadeInUp {
     from {
@@ -31,9 +27,6 @@
     }
 }
 
-
-
-/* Scroll indicators for better UX */
 .scroll-indicator {
     position: relative;
 }
@@ -134,8 +127,7 @@
 
 /* Ensure content is readable over background */
 .game-setup.has-background .game-settings-grid,
-.game-setup.has-background .quick-settings,
-.game-setup.has-background .start-button-container {
+.game-setup.has-background .quick-settings {
     position: relative;
     z-index: 1;
 }
@@ -259,24 +251,38 @@
 }
 
 .start-button-container {
-    position: fixed !important; 
-    bottom: 20;
+    position: fixed; /* Now works relative to the viewport */
+    bottom: 30px;
     left: 50%;
     transform: translateX(-50%);
-    width: auto; 
     z-index: 1000;
-    background: rgba(0, 40, 80, 0.95);
-    backdrop-filter: blur(20px);
+
+    /* Styling for the cool glass effect */
+    background: rgba(0, 40, 80, 0.85);
+    backdrop-filter: blur(15px);
     border: 2px solid rgba(0, 180, 255, 0.3);
-    border-radius: 20px;
+    border-radius: 50px; /* Pill shape for the container */
     padding: 15px 20px;
     box-shadow: 0 10px 40px rgba(0, 180, 255, 0.3);
-    text-align: center;
+
+    /* Animation */
+    animation: fadeInUp 0.5s 0.2s ease-out backwards;
 }
 
-.button-wrapper {
+/* .button-wrapper {
     bottom: 80px;
     position: fixed !important; 
+} */
+
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateX(-50%) translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(-50%) translateY(0);
+    }
 }
 
 .checkbox-group {
@@ -376,7 +382,7 @@
     font-family: 'Orbitron', monospace; 
     font-size: 2rem; 
     margin-bottom: 10px; 
-    margin-top:120px;
+    margin-top:20px;
     background: linear-gradient(45deg, #38d7ff, #00FFAA); 
     -webkit-background-clip: text; 
     background-clip: text; 
