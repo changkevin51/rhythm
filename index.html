@@ -7,8 +7,144 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Exo+2:wght@300;400;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="index.css">
+    <link rel="stylesheet" href="setup.css">
 </head>
 <body>
+    <!-- Settings Modal -->
+    <div id="settings-modal" class="modal-overlay">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Game Settings</h2>
+                <button class="modal-close" id="close-settings">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="settings-tabs">
+                    <button class="tab-btn active" data-tab="gameplay">Gameplay</button>
+                    <button class="tab-btn" data-tab="audio">Audio</button>
+                    <button class="tab-btn" data-tab="visual">Visual</button>
+                    <button class="tab-btn" data-tab="controls">Controls</button>
+                </div>
+                
+                <div class="settings-content">
+                    <!-- Gameplay Settings -->
+                    <div id="gameplay-tab" class="tab-content active">
+                        <div class="setting-group">
+                            <label for="scroll-speed-setting">Scroll Speed:</label>
+                            <div class="setting-input-group">
+                                <input type="range" id="scroll-speed-setting" min="200" max="1000" step="25">
+                                <span class="setting-value" id="scroll-speed-value">500</span>
+                            </div>
+                        </div>
+                        <div class="setting-group">
+                            <label for="offset-setting">Manual Offset (ms):</label>
+                            <div class="setting-input-group">
+                                <input type="range" id="offset-setting" min="-200" max="200" step="5">
+                                <span class="setting-value" id="offset-value">0</span>
+                            </div>
+                        </div>
+                        <div class="setting-group">
+                            <label for="scale-setting">Note Scale (%):</label>
+                            <div class="setting-input-group">
+                                <input type="range" id="scale-setting" min="50" max="150" step="5">
+                                <span class="setting-value" id="scale-value">100</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Audio Settings -->
+                    <div id="audio-tab" class="tab-content">
+                        <div class="setting-group">
+                            <label for="master-volume-setting">Master Volume:</label>
+                            <div class="setting-input-group">
+                                <input type="range" id="master-volume-setting" min="0" max="100" step="5">
+                                <span class="setting-value" id="master-volume-value">100</span>
+                            </div>
+                        </div>
+                        <div class="setting-group">
+                            <label for="music-volume-setting">Music Volume:</label>
+                            <div class="setting-input-group">
+                                <input type="range" id="music-volume-setting" min="0" max="100" step="5">
+                                <span class="setting-value" id="music-volume-value">90</span>
+                            </div>
+                        </div>
+                        <div class="setting-group">
+                            <label for="effects-volume-setting">Effects Volume:</label>
+                            <div class="setting-input-group">
+                                <input type="range" id="effects-volume-setting" min="0" max="100" step="5">
+                                <span class="setting-value" id="effects-volume-value">80</span>
+                            </div>
+                        </div>
+                        <div class="calibration-section">
+                            <h3>Audio Calibration</h3>
+                            <div class="calibration-info">
+                                <p id="calibration-status">Not calibrated</p>
+                                <p id="current-audio-offset">Current offset: 0ms</p>
+                            </div>
+                            <button class="btn secondary" id="start-calibration-btn">Calibrate Audio</button>
+                        </div>
+                    </div>
+                    
+                    <!-- Visual Settings -->
+                    <div id="visual-tab" class="tab-content">
+                        <div class="setting-group">
+                            <label for="background-dim-setting">Background Dim (%):</label>
+                            <div class="setting-input-group">
+                                <input type="range" id="background-dim-setting" min="0" max="100" step="5">
+                                <span class="setting-value" id="background-dim-value">20</span>
+                            </div>
+                        </div>
+                        <div class="setting-group checkbox-group">
+                            <label class="checkbox-label">
+                                <input type="checkbox" id="show-fps-setting">
+                                <span class="checkmark"></span>
+                                Show FPS
+                            </label>
+                        </div>
+                        <div class="setting-group checkbox-group">
+                            <label class="checkbox-label">
+                                <input type="checkbox" id="particle-effects-setting" checked>
+                                <span class="checkmark"></span>
+                                Particle Effects
+                            </label>
+                        </div>
+                        <div class="setting-group checkbox-group">
+                            <label class="checkbox-label">
+                                <input type="checkbox" id="screen-shake-setting" checked>
+                                <span class="checkmark"></span>
+                                Screen Shake
+                            </label>
+                        </div>
+                    </div>
+                    
+                    <!-- Controls Settings -->
+                    <div id="controls-tab" class="tab-content">
+                        <div class="setting-group">
+                            <label>Key Layout:</label>
+                            <div class="key-layout-selector">
+                                <select id="key-layout-select">
+                                    <option value="DFJK">D-F-J-K (Default)</option>
+                                    <option value="ASDF">A-S-D-F</option>
+                                    <option value="HJKL">H-J-K-L</option>
+                                    <option value="1234">1-2-3-4</option>
+                                    <option value="ZXCV">Z-X-C-V</option>
+                                    <option value="QWER">Q-W-E-R</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="setting-group">
+                            <label>Current Keys:</label>
+                            <div class="key-display" id="current-keys-display">D - F - J - K</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn secondary" id="reset-settings-btn">Reset to Defaults</button>
+                <button class="btn primary" id="save-settings-btn">Save Settings</button>
+            </div>
+        </div>
+    </div>
+
     <div class="background-animation" id="particles"></div>
     
     <!-- Audio Offset Calibration Modal -->
@@ -449,8 +585,190 @@
         }
 
         function openSettings() {
-            // Navigate to game.html with settings parameter to open settings modal
-            window.location.href = 'game.html?settings=true';
+            // Show the settings modal directly on this page
+            const settingsModal = document.getElementById('settings-modal');
+            if (settingsModal) {
+                settingsModal.classList.add('active');
+                settingsModal.style.display = 'flex';
+            }
+        }
+
+        // Settings modal functionality
+        function initializeSettingsModal() {
+            const settingsModal = document.getElementById('settings-modal');
+            const closeButton = document.getElementById('close-settings');
+            const saveButton = document.getElementById('save-settings-btn');
+            const resetButton = document.getElementById('reset-settings-btn');
+            const calibrateButton = document.getElementById('start-calibration-btn');
+            
+            // Close modal function
+            function closeSettings() {
+                if (settingsModal) {
+                    settingsModal.classList.remove('active');
+                    settingsModal.style.display = 'none';
+                }
+            }
+            
+            // Event listeners
+            if (closeButton) closeButton.addEventListener('click', closeSettings);
+            if (saveButton) saveButton.addEventListener('click', closeSettings);
+            
+            if (resetButton) {
+                resetButton.addEventListener('click', () => {
+                    if (confirm('Reset all settings to defaults?')) {
+                        gameSettings.resetToDefaults();
+                        loadSettingsIntoUI();
+                    }
+                });
+            }
+            
+            if (calibrateButton) {
+                calibrateButton.addEventListener('click', () => {
+                    closeSettings();
+                    audioCalibration.show();
+                });
+            }
+            
+            // Close modal when clicking outside
+            settingsModal?.addEventListener('click', (e) => {
+                if (e.target === settingsModal) {
+                    closeSettings();
+                }
+            });
+            
+            // Tab switching
+            const tabButtons = document.querySelectorAll('.tab-btn');
+            const tabContents = document.querySelectorAll('.tab-content');
+            
+            tabButtons.forEach(button => {
+                button.addEventListener('click', () => {
+                    const tabName = button.dataset.tab;
+                    
+                    // Update active tab button
+                    tabButtons.forEach(btn => btn.classList.remove('active'));
+                    button.classList.add('active');
+                    
+                    // Update active tab content
+                    tabContents.forEach(content => content.classList.remove('active'));
+                    const targetTab = document.getElementById(`${tabName}-tab`);
+                    if (targetTab) targetTab.classList.add('active');
+                });
+            });
+            
+            // Load current settings into UI
+            loadSettingsIntoUI();
+            setupSettingsListeners();
+        }
+        
+        // Load settings values into UI elements
+        function loadSettingsIntoUI() {
+            // Gameplay settings
+            const scrollSpeed = gameSettings.get('scrollSpeed');
+            const offset = gameSettings.get('offset');
+            const scale = gameSettings.get('scale');
+            
+            document.getElementById('scroll-speed-setting').value = scrollSpeed;
+            document.getElementById('scroll-speed-value').textContent = scrollSpeed;
+            document.getElementById('offset-setting').value = offset;
+            document.getElementById('offset-value').textContent = offset;
+            document.getElementById('scale-setting').value = scale;
+            document.getElementById('scale-value').textContent = scale;
+            
+            // Audio settings
+            const masterVolume = gameSettings.get('masterVolume');
+            const musicVolume = gameSettings.get('musicVolume');
+            const effectsVolume = gameSettings.get('effectsVolume');
+            const audioOffset = gameSettings.get('audioOffset');
+            const isCalibrated = gameSettings.get('isCalibrated');
+            
+            document.getElementById('master-volume-setting').value = masterVolume;
+            document.getElementById('master-volume-value').textContent = masterVolume;
+            document.getElementById('music-volume-setting').value = musicVolume;
+            document.getElementById('music-volume-value').textContent = musicVolume;
+            document.getElementById('effects-volume-setting').value = effectsVolume;
+            document.getElementById('effects-volume-value').textContent = effectsVolume;
+            
+            document.getElementById('calibration-status').textContent = isCalibrated ? 'Calibrated ✓' : 'Not calibrated';
+            document.getElementById('current-audio-offset').textContent = `Current offset: ${audioOffset}ms`;
+            
+            // Visual settings
+            const backgroundDim = gameSettings.get('backgroundDim');
+            const showFPS = gameSettings.get('showFPS');
+            const particleEffects = gameSettings.get('particleEffects');
+            const screenShake = gameSettings.get('screenShake');
+            
+            document.getElementById('background-dim-setting').value = backgroundDim;
+            document.getElementById('background-dim-value').textContent = backgroundDim;
+            document.getElementById('show-fps-setting').checked = showFPS;
+            document.getElementById('particle-effects-setting').checked = particleEffects;
+            document.getElementById('screen-shake-setting').checked = screenShake;
+            
+            // Controls settings
+            const keyLayout = gameSettings.get('keyLayout');
+            const keyBindings = gameSettings.get('keyBindings');
+            
+            document.getElementById('key-layout-select').value = keyLayout;
+            updateKeyDisplay(keyBindings);
+        }
+        
+        // Setup settings event listeners
+        function setupSettingsListeners() {
+            // Range inputs with live updates
+            const rangeInputs = [
+                { id: 'scroll-speed-setting', valueId: 'scroll-speed-value', setting: 'scrollSpeed' },
+                { id: 'offset-setting', valueId: 'offset-value', setting: 'offset' },
+                { id: 'scale-setting', valueId: 'scale-value', setting: 'scale' },
+                { id: 'master-volume-setting', valueId: 'master-volume-value', setting: 'masterVolume' },
+                { id: 'music-volume-setting', valueId: 'music-volume-value', setting: 'musicVolume' },
+                { id: 'effects-volume-setting', valueId: 'effects-volume-value', setting: 'effectsVolume' },
+                { id: 'background-dim-setting', valueId: 'background-dim-value', setting: 'backgroundDim' }
+            ];
+            
+            rangeInputs.forEach(({ id, valueId, setting }) => {
+                const input = document.getElementById(id);
+                const display = document.getElementById(valueId);
+                if (input && display) {
+                    input.addEventListener('input', () => {
+                        const value = parseInt(input.value);
+                        display.textContent = value;
+                        gameSettings.set(setting, value);
+                    });
+                }
+            });
+            
+            // Checkbox inputs
+            const checkboxInputs = [
+                { id: 'show-fps-setting', setting: 'showFPS' },
+                { id: 'particle-effects-setting', setting: 'particleEffects' },
+                { id: 'screen-shake-setting', setting: 'screenShake' }
+            ];
+            
+            checkboxInputs.forEach(({ id, setting }) => {
+                const input = document.getElementById(id);
+                if (input) {
+                    input.addEventListener('change', () => {
+                        gameSettings.set(setting, input.checked);
+                    });
+                }
+            });
+            
+            // Key layout selector
+            const keyLayoutSelect = document.getElementById('key-layout-select');
+            if (keyLayoutSelect) {
+                keyLayoutSelect.addEventListener('change', () => {
+                    gameSettings.setKeyLayout(keyLayoutSelect.value);
+                    updateKeyDisplay(gameSettings.get('keyBindings'));
+                });
+            }
+        }
+        
+        // Update key display
+        function updateKeyDisplay(keyBindings) {
+            const display = document.getElementById('current-keys-display');
+            if (display && keyBindings) {
+                const keyNames = keyBindings.map(code => gameSettings.getKeyName(code));
+                display.textContent = keyNames.join(' - ');
+            }
         }
         
         // Check if user needs calibration on page load
@@ -474,6 +792,7 @@
             createParticles();
             checkCalibrationNeeded();
             updateSettingsButtonStatus();
+            initializeSettingsModal();
             console.log('Initialization complete');
         });
         
