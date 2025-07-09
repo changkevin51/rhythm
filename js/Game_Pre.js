@@ -39,6 +39,7 @@ let hitSound;
 let hitSoundPool = [];
 let holdSoundIntervals = [-1, -1, -1, -1]; 
 const HOLD_SOUND_INTERVAL = 80; 
+let audioContextResumed = false;
 
 const JUDGEMENT_LINE_Y = 680;
 const CANVAS_HEIGHT = 800;
@@ -125,26 +126,38 @@ function playHitSound() {
         console.warn('Hit sound pool not available');
         return;
     }
-    
+
     try {
-        // Check game settings for hit sound enable/disable
+        if (!audioContextResumed) {
+            const firstSound = hitSoundPool[0];
+            if (firstSound) {
+                const context = firstSound.context || (window.AudioContext || window.webkitAudioContext) && new (window.AudioContext || window.webkitAudioContext)();
+                if (context && context.state === 'suspended') {
+                    context.resume().then(() => {
+                        console.log("AudioContext resumed by user interaction.");
+                        audioContextResumed = true;
+                    });
+                } else {
+                    audioContextResumed = true; 
+                }
+            }
+        }
+
         if (typeof gameSettings !== 'undefined' && !gameSettings.hitSounds) {
             return; // Hit sounds are disabled
         }
-        
-        // Find an available audio object from the pool
+
         let availableSound = hitSoundPool.find(sound => sound.paused || sound.ended);
-        
-        // If no available sound, use the first one (interrupt)
+
         if (!availableSound) {
             availableSound = hitSoundPool[0];
         }
-        
+
         if (!availableSound) {
             console.warn('No hit sound available to play');
             return;
         }
-        
+
         availableSound.currentTime = 0;
         const playPromise = availableSound.play();
         if (playPromise !== undefined) {
@@ -273,6 +286,7 @@ function processChartData(chartText) {
     if (!chartText) {
         throw new Error('No chart data provided to processChartData');
     }
+    // --- (Keep all your existing variable resets) ---
     p = 0; BPMnums = 0; LN = 0; Score = 0; Combo = 0; MaxCombo = 0;
     FastCount = 0; SlowCount = 0;
     BPMs = {}; Objs = {}; Result.fill(0);
@@ -284,6 +298,7 @@ function processChartData(chartText) {
     if(window.waveNotesTracked) {
         window.waveNotesTracked.clear();
     }
+
     try {
         content = parseOsuString(chartText);
         console.log('Chart parsed, content:', content);
@@ -294,6 +309,8 @@ function processChartData(chartText) {
             throw new Error('Chart missing required sections (TimingPoints or HitObjects)');
         }
         console.log(`Chart contains ${TPnums} timing points and ${HOnums} hit objects`);
+
+        // --- (Keep all your existing parsing loops for TimingPoints and HitObjects) ---
         for(let i=0;i<TPnums;i++) {
             if(content["TimingPoints"][i][1]<0) {
                 content["TimingPoints"][i][8] = BPMnums - 1;
@@ -317,6 +334,8 @@ function processChartData(chartText) {
             LineQueue[Objs[i]["Key"]][LineQueueTail[Objs[i]["Key"]]++]=i;
         }
         EndScore=(LN+HOnums)*5;
+
+        // --- (This part is identical to your existing code) ---
         console.log(`Chart processed: ${TPnums} TPs, ${HOnums} Notes. EndScore: ${EndScore}`);
         if (TPnums === 0) {
             throw new Error('No timing points found in chart');
@@ -324,6 +343,16 @@ function processChartData(chartText) {
         if (HOnums === 0) {
             throw new Error('No hit objects found in chart');
         }
+
+        const chartBaseMpB = getBaseMpBFromChart();
+        if (chartBaseMpB && chartBaseMpB > 0) {
+            baseMpB = chartBaseMpB;
+            console.log(`Chart's baseMpB set to: ${baseMpB} (from ${60000 / baseMpB} BPM)`);
+        } else {
+            console.error('Failed to auto-detect baseMpB from chart. Using fallback 500.');
+            baseMpB = 500; // Default fallback (120 BPM)
+        }
+
     } catch (error) {
         console.error('Error processing chart data:', error);
         throw error;

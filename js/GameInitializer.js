@@ -102,24 +102,19 @@ class GameInitializer {
             }
             updateOffsetFromSettings(); // Update effective offset
             
-            // --- THIS IS THE FIX ---
-            // Get the baseMpB from the first timing point.
-            const baseBPMElement = document.getElementById("baseBPM");
-            if (baseBPMElement && baseBPMElement.value) {
-                // If user provides a value, use it (convert BPM to ms per beat)
-                baseMpB = 60000 / Number(baseBPMElement.value);
-                console.log(`User-provided baseMpB: ${baseMpB} (from ${baseBPMElement.value} BPM)`);
-            } else {
-                // Get it automatically from the first uninherited timing point.
-                const chartBaseMpB = getBaseMpBFromChart();
-                if (chartBaseMpB && chartBaseMpB > 0) {
-                    console.log(`Auto-detected baseMpB: ${baseMpB}`);
-                } else {
-                    console.error('Failed to auto-detect baseMpB from chart. Using default value.');
-                    baseMpB = 500; // Default fallback
-                }
-            }
-            // --- END OF FIX ---
+            // const baseBPMElement = document.getElementById("baseBPM");
+            // if (baseBPMElement && baseBPMElement.value) {
+            //     baseMpB = 60000 / Number(baseBPMElement.value);
+            //     console.log(`User-provided baseMpB: ${baseMpB} (from ${baseBPMElement.value} BPM)`);
+            // } else {
+            //     const chartBaseMpB = getBaseMpBFromChart();
+            //     if (chartBaseMpB && chartBaseMpB > 0) {
+            //         console.log(`Auto-detected baseMpB: ${baseMpB}`);
+            //     } else {
+            //         console.error('Failed to auto-detect baseMpB from chart. Using default value.');
+            //         baseMpB = 500; // Default fallback
+            //     }
+            // }
 
             // 3. Hide setup, show game
             const gameSetup = document.getElementById('game-setup');
